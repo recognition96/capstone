@@ -12,4 +12,5 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
     // 수정합니다. by 이상규
+    // 수정합니다. 2 by 이상규
 }
