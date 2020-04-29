@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_nav"
+    app:startDestination="@id/calendar">
+
+    <fragment
+        android:id="@+id/calendar"
+        android:name="com.example.inhacsecapstone.Calendar"
+        android:label="fragment_calendar"
+        tools:layout="@layout/fragment_calendar" />
+    <fragment
+        android:id="@+id/camera"
+        android:name="com.example.inhacsecapstone.Camera"
+        android:label="fragment_camera"
+        tools:layout="@layout/fragment_camera" />
+    <fragment
+        android:id="@+id/userdrug"
+        android:name="com.example.inhacsecapstone.Userdrug"
+        android:label="fragment_userdrug"
+        tools:layout="@layout/fragment_userdrug" />
+</navigation>
