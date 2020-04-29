@@ -7,15 +7,13 @@
     tools:context=".Calendar">
 
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
+    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+        android:id="@+id/calendarView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView1"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
+        app:layout_constraintTop_toTopOf="parent"
+        app:mcv_selectionColor="#00F"
+        app:mcv_showOtherDates="all" />
 </androidx.constraintlayout.widget.ConstraintLayout>
