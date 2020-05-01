@@ -2,7 +2,7 @@ package com.example.inhacsecapstone;
 
 import android.graphics.drawable.Drawable;
 
-public class ListViewItem {
+public class RecogResultListItem {
     private Drawable iconDrawable ;
     private String titleStr ;
     private String descStr ;
