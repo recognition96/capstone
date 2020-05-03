@@ -3,27 +3,63 @@ package com.example.inhacsecapstone;
 import android.graphics.drawable.Drawable;
 
 public class RecogResultListItem {
-    private Drawable iconDrawable ;
-    private String titleStr ;
-    private String descStr ;
+    private Drawable image ;
+    private String drugName ;
+    private int amount ;
+    private String desc;
+    private int takes;
+    private int singleDose;
+    private int dailyDose;
+    private int period;
 
-    public void setIcon(Drawable icon) {
-        iconDrawable = icon ;
+    public void setImage(Drawable image) {
+        this.image = image ;
     }
-    public void setTitle(String title) {
-        titleStr = title ;
+    public void setDrugName(String drugName) {
+        this.drugName = drugName ;
+    }
+    public void setAmount(int amount) {
+        this.amount = amount ;
     }
     public void setDesc(String desc) {
-        descStr = desc ;
+        this.desc = desc ;
+    }
+    public void setTakes(int takes) {
+        this.takes = takes ;
+    }
+    public void setSingleDose(int singleDose) {
+        this.singleDose = singleDose ;
+    }
+    public void setDailyDose(int dailyDose) {
+        this.dailyDose = dailyDose ;
+    }
+    public void setPeriod(int period) {
+        this.period = period ;
     }
 
-    public Drawable getIcon() {
-        return this.iconDrawable ;
+
+    public Drawable getImage() {
+        return this.image;
     }
-    public String getTitle() {
-        return this.titleStr ;
+    public String getDrugName() {
+        return drugName ;
+    }
+    public int getAmount() {
+        return  amount ;
     }
     public String getDesc() {
-        return this.descStr ;
+        return desc;
+    }
+    public int getTakes() {
+        return takes ;
+    }
+    public int getSingleDose() {
+        return singleDose ;
+    }
+    public int getDailyDose() {
+        return dailyDose ;
+    }
+    public int getPeriod() {
+        return period ;
     }
 }

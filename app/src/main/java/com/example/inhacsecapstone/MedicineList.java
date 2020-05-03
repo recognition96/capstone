@@ -3,13 +3,13 @@ package com.example.inhacsecapstone;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
+import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import java.util.ArrayList;
 
 
 /**
@@ -37,7 +37,7 @@ public class MedicineList extends Fragment {
      * @return A new instance of fragment MedicineList.
      */
     // TODO: Rename and change types and number of parameters
-    public static MedicineList newInstance(String type) {
+    public static Fragment newInstance(String type) {
         MedicineList fragment = new MedicineList();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, type);
@@ -61,7 +61,7 @@ public class MedicineList extends Fragment {
         ListView listview ;
 
 
-       if(true)
+       if(mParam1 == "ALLDRUG")
         {
             AllDrugListAdapter adapter;
             adapter = new AllDrugListAdapter() ;
@@ -82,11 +82,18 @@ public class MedicineList extends Fragment {
             listview = (ListView) view.findViewById(R.id.listview);
             listview.setAdapter(adapter);
 
+            ArrayList<String> test = new ArrayList<String>();
+            test.add("9:13");
+            test.add("12:13");
+            test.add("19:20");
+
             adapter.addItem(ContextCompat.getDrawable(getActivity(), R.drawable.example1),
-                    "Box", "Account Box Black 36dp") ;
+                    "Box", test) ;
             // 두 번째 아이템 추가.
             adapter.addItem(ContextCompat.getDrawable(getActivity(), R.drawable.example3),
-                    "Circle", "Account Circle Black 36dp") ;
+                    "Circle", test) ;
+            adapter.addItem(ContextCompat.getDrawable(getActivity(), R.drawable.example1),
+                    "Box", test) ;
         }
         else if(mParam1 == "RECOGRESULT")
         {
@@ -96,13 +103,14 @@ public class MedicineList extends Fragment {
             listview.setAdapter(adapter);
 
             adapter.addItem(ContextCompat.getDrawable(getActivity(), R.drawable.example1),
-                    "Box", "Account Box Black 36dp") ;
+                    "약품", 3,1, "desc test", 1, 1, 1) ;
             // 두 번째 아이템 추가.
             adapter.addItem(ContextCompat.getDrawable(getActivity(), R.drawable.example3),
-                    "Circle", "Account Circle Black 36dp") ;
+                    "테스트", 3,1, "desc test", 1, 1, 1) ;
         }
         else
             System.out.println("type 파라미터가 잘못되었습니다.");
+
         return view;
     }
 }

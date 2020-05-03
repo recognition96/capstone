@@ -2,28 +2,30 @@ package com.example.inhacsecapstone;
 
 import android.graphics.drawable.Drawable;
 
+import java.util.ArrayList;
+
 public class DayDrugListItem {
-    private Drawable iconDrawable ;
-    private String titleStr ;
-    private String descStr ;
+    private Drawable DrugImage ;
+    private String DrugName ;
+    private ArrayList<String> takeTime ;
 
-    public void setIcon(Drawable icon) {
-        iconDrawable = icon ;
+    public void setIcon(Drawable DrugImage) {
+        this.DrugImage = DrugImage ;
     }
-    public void setTitle(String title) {
-        titleStr = title ;
+    public void setTitle(String DrugName) {
+        this.DrugName = DrugName ;
     }
-    public void setDesc(String desc) {
-        descStr = desc ;
+    public void setDesc(ArrayList<String> takeTime) {
+        this.takeTime = takeTime ;
     }
 
-    public Drawable getIcon() {
-        return this.iconDrawable ;
+    public Drawable getDrugImage() {
+        return this.DrugImage ;
     }
-    public String getTitle() {
-        return this.titleStr ;
+    public String getDrugName() {
+        return this.DrugName ;
     }
-    public String getDesc() {
-        return this.descStr ;
+    public ArrayList<String> getTakeTime() {
+        return this.takeTime ;
     }
 }

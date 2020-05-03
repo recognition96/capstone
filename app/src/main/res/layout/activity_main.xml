@@ -4,11 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".myMainActivity">
 
-    <fragment
-        android:id="@+id/fragment"
-        android:name="com.example.inhacsecapstone.MedicineList"
+    <FrameLayout
+        android:id="@+id/contents"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>

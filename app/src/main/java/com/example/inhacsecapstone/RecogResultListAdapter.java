@@ -30,18 +30,27 @@ public class RecogResultListAdapter extends BaseAdapter {
 
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.all_drug_list_item, parent, false);
+            convertView = inflater.inflate(R.layout.recog_result_list_item, parent, false);
         }
 
-        ImageView iconImageView = (ImageView) convertView.findViewById(R.id.drugImage) ;
-        TextView titleTextView = (TextView) convertView.findViewById(R.id.drugName) ;
-        TextView descTextView = (TextView) convertView.findViewById(R.id.Amount) ;
+        ImageView ImageView = (ImageView) convertView.findViewById(R.id.drugImage) ;
+        TextView DrugNameView = (TextView) convertView.findViewById(R.id.drugName) ;
+        TextView AmountView = (TextView) convertView.findViewById(R.id.Amount) ;
+        TextView descTextView = (TextView) convertView.findViewById(R.id.desc) ;
+        TextView singleDoseTextView = (TextView) convertView.findViewById(R.id.singleDose) ;
+        TextView dailyDoseTextView = (TextView) convertView.findViewById(R.id.dailyDose) ;
+        TextView periodTextView = (TextView) convertView.findViewById(R.id.period) ;
+
 
         RecogResultListItem listViewItem = listViewItemList.get(position);
 
-        iconImageView.setImageDrawable(listViewItem.getIcon());
-        titleTextView.setText(listViewItem.getTitle());
+        ImageView.setImageDrawable(listViewItem.getImage());
+        DrugNameView.setText(listViewItem.getDrugName());
+        AmountView.setText(Integer.toString(listViewItem.getAmount()));
         descTextView.setText(listViewItem.getDesc());
+        singleDoseTextView.setText(Integer.toString(listViewItem.getSingleDose()));
+        dailyDoseTextView.setText(Integer.toString(listViewItem.getDailyDose()));
+        periodTextView.setText(Integer.toString(listViewItem.getPeriod()));
 
         return convertView;
     }
@@ -56,12 +65,17 @@ public class RecogResultListAdapter extends BaseAdapter {
         return listViewItemList.get(position) ;
     }
 
-    public void addItem(Drawable icon, String title, String desc) {
+    public void addItem(Drawable image, String drugName, int amount, int takes, String desc, int singleDose, int dailyDose, int period) {
         RecogResultListItem item = new RecogResultListItem();
 
-        item.setIcon(icon);
-        item.setTitle(title);
+        item.setImage(image);
+        item.setDrugName(drugName);
+        item.setAmount(amount);
+        item.setTakes(takes);
         item.setDesc(desc);
+        item.setSingleDose(singleDose);
+        item.setDailyDose(dailyDose);
+        item.setPeriod(period);
 
         listViewItemList.add(item);
     }
