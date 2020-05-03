@@ -1,10 +1,13 @@
 package com.example.inhacsecapstone;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,12 +35,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -51,21 +48,20 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-// for permission
-import android.Manifest;
-import android.content.DialogInterface;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-
 public class CameraActivity extends AppCompatActivity {
 
+    private static final int IMAGE_ACTIVITY = 1;
     private SurfaceView mSurfaceView;
     private SurfaceHolder mSurfaceViewHolder;
     private Handler mHandler;
@@ -367,10 +363,10 @@ public class CameraActivity extends AppCompatActivity {
      * @see android.provider.MediaStore.Images.Media#insertImage(ContentResolver, Bitmap, String, String)
      */
     @RequiresApi(api = Build.VERSION_CODES.Q)
-    public static void insertImage(ContentResolver cr,
-                                   Bitmap source,
-                                   String title,
-                                   String description) {
+    public void insertImage(ContentResolver cr,
+                            Bitmap source,
+                            String title,
+                            String description) {
 
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, title);
@@ -395,7 +391,13 @@ public class CameraActivity extends AppCompatActivity {
                     imageOut.close();
                 }
 
-            } else {
+                // 촬영된 이미지의 uri를 intent로 Preview로 보냄
+                Intent intent = new Intent(CameraActivity.this, PreviewActivity.class);
+                intent.putExtra("imageUri", url);
+                Log.d("TAG", "Success taking a photo.. Transfer this to PreviewActivity");
+                startActivityForResult(intent, IMAGE_ACTIVITY);
+            }
+            else {
                 cr.delete(url, null, null);
                 url = null;
             }
@@ -415,14 +417,6 @@ public class CameraActivity extends AppCompatActivity {
 
     @SuppressLint("StaticFieldLeak")
     private class SaveImageTask extends AsyncTask<Bitmap, Void, Void> {
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            Toast.makeText(CameraActivity.this, "사진을 저장하였습니다.", Toast.LENGTH_SHORT).show();
-        }
-
         @RequiresApi(api = Build.VERSION_CODES.Q)
         @Override
         protected Void doInBackground(Bitmap... data) {
