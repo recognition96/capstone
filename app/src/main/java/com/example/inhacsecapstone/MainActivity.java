@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -31,20 +32,18 @@ public class MainActivity extends AppCompatActivity {
             switch(item.getItemId()) {
                 case R.id.calendar:
                     selectedFragment = new Calendars();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
                     break;
                 case R.id.camera:
-                    /* 액티비티를 열기 위한 소스코드
-                    startActivity(new Intent(getApplicationContext(), ActivityName.class));
-                    overridePendingTransition(0,0);
-                     */
-                    selectedFragment = new Camera();
+                    startActivity(new Intent(MainActivity.this, CameraActivity.class));
+                    //overridePendingTransition(0,0);
                     break;
                 case R.id.userdrug:
                     selectedFragment = new AllMedicineList();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
                     break;
-            }
 
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
+            }
             return true;
         }
     };
