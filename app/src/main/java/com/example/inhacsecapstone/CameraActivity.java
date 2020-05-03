@@ -32,6 +32,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -50,13 +51,20 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+// for permission
+import android.Manifest;
+import android.content.DialogInterface;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 
-public class MainActivity extends AppCompatActivity{
+public class CameraActivity extends AppCompatActivity {
 
     private SurfaceView mSurfaceView;
     private SurfaceHolder mSurfaceViewHolder;
@@ -73,6 +81,7 @@ public class MainActivity extends AppCompatActivity{
     int mDSI_height, mDSI_width;
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+
     static {
         ORIENTATIONS.append(ExifInterface.ORIENTATION_NORMAL, 0);
         ORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_90, 90);
@@ -81,40 +90,23 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //퍼미션 상태 확인
+            if (!hasPermissions(PERMISSIONS)) {
 
-        // 상태바를 안보이도록 합니다.
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                //퍼미션 허가 안되어있다면 사용자에게 요청
+                requestPermissions(PERMISSIONS, PERMISSIONS_REQUEST_CODE);
+            } else {
+//                Intent mainIntent = new Intent(LaunchActivity.this, CameraActivity.class);
+//                startActivity(mainIntent);
+//                finish();
+                initSurfaceView();
 
-        // 화면 켜진 상태를 유지합니다.
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        setContentView(R.layout.activity_main);
-
-
-        ImageButton button = findViewById(R.id.take_photo);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                takePicture();
             }
-        });
-
-        mSurfaceView = findViewById(R.id.surfaceView);
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        deviceOrientation = new DeviceOrientation();
-
-        initSurfaceView();
-
-
+        }
 
     }
 
@@ -134,6 +126,31 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void initSurfaceView() {
+        // 상태바를 안보이도록 합니다.
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        // 화면 켜진 상태를 유지합니다.
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        setContentView(R.layout.activity_camera);
+
+
+        ImageButton button = findViewById(R.id.take_photo);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                takePicture();
+            }
+        });
+
+        mSurfaceView = findViewById(R.id.surfaceView);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        deviceOrientation = new DeviceOrientation();
+
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -184,7 +201,7 @@ public class MainActivity extends AppCompatActivity{
             Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[0];
             Log.i("LargestSize", largestPreviewSize.getWidth() + " " + largestPreviewSize.getHeight());
 
-            setAspectRatioTextureView(largestPreviewSize.getHeight(),largestPreviewSize.getWidth());
+            setAspectRatioTextureView(largestPreviewSize.getHeight(), largestPreviewSize.getWidth());
 
             mImageReader = ImageReader.newInstance(largestPreviewSize.getWidth(), largestPreviewSize.getHeight(), ImageFormat.JPEG,/*maxImages*/7);
             mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mainHandler);
@@ -233,7 +250,7 @@ public class MainActivity extends AppCompatActivity{
 
         @Override
         public void onError(CameraDevice camera, int error) {
-            Toast.makeText(MainActivity.this, "카메라를 열지 못했습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(CameraActivity.this, "카메라를 열지 못했습니다.", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -261,7 +278,7 @@ public class MainActivity extends AppCompatActivity{
 
         @Override
         public void onConfigureFailed(@NonNull CameraCaptureSession session) {
-            Toast.makeText(MainActivity.this, "카메라 구성 실패", Toast.LENGTH_SHORT).show();
+            Toast.makeText(CameraActivity.this, "카메라 구성 실패", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -284,7 +301,6 @@ public class MainActivity extends AppCompatActivity{
     };
 
 
-
     public void takePicture() {
 
         try {
@@ -298,7 +314,7 @@ public class MainActivity extends AppCompatActivity{
             // 센서를 사용하는 것으로 변경
             //deviceRotation = getResources().getConfiguration().orientation;
             mDeviceRotation = ORIENTATIONS.get(deviceOrientation.getOrientation());
-            Log.d("@@@", mDeviceRotation+"");
+            Log.d("@@@", mDeviceRotation + "");
 
             captureRequestBuilder.set(CaptureRequest.JPEG_ORIENTATION, mDeviceRotation);
             CaptureRequest mCaptureRequest = captureRequestBuilder.build();
@@ -309,7 +325,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public Bitmap getRotatedBitmap(Bitmap bitmap, int degrees) throws Exception {
-        if(bitmap == null) return null;
+        if (bitmap == null) return null;
         if (degrees == 0) return bitmap;
 
         Matrix m = new Matrix();
@@ -317,7 +333,6 @@ public class MainActivity extends AppCompatActivity{
 
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
     }
-
 
 
     /**
@@ -343,10 +358,12 @@ public class MainActivity extends AppCompatActivity{
 
 
     //출처 - https://codeday.me/ko/qa/20190310/39556.html
+
     /**
      * A copy of the Android internals  insertImage method, this method populates the
      * meta data with DATE_ADDED and DATE_TAKEN. This fixes a common problem where media
      * that is inserted manually gets saved at the end of the gallery (because date is not populated).
+     *
      * @see android.provider.MediaStore.Images.Media#insertImage(ContentResolver, Bitmap, String, String)
      */
     @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -403,7 +420,7 @@ public class MainActivity extends AppCompatActivity{
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            Toast.makeText(MainActivity.this, "사진을 저장하였습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(CameraActivity.this, "사진을 저장하였습니다.", Toast.LENGTH_SHORT).show();
         }
 
         @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -416,7 +433,7 @@ public class MainActivity extends AppCompatActivity{
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            insertImage(getContentResolver(), bitmap, ""+System.currentTimeMillis(), "");
+            insertImage(getContentResolver(), bitmap, "" + System.currentTimeMillis(), "");
 
             return null;
         }
@@ -425,17 +442,16 @@ public class MainActivity extends AppCompatActivity{
 
 
     // 출처 https://stackoverflow.com/a/43516672
-    private void setAspectRatioTextureView(int ResolutionWidth , int ResolutionHeight )
-    {
-        if(ResolutionWidth > ResolutionHeight){
+    private void setAspectRatioTextureView(int ResolutionWidth, int ResolutionHeight) {
+        if (ResolutionWidth > ResolutionHeight) {
             int newWidth = mDSI_width;
-            int newHeight = ((mDSI_width * ResolutionWidth)/ResolutionHeight);
-            updateTextureViewSize(newWidth,newHeight);
+            int newHeight = ((mDSI_width * ResolutionWidth) / ResolutionHeight);
+            updateTextureViewSize(newWidth, newHeight);
 
-        }else {
+        } else {
             int newWidth = mDSI_width;
-            int newHeight = ((mDSI_width * ResolutionHeight)/ResolutionWidth);
-            updateTextureViewSize(newWidth,newHeight);
+            int newHeight = ((mDSI_width * ResolutionHeight) / ResolutionWidth);
+            updateTextureViewSize(newWidth, newHeight);
         }
 
     }
@@ -446,4 +462,71 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
+    // 여기서부터는 퍼미션 관련 코드입니다.
+    static final int PERMISSIONS_REQUEST_CODE = 1000;
+    String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    private boolean hasPermissions(String[] permissions) {
+        int result;
+
+        //스트링 배열에 있는 퍼미션들의 허가 상태 여부 확인
+        for (String perms : permissions) {
+
+            result = ContextCompat.checkSelfPermission(this, perms);
+
+            if (result == PackageManager.PERMISSION_DENIED) {
+                //허가 안된 퍼미션 발견
+                return false;
+            }
+        }
+
+        //모든 퍼미션이 허가되었음
+        return true;
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            if (grantResults.length > 0) {
+                boolean cameraPermissionAccepted = grantResults[0]
+                        == PackageManager.PERMISSION_GRANTED;
+                boolean diskPermissionAccepted = grantResults[1]
+                        == PackageManager.PERMISSION_GRANTED;
+
+                if (!cameraPermissionAccepted || !diskPermissionAccepted)
+                    showDialogForPermission("앱을 실행하려면 퍼미션을 허가하셔야합니다.");
+                else {
+//                    Intent mainIntent = new Intent(LaunchActivity.this, CameraActivity.class);
+//                    startActivity(mainIntent);
+//                    finish();
+                    initSurfaceView();
+                }
+            }
+        }
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private void showDialogForPermission(String msg) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
+        builder.setTitle("알림");
+        builder.setMessage(msg);
+        builder.setCancelable(false);
+        builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                requestPermissions(PERMISSIONS, PERMISSIONS_REQUEST_CODE);
+            }
+        });
+        builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                finish();
+            }
+        });
+        builder.create().show();
+    }
 }
