@@ -1,5 +1,7 @@
 package com.example.inhacsecapstone;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
@@ -8,8 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -18,7 +22,7 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 
 public class DayDrugListAdapter extends BaseAdapter {
-    private ArrayList<DayDrugListItem> listViewItemList = new ArrayList<DayDrugListItem>() ;
+    private ArrayList<DrugItem> listViewItemList = new ArrayList<DrugItem>() ;
 
     public DayDrugListAdapter() {
 
@@ -41,23 +45,26 @@ public class DayDrugListAdapter extends BaseAdapter {
 
         ImageView imageView = (ImageView) convertView.findViewById(R.id.drugImage) ;
         TextView drugNameView = (TextView) convertView.findViewById(R.id.drugName) ;
+        TextView amountView = convertView.findViewById(R.id.Amount);
 
-        DayDrugListItem listViewItem = listViewItemList.get(position);
+        DrugItem listViewItem = listViewItemList.get(position);
 
-        imageView.setImageDrawable(listViewItem.getDrugImage());
+        amountView.setText( "남은 수량 " + Integer.toString(listViewItem.getAmount()));
+        imageView.setImageDrawable(listViewItem.getImage());
         drugNameView.setText(listViewItem.getDrugName());
-        ArrayList<String> takeTimes = listViewItem.getTakeTime();
+        ArrayList<String> takeTimes = listViewItem.getTakeTimes();
 
         for(int i = 0; i < takeTimes.size(); i++)
         {
-            TextView text = new TextView(context);
-            text.setText(takeTimes.get(i));
+            String[] day_time = takeTimes.get(i).split(" ");
+
+            String[] data = day_time[1].split(":");
 
             DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
             int width = dm.widthPixels;
-            int height = dm.heightPixels;
+            TextView text = new TextView(context);
+            text.setText(data[0] + ":" + data[1]);
 
-            String[] data = takeTimes.get(i).split(":");
             int bottom = 10;
             ConstraintLayout.LayoutParams layoutParams =
                     new ConstraintLayout.LayoutParams(
@@ -86,13 +93,7 @@ public class DayDrugListAdapter extends BaseAdapter {
         return listViewItemList.get(position) ;
     }
 
-    public void addItem(Drawable Image, String DrugName, ArrayList<String> takeTimes) {
-        DayDrugListItem item = new DayDrugListItem();
-
-        item.setIcon(Image);
-        item.setTitle(DrugName);
-        item.setDesc(takeTimes);
-
+    public void addItem(DrugItem item) {
         listViewItemList.add(item);
-}
+    }
 }

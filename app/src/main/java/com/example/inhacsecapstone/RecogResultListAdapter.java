@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class RecogResultListAdapter extends BaseAdapter {
-    private ArrayList<RecogResultListItem> listViewItemList = new ArrayList<RecogResultListItem>() ;
+    private ArrayList<DrugItem> listViewItemList = new ArrayList<DrugItem>() ;
 
     public RecogResultListAdapter() {
 
@@ -42,7 +42,7 @@ public class RecogResultListAdapter extends BaseAdapter {
         TextView periodTextView = (TextView) convertView.findViewById(R.id.period) ;
 
 
-        RecogResultListItem listViewItem = listViewItemList.get(position);
+        DrugItem listViewItem = listViewItemList.get(position);
 
         ImageView.setImageDrawable(listViewItem.getImage());
         DrugNameView.setText(listViewItem.getDrugName());
@@ -65,18 +65,7 @@ public class RecogResultListAdapter extends BaseAdapter {
         return listViewItemList.get(position) ;
     }
 
-    public void addItem(Drawable image, String drugName, int amount, int takes, String desc, int singleDose, int dailyDose, int period) {
-        RecogResultListItem item = new RecogResultListItem();
-
-        item.setImage(image);
-        item.setDrugName(drugName);
-        item.setAmount(amount);
-        item.setTakes(takes);
-        item.setDesc(desc);
-        item.setSingleDose(singleDose);
-        item.setDailyDose(dailyDose);
-        item.setPeriod(period);
-
+    public void addItem(DrugItem item) {
         listViewItemList.add(item);
     }
 }

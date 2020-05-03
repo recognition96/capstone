@@ -1,6 +1,7 @@
 package com.example.inhacsecapstone;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,11 +17,6 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Calendars#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class Calendars extends Fragment {
 
     private Context context;
@@ -50,10 +46,11 @@ public class Calendars extends Fragment {
                 String shot_Day = Year + "," + Month + "," + Day;
 
                 Toast.makeText(context, shot_Day , Toast.LENGTH_SHORT).show();
-                /* 프래그먼트에서 액티비티 띄우기 + year, month, day data 함께 넘겨야함
-                Intent intent = new Intent(getActivity(), Activityclass.class);
-                 */
-
+                Intent intent = new Intent(getActivity(), DayDrugActivity.class);
+                intent.putExtra("year", Year);
+                intent.putExtra("month", Month);
+                intent.putExtra("day", Day);
+                startActivity(intent);
             }
         });
 

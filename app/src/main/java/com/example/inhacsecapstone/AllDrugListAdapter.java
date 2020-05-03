@@ -13,7 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class AllDrugListAdapter extends BaseAdapter {
-    private ArrayList<AllDrugListItem> listViewItemList = new ArrayList<AllDrugListItem>() ;
+    private ArrayList<DrugItem> listViewItemList = new ArrayList<DrugItem>() ;
 
     public AllDrugListAdapter() {
 
@@ -34,17 +34,36 @@ public class AllDrugListAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.all_drug_list_item, parent, false);
         }
 
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.drugImage) ;
-        TextView drugNameTextView = (TextView) convertView.findViewById(R.id.drugName) ;
-        TextView amountTextView = (TextView) convertView.findViewById(R.id.Amount) ;
+        ImageView ImageView = (ImageView) convertView.findViewById(R.id.drugImage) ;
+        TextView DrugNameView = (TextView) convertView.findViewById(R.id.drugName) ;
+        TextView AmountView = (TextView) convertView.findViewById(R.id.Amount) ;
+        TextView descTextView = (TextView) convertView.findViewById(R.id.desc) ;
+        TextView singleDoseTextView = (TextView) convertView.findViewById(R.id.singleDose) ;
+        TextView dailyDoseTextView = (TextView) convertView.findViewById(R.id.dailyDose) ;
+        TextView periodTextView = (TextView) convertView.findViewById(R.id.period) ;
         ProgressBar progressBarView = (ProgressBar) convertView.findViewById(R.id.progressBar);
+        ViewGroup layout = (ViewGroup) convertView.findViewById(R.id.buttonLayout);
 
-        AllDrugListItem listViewItem = listViewItemList.get(position);
+        DrugItem listViewItem = listViewItemList.get(position);
 
-        imageView.setImageDrawable(listViewItem.getImage());
-        drugNameTextView.setText(listViewItem.getDrugName());
-        amountTextView.setText(Integer.toString(listViewItem.getAmount()));
-        progressBarView.setProgress(100* listViewItem.getTakes() / listViewItem.getAmount());
+        layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(v.findViewById(R.id.toggleView).getVisibility() == View.GONE)
+                    v.findViewById(R.id.toggleView).setVisibility(View.VISIBLE);
+                else
+                    v.findViewById(R.id.toggleView).setVisibility(View.GONE);
+            }
+        });
+
+        progressBarView.setProgress(100* listViewItem.getTakeTimes().size() / listViewItem.getAmount());
+        ImageView.setImageDrawable(listViewItem.getImage());
+        DrugNameView.setText(listViewItem.getDrugName());
+        AmountView.setText(Integer.toString(listViewItem.getAmount()));
+        descTextView.setText(listViewItem.getDesc());
+        singleDoseTextView.setText(Integer.toString(listViewItem.getSingleDose()));
+        dailyDoseTextView.setText(Integer.toString(listViewItem.getDailyDose()));
+        periodTextView.setText(Integer.toString(listViewItem.getPeriod()));
 
         return convertView;
     }
@@ -59,18 +78,7 @@ public class AllDrugListAdapter extends BaseAdapter {
         return listViewItemList.get(position) ;
     }
 
-    public void addItem(Drawable image, String drugName, int amount, int takes, String desc, int singleDose, int dailyDose, int period) {
-        AllDrugListItem item = new AllDrugListItem();
-
-        item.setImage(image);
-        item.setDrugName(drugName);
-        item.setAmount(amount);
-        item.setTakes(takes);
-        item.setDesc(desc);
-        item.setSingleDose(singleDose);
-        item.setDailyDose(dailyDose);
-        item.setPeriod(period);
-
+    public void addItem(DrugItem item) {
         listViewItemList.add(item);
     }
 }

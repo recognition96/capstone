@@ -37,11 +37,10 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(getApplicationContext(), ActivityName.class));
                     overridePendingTransition(0,0);
                      */
-
                     selectedFragment = new Camera();
                     break;
                 case R.id.userdrug:
-                    selectedFragment = new Userdrug();
+                    selectedFragment = new AllMedicineList();
                     break;
             }
 

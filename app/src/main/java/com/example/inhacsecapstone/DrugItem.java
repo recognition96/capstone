@@ -1,16 +1,32 @@
 package com.example.inhacsecapstone;
 
 import android.graphics.drawable.Drawable;
-public class AllDrugListItem {
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
+public class DrugItem {
     private Drawable image ;
     private String drugName ;
     private int amount ;
     private String desc;
-    private int takes;
+    private ArrayList<String> takeTimes;
     private int singleDose;
     private int dailyDose;
     private int period;
 
+    public DrugItem()
+    {}
+    public DrugItem(Drawable image, String drugName, int amount, String desc, ArrayList<String> takeTimes, int singleDose, int dailyDose)
+    {
+        this.image = image ;
+        this.drugName = drugName ;
+        this.amount = amount ;
+        this.desc = desc ;
+        this.takeTimes = takeTimes ;
+        this.singleDose = singleDose ;
+        this.dailyDose = dailyDose ;
+    }
     public void setImage(Drawable image) {
         this.image = image ;
     }
@@ -23,8 +39,8 @@ public class AllDrugListItem {
     public void setDesc(String desc) {
         this.desc = desc ;
     }
-    public void setTakes(int takes) {
-        this.takes = takes ;
+    public void setTakes(ArrayList<String> takeTimes) {
+        this.takeTimes = takeTimes ;
     }
     public void setSingleDose(int singleDose) {
         this.singleDose = singleDose ;
@@ -49,8 +65,8 @@ public class AllDrugListItem {
     public String getDesc() {
         return desc;
     }
-    public int getTakes() {
-        return takes ;
+    public ArrayList<String> getTakeTimes() {
+        return takeTimes ;
     }
     public int getSingleDose() {
         return singleDose ;
@@ -58,7 +74,7 @@ public class AllDrugListItem {
     public int getDailyDose() {
         return dailyDose ;
     }
-    public int getPeriod(int period) {
+    public int getPeriod() {
         return period ;
     }
 }
