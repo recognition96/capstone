@@ -32,7 +32,7 @@ public class DayDrugActivity extends AppCompatActivity {
         date1.add("2013.10.30 19:10:13");
 
         
-        DrugItem item1 = new DrugItem(ContextCompat.getDrawable(this, R.drawable.example1), "약품", 3,"desc test",date1, 1, 1);
-        adapter.addItem(item1);
+        //DrugItem item1 = new DrugItem(ContextCompat.getDrawable(this, R.drawable.example1), "약품", 3,"desc test",date1, 1, 1);
+        //adapter.addItem(item1);
     }
 }
