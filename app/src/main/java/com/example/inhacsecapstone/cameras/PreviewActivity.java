@@ -53,7 +53,7 @@ public class PreviewActivity extends AppCompatActivity {
                     + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
                     + "|[1-9][0-9]|[0-9]))");
     private static final String portNumber = "5000";
-    private static final String ipv4Address = "220.126.44.96";
+    private static final String ipv4Address = "192.168.25.39";
     Context context;
 
     protected void onCreate(Bundle savedInstanceState) {
