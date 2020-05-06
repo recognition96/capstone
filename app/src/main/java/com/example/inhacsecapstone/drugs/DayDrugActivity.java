@@ -1,11 +1,12 @@
-package com.example.inhacsecapstone;
+package com.example.inhacsecapstone.drugs;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
+
+import com.example.inhacsecapstone.R;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package com.example.inhacsecapstone;
+package com.example.inhacsecapstone.initial;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +14,9 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.inhacsecapstone.MainActivity;
+import com.example.inhacsecapstone.R;
 
 import org.w3c.dom.Text;
 

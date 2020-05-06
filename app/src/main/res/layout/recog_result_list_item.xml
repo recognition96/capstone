@@ -45,7 +45,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:gravity="center_vertical"
+                    android:gravity="center"
                     android:text="New Text"
                     android:textAlignment="center"
                     android:textColor="#000000"
@@ -69,12 +69,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
             <TextView
                 android:id="@+id/desc"
                 android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="3dp"
                 android:paddingBottom="10dp"
                 android:text="TextView"
