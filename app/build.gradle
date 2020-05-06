@@ -41,6 +41,7 @@ dependencies {
     // Chatting View
     implementation 'com.github.bassaer:chatmessageview:2.0.1'
     implementation 'com.android.support:design:29.0.0'
+    implementation 'com.github.kittinunf.fuel:fuel-android:1.12.1'
 
     // HTTP Connection을 위한 implementation
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'

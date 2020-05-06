@@ -20,10 +20,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".chatbot.ChattingActivity"></activity>
+        <activity android:name=".chatbot.MessengerActivity" />
         <activity android:name=".drugs.RecogResultActivity" />
         <activity android:name=".drugs.DayDrugActivity" />
-        <activity android:name=".initial.SplashActivity">
+        <activity
+            android:name=".initial.SplashActivity"
+            android:theme="@style/Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

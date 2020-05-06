@@ -95,12 +95,10 @@ public class PreviewActivity extends AppCompatActivity {
         });
     }
 
-    public void connectServerSendText(View v){
-
+    public void connectServerSendText(String texts){
         Matcher matcher = IP_ADDRESS.matcher(ipv4Address);
-
         // 전송 텍스트
-        String sendText = "";
+        String sendText = texts;
 
         if (!matcher.matches()) {
             Toast.makeText(this, "Invalid IPv4 Address. Please Check Your Inputs.", Toast.LENGTH_LONG).show();

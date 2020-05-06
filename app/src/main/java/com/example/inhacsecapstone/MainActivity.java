@@ -10,11 +10,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Toast;
 
 import com.example.inhacsecapstone.calendars.Calendars;
 import com.example.inhacsecapstone.cameras.CameraActivity;
-import com.example.inhacsecapstone.chatbot.ChattingActivity;
+import com.example.inhacsecapstone.chatbot.MessengerActivity;
 import com.example.inhacsecapstone.drugs.AllMedicineList;
 import com.example.inhacsecapstone.initial.InformationSetting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.chatbotbtn:
                 anim();
-                startActivity(new Intent(MainActivity.this, ChattingActivity.class));
+                startActivity(new Intent(MainActivity.this, MessengerActivity.class));
                 break;
             case R.id.userinfobtn:
                 anim();
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void anim() {
-
         if (isFabOpen) {
             fab1.startAnimation(fab_close);
             fab2.startAnimation(fab_close);
