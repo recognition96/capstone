@@ -121,7 +121,7 @@ public class PreviewActivity extends AppCompatActivity {
             return;
         }
 
-        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/";
+        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/image";
 
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
