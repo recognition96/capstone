@@ -1,4 +1,4 @@
-package com.example.inhacsecapstone;
+package com.example.inhacsecapstone.drugs;
 
 import android.graphics.drawable.Drawable;
 

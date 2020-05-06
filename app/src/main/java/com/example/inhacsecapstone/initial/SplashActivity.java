@@ -1,4 +1,4 @@
-package com.example.inhacsecapstone;
+package com.example.inhacsecapstone.initial;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
+
+import com.example.inhacsecapstone.MainActivity;
+import com.example.inhacsecapstone.R;
 
 public class SplashActivity extends AppCompatActivity {
 

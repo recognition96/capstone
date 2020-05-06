@@ -1,13 +1,14 @@
-package com.example.inhacsecapstone;
+package com.example.inhacsecapstone.drugs;
 
 import android.os.Bundle;
 
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
+import com.example.inhacsecapstone.R;
 
 import java.util.ArrayList;
 
@@ -69,9 +70,9 @@ public class AllMedicineList extends Fragment {
             ArrayList<String> date1 = new ArrayList<String>();
             date1.add("2018.10.30 12:10:13");
             date1.add("2013.10.30 19:10:13");
-            DrugItem item1 = new DrugItem(ContextCompat.getDrawable(getActivity(), R.drawable.example1), "약품", 3,"desc test",date1, 1, 1);
+            //DrugItem item1 = new DrugItem(ContextCompat.getDrawable(getActivity(), R.drawable.example1), "약품", 3,"desc test",date1, 1, 1);
 
-            adapter.addItem(item1);
+            //adapter.addItem(item1);
 
         return view;
     }

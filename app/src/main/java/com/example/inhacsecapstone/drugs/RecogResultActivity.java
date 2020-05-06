@@ -1,11 +1,11 @@
-package com.example.inhacsecapstone;
+package com.example.inhacsecapstone.drugs;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ListView;
+
+import com.example.inhacsecapstone.R;
 
 import java.util.ArrayList;
 
@@ -24,8 +24,8 @@ public class RecogResultActivity extends AppCompatActivity {
         ArrayList<String> date1 = new ArrayList<String>();
         date1.add("2018.10.30 12:10:13");
         date1.add("2013.10.30 19:10:13");
-        DrugItem item1 = new DrugItem(ContextCompat.getDrawable(this, R.drawable.example1), "약품", 3,"desc test",date1, 1, 1);
+        //DrugItem item1 = new DrugItem(ContextCompat.getDrawable(this, R.drawable.example1), "약품", 3,"desc test",date1, 1, 1);
 
-        adapter.addItem(item1);
+        //adapter.addItem(item1);
     }
 }

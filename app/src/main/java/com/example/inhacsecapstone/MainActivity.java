@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.example.inhacsecapstone.calendars.Calendars;
+import com.example.inhacsecapstone.cameras.CameraActivity;
+import com.example.inhacsecapstone.drugs.AllMedicineList;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
