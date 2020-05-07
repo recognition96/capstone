@@ -33,7 +33,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class PreviewActivity extends AppCompatActivity {
+public class   PreviewActivity extends AppCompatActivity {
     private static final Pattern IP_ADDRESS
             = Pattern.compile(
             "((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\\.(25[0-5]|2[0-4]"
@@ -41,7 +41,7 @@ public class PreviewActivity extends AppCompatActivity {
                     + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
                     + "|[1-9][0-9]|[0-9]))");
     private static final String portNumber = "5000";
-    private static final String ipv4Address = "220.126.44.96";
+    private static final String ipv4Address = "220.126.44.75";
     private static final int SELECT_PICTURE = 1;
     Context context;
 

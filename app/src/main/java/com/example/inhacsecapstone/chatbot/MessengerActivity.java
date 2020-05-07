@@ -91,12 +91,11 @@ public class MessengerActivity extends Activity {
                     + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
                     + "|[1-9][0-9]|[0-9]))");
     private static final String portNumber = "5000";
-    private static final String ipv4Address = "220.126.44.96";
+    private static final String ipv4Address = "220.126.44.75";
     private Context context;
     private Intent SttIntent;
     private SpeechRecognizer mRecognizer;
     private TextToSpeech tts;
-
 
     public void setColors() {
         mChatView.setRightBubbleColor(ContextCompat.getColor(context,RIGHT_BUBBLE_COLOR));
@@ -126,7 +125,7 @@ public class MessengerActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger);
-        context = getApplicationContext();
+        context = this.getApplicationContext();
         initUsers();
 
         mChatView = findViewById(R.id.chat_view);
@@ -214,7 +213,6 @@ public class MessengerActivity extends Activity {
         mChatView.setOnClickOptionButtonListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //showDialog();
                 if(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)!= PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MessengerActivity.this,new String[]{Manifest.permission.RECORD_AUDIO},1);
                 } else {
@@ -224,10 +222,11 @@ public class MessengerActivity extends Activity {
                         e.printStackTrace();
                     }
                 }
-
             }
         });
     }
+
+    private int count=0;
 
     private RecognitionListener listener=new RecognitionListener() {
         @Override
@@ -262,8 +261,24 @@ public class MessengerActivity extends Activity {
             ArrayList<String> mResult =results.getStringArrayList(key);
             String[] rs = new String[mResult.size()];
             mResult.toArray(rs);
-            mChatView.setInputText(rs[0]);
-            Toast.makeText(context,""+mChatView.performClick(), Toast.LENGTH_LONG);
+
+            // onResults가 이유를 모르지만 2번씩 호출되서 count로 제한...
+            if(count==1) {
+                Message message = new Message.Builder()
+                        .setUser(mUsers.get(0))
+                        .setRight(true)
+                        .setText(rs[0])
+                        .hideIcon(true)
+                        .setStatusIconFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
+                        .setStatusTextFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
+                        .setStatusStyle(Message.Companion.getSTATUS_ICON())
+                        .setStatus(MyMessageStatusFormatter.STATUS_DELIVERED)
+                        .build();
+                connectServerSendText(rs[0]);
+                mChatView.send(message);
+                count=0;
+            }else
+                count=1;
         }
 
         @Override
@@ -274,15 +289,6 @@ public class MessengerActivity extends Activity {
         public void onEvent(int i, Bundle bundle) {
         }
     };
-
-    private void openGallery() {
-        Intent intent;
-        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/*");
-
-        startActivityForResult(intent, READ_REQUEST_CODE);
-    }
 
     private void receiveMessage(String getText) {
         final Message receivedMessage = new Message.Builder()
@@ -322,30 +328,6 @@ public class MessengerActivity extends Activity {
     public void onResume() {
         super.onResume();
         initUsers();
-    }
-
-    private void showDialog() {
-        final String[] items = {
-                getString(R.string.send_picture),
-                getString(R.string.clear_messages)
-        };
-
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.options))
-                .setItems(items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int position) {
-                        switch (position) {
-                            case 0 :
-                                openGallery();
-                                break;
-                            case 1:
-                                mChatView.getMessageView().removeAll();
-                                break;
-                        }
-                    }
-                })
-                .show();
     }
 
     public void connectServerSendText(String texts){
