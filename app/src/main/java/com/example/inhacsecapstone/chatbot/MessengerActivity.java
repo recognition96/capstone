@@ -1,5 +1,6 @@
 package com.example.inhacsecapstone.chatbot;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,10 +20,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.speech.tts.TextToSpeech;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.GridLayout;
 import android.widget.Toast;
 
 import com.example.inhacsecapstone.R;
@@ -35,11 +39,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import okhttp3.Call;
@@ -51,6 +57,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import android.speech.*;
+
+import org.w3c.dom.Text;
+
+import static android.speech.tts.TextToSpeech.ERROR;
 
 public class MessengerActivity extends Activity {
 
@@ -80,24 +92,19 @@ public class MessengerActivity extends Activity {
                     + "|[1-9][0-9]|[0-9]))");
     private static final String portNumber = "5000";
     private static final String ipv4Address = "220.126.44.96";
-    Context context;
+    private Context context;
+    private Intent SttIntent;
+    private SpeechRecognizer mRecognizer;
+    private TextToSpeech tts;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_messenger);
-        context = getApplicationContext();
-        initUsers();
 
-        mChatView = findViewById(R.id.chat_view);
-
-        //Set UI parameters if you need
-        mChatView.setRightBubbleColor(ContextCompat.getColor(this,RIGHT_BUBBLE_COLOR));
-        mChatView.setLeftBubbleColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
-        mChatView.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
-        mChatView.setSendButtonColor(ContextCompat.getColor(this, R.color.colorAccent));
+    public void setColors() {
+        mChatView.setRightBubbleColor(ContextCompat.getColor(context,RIGHT_BUBBLE_COLOR));
+        mChatView.setLeftBubbleColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
+        mChatView.setBackgroundColor(ContextCompat.getColor(context, R.color.white));
+        mChatView.setSendButtonColor(ContextCompat.getColor(context, R.color.colorAccent));
         mChatView.setSendIcon(SEND_ICON);
-        mChatView.setOptionIcon(R.drawable.ic_add_circle_black_24dp);
+        mChatView.setOptionIcon(R.drawable.ic_mic_black_24dp);
         mChatView.setOptionButtonColor(R.color.colorAccent);
         mChatView.setRightMessageTextColor(RIGHT_MESSAGE_TEXT_COLOR);
         mChatView.setLeftMessageTextColor(LEFT_MESSAGE_TEXT_COLOR);
@@ -113,7 +120,17 @@ public class MessengerActivity extends Activity {
         mChatView.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         mChatView.setInputTextColor(ContextCompat.getColor(this, android.R.color.black));
         mChatView.setInputTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+    }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_messenger);
+        context = getApplicationContext();
+        initUsers();
+
+        mChatView = findViewById(R.id.chat_view);
+        setColors();
         mChatView.setOnBubbleClickListener(new Message.OnBubbleClickListener() {
             @Override
             public void onClick(Message message) {
@@ -153,45 +170,115 @@ public class MessengerActivity extends Activity {
         mChatView.setOnClickSendButtonListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                initUsers();
-                //new message
-                Message message = new Message.Builder()
-                        .setUser(mUsers.get(0))
-                        .setRight(true)
-                        .setText(mChatView.getInputText())
-                        .hideIcon(true)
-                        .setStatusIconFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
-                        .setStatusTextFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
-                        .setStatusStyle(Message.Companion.getSTATUS_ICON())
-                        .setStatus(MyMessageStatusFormatter.STATUS_DELIVERED)
-                        .build();
+                if(!mChatView.getInputText().equals("")) {
+                    Message message = new Message.Builder()
+                            .setUser(mUsers.get(0))
+                            .setRight(true)
+                            .setText(mChatView.getInputText())
+                            .hideIcon(true)
+                            .setStatusIconFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
+                            .setStatusTextFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
+                            .setStatusStyle(Message.Companion.getSTATUS_ICON())
+                            .setStatus(MyMessageStatusFormatter.STATUS_DELIVERED)
+                            .build();
 
-                connectServerSendText(mChatView.getInputText());
-                //Set to chat view
-                mChatView.send(message);
-                //Reset edit text
-                mChatView.setInputText("");
+                    connectServerSendText(mChatView.getInputText());
+                    //Set to chat view
+                    mChatView.send(message);
+                    //Reset edit text
+                    mChatView.setInputText("");
+                }
             }
-
         });
+
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != ERROR) {
+                    // 언어를 선택한다.
+                    tts.setLanguage(Locale.KOREAN);
+                }
+            }
+        });
+        tts.setPitch(1.0f);
+        tts.setSpeechRate(1.0f);
+
+
+        SttIntent=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,getApplicationContext().getPackageName());
+        SttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"ko-KR");//한국어 사용
+        mRecognizer=SpeechRecognizer.createSpeechRecognizer(this);
+        mRecognizer.setRecognitionListener(listener);
 
         //Click option button
         mChatView.setOnClickOptionButtonListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDialog();
+                //showDialog();
+                if(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)!= PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MessengerActivity.this,new String[]{Manifest.permission.RECORD_AUDIO},1);
+                } else {
+                    try{
+                        mRecognizer.startListening(SttIntent);
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         });
     }
 
+    private RecognitionListener listener=new RecognitionListener() {
+        @Override
+        public void onReadyForSpeech(Bundle bundle) {
+        }
+
+        @Override
+        public void onBeginningOfSpeech() {
+        }
+
+        @Override
+        public void onRmsChanged(float v) {
+
+        }
+
+        @Override
+        public void onBufferReceived(byte[] bytes) {
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+        }
+
+        @Override
+        public void onError(int i) {
+        }
+
+        @Override
+        public void onResults(Bundle results) {
+            String key= "";
+            key = SpeechRecognizer.RESULTS_RECOGNITION;
+            ArrayList<String> mResult =results.getStringArrayList(key);
+            String[] rs = new String[mResult.size()];
+            mResult.toArray(rs);
+            mChatView.setInputText(rs[0]);
+            Toast.makeText(context,""+mChatView.performClick(), Toast.LENGTH_LONG);
+        }
+
+        @Override
+        public void onPartialResults(Bundle bundle) {
+        }
+
+        @Override
+        public void onEvent(int i, Bundle bundle) {
+        }
+    };
+
     private void openGallery() {
         Intent intent;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            intent = new Intent(Intent.ACTION_GET_CONTENT);
-        } else {
-            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-        }
+        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
 
         startActivityForResult(intent, READ_REQUEST_CODE);
@@ -272,25 +359,20 @@ public class MessengerActivity extends Activity {
                 .add("message", texts)
                 .build();
         postRequest(postUrl,formBody);
-
     }
 
     void postRequest(String postUrl, RequestBody postBody) {
-
         OkHttpClient client = new OkHttpClient();
-
         Request request = new Request.Builder()
                 .url(postUrl)
                 .post(postBody)
                 .build();
-
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 // Cancel the post on failure.
                 call.cancel();
-                Log.d("FAIL", e.getMessage());
-
+                // Log.d("FAIL", e.getMessage());
                 // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
                 runOnUiThread(new Runnable() {
                     @Override
@@ -314,8 +396,10 @@ public class MessengerActivity extends Activity {
                             e.printStackTrace();
                             Toast.makeText(context, "연결 오류가 발생되어 응답을 받지 못했습니다.", Toast.LENGTH_LONG).show();
                         }
-                        if(!res.equals(""))
+                        if(!res.equals("")) {
                             receiveMessage(res);
+                            tts.speak(res,TextToSpeech.QUEUE_FLUSH,null,null);
+                        }
                     }
                 });
 
