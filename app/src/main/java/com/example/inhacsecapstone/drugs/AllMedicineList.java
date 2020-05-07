@@ -1,13 +1,14 @@
-package com.example.inhacsecapstone;
+package com.example.inhacsecapstone.drugs;
 
 import android.os.Bundle;
 
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
+import com.example.inhacsecapstone.R;
 
 import java.util.ArrayList;
 

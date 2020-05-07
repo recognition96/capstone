@@ -1,4 +1,4 @@
-package com.example.inhacsecapstone;
+package com.example.inhacsecapstone.calendars;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.inhacsecapstone.drugs.DayDrugActivity;
+import com.example.inhacsecapstone.R;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;

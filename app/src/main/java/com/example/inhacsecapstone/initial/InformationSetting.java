@@ -1,4 +1,4 @@
-package com.example.inhacsecapstone;
+package com.example.inhacsecapstone.initial;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +14,9 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.inhacsecapstone.MainActivity;
+import com.example.inhacsecapstone.R;
 
 import org.w3c.dom.Text;
 
@@ -68,7 +71,6 @@ public class InformationSetting extends AppCompatActivity {
             user_sex=2;
         user_name = userName.getText().toString();
         user_birth = userBirth.getText().toString();
-        user_job = spinner.getSelectedItem().toString();
         if(TextUtils.isEmpty(userName.getText()) || TextUtils.isEmpty(user_birth)) {
             Toast.makeText(this, "유저 정보를 모두 입력해주세요!" , Toast.LENGTH_SHORT).show();
         } else {
