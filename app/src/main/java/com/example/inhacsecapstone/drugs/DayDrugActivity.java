@@ -23,10 +23,10 @@ public class DayDrugActivity extends AppCompatActivity {
 
         ListView listview ;
 
-        DayDrugListAdapter adapter;
-        adapter = new DayDrugListAdapter() ;
-        listview = (ListView) findViewById(R.id.listview);
-        listview.setAdapter(adapter);
+        //DayDrugListAdapter adapter;
+        //adapter = new DayDrugListAdapter() ;
+        //listview = (ListView) findViewById(R.id.listview);
+        //listview.setAdapter(adapter);
 
         ArrayList<String> date1 = new ArrayList<String>();
         date1.add("2018.10.30 12:10:13");

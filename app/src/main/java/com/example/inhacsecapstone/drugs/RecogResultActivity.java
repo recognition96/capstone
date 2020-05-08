@@ -16,10 +16,10 @@ public class RecogResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recog_result);
         ListView listview;
-        RecogResultListAdapter adapter;
-        adapter = new RecogResultListAdapter() ;
-        listview = (ListView) findViewById(R.id.listview);
-        listview.setAdapter(adapter);
+        //RecogResultListAdapter adapter;
+        //adapter = new RecogResultListAdapter() ;
+        //listview = (ListView) findViewById(R.id.listview);
+        //listview.setAdapter(adapter);
 
         ArrayList<String> date1 = new ArrayList<String>();
         date1.add("2018.10.30 12:10:13");

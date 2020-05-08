@@ -9,10 +9,94 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.inhacsecapstone.R;
 
-import java.util.ArrayList;
+import java.util.List;
 
+public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.AllDrugListHolder> {
+
+    class AllDrugListHolder extends RecyclerView.ViewHolder {
+        private final ImageView imageView;
+        private final TextView nameView;
+        private final TextView amountView;
+        private final TextView descView;
+        private final TextView singleDoseView;
+        private final TextView dailyDoseView;
+        private final TextView numberOfDayTakensView;
+        private final ProgressBar progressBarView;
+        private AllDrugListHolder(View itemView) {
+            super(itemView);
+            imageView = (ImageView) itemView.findViewById(R.id.drugImage) ;
+            nameView = (TextView) itemView.findViewById(R.id.drugName) ;
+            amountView = (TextView) itemView.findViewById(R.id.Amount) ;
+            descView = (TextView) itemView.findViewById(R.id.desc) ;
+            singleDoseView = (TextView) itemView.findViewById(R.id.singleDose) ;
+            dailyDoseView = (TextView) itemView.findViewById(R.id.dailyDose) ;
+            numberOfDayTakensView = (TextView) itemView.findViewById(R.id.period) ;
+            progressBarView = (ProgressBar) itemView.findViewById(R.id.progressBar);
+            ViewGroup layout = (ViewGroup) itemView.findViewById(R.id.buttonLayout);
+
+
+            layout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(v.findViewById(R.id.toggleView).getVisibility() == View.GONE)
+                        v.findViewById(R.id.toggleView).setVisibility(View.VISIBLE);
+                    else
+                        v.findViewById(R.id.toggleView).setVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
+    private final LayoutInflater mInflater;
+    private List<DrugItem> mdrugs; // Cached copy of words
+
+    AllDrugListAdapter(Context context) { mInflater = LayoutInflater.from(context); }
+
+    @Override
+    public AllDrugListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = mInflater.inflate(R.layout.all_drug_list_item, parent, false);
+        return new AllDrugListHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(AllDrugListHolder holder, int position) {
+        if (mdrugs != null) {
+            DrugItem current = mdrugs.get(position);
+            //holder.imageView.setText(current.getWord()); 이미지 추가해야함
+            holder.progressBarView.setProgress(50); // 이부분도 수정
+            holder.amountView.setText(Integer.toString(current.getAmount()));
+            holder.dailyDoseView.setText(Integer.toString(current.getDailyDose()));
+            holder.descView.setText(current.getDesc());
+            holder.nameView.setText(current.getName());
+            holder.numberOfDayTakensView.setText(Integer.toString(current.getNumberOfDayTakens()));
+            holder.singleDoseView.setText(Integer.toString(current.getSingleDose()));
+        } else {
+            // Covers the case of data not being ready yet.
+            // holder.wordItemView.setText("No Word");
+        }
+    }
+
+    void setWords(List<DrugItem> drugs){
+        drugs = drugs;
+        notifyDataSetChanged();
+    }
+
+    // getItemCount() is called many times, and when it is first called,
+    // mWords has not been updated (means initially, it's null, and we can't return null).
+    @Override
+    public int getItemCount() {
+        if (mdrugs != null)
+            return mdrugs.size();
+        else return 0;
+    }
+}
+
+
+/*
 public class AllDrugListAdapter extends BaseAdapter {
     private ArrayList<DrugItem> listViewItemList = new ArrayList<DrugItem>() ;
 
@@ -82,4 +166,4 @@ public class AllDrugListAdapter extends BaseAdapter {
     public void addItem(DrugItem item) {
         listViewItemList.add(item);
     }
-}
+}*/

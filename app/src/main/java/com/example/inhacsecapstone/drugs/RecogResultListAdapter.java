@@ -12,8 +12,8 @@ import com.example.inhacsecapstone.R;
 
 import java.util.ArrayList;
 
-public class RecogResultListAdapter extends BaseAdapter {
-    private ArrayList<DrugItem> listViewItemList = new ArrayList<DrugItem>() ;
+public class RecogResultListAdapter {
+    /*private ArrayList<DrugItem> listViewItemList = new ArrayList<DrugItem>() ;
 
     public RecogResultListAdapter() {
 
@@ -68,5 +68,5 @@ public class RecogResultListAdapter extends BaseAdapter {
 
     public void addItem(DrugItem item) {
         listViewItemList.add(item);
-    }
+    }*/
 }

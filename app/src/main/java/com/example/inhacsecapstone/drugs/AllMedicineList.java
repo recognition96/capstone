@@ -2,7 +2,14 @@ package com.example.inhacsecapstone.drugs;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +29,10 @@ public class AllMedicineList extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "type";
+
+
+
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -61,17 +72,15 @@ public class AllMedicineList extends Fragment {
         View view = inflater.inflate(R.layout.fragment_medicine_list, container, false);
         ListView listview ;
 
-
-            AllDrugListAdapter adapter;
-            adapter = new AllDrugListAdapter() ;
-            listview = (ListView) view.findViewById(R.id.listview);
-            listview.setAdapter(adapter);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.allMedicineView);
+        final AllDrugListAdapter adapter = new AllDrugListAdapter(getActivity());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
             ArrayList<String> date1 = new ArrayList<String>();
             date1.add("2018.10.30 12:10:13");
             date1.add("2013.10.30 19:10:13");
             //DrugItem item1 = new DrugItem(ContextCompat.getDrawable(getActivity(), R.drawable.example1), "약품", 3,"desc test",date1, 1, 1);
-
             //adapter.addItem(item1);
 
         return view;

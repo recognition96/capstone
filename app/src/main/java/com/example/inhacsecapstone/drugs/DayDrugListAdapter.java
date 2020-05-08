@@ -15,8 +15,8 @@ import com.example.inhacsecapstone.R;
 
 import java.util.ArrayList;
 
-public class DayDrugListAdapter extends BaseAdapter {
-    private ArrayList<DrugItem> listViewItemList = new ArrayList<DrugItem>() ;
+public class DayDrugListAdapter {
+    /*private ArrayList<DrugItem> listViewItemList = new ArrayList<DrugItem>() ;
 
     public DayDrugListAdapter() {
 
@@ -89,5 +89,5 @@ public class DayDrugListAdapter extends BaseAdapter {
 
     public void addItem(DrugItem item) {
         listViewItemList.add(item);
-    }
+    } */
 }
