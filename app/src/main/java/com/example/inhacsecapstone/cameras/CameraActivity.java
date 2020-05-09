@@ -101,12 +101,10 @@ public class CameraActivity extends AppCompatActivity {
             //퍼미션 상태 확인
             Log.d("@@@@@ ", "Camera_Act.. On Create!");
             if (!hasPermissions(PERMISSIONS)) {
-
                 //퍼미션 허가 안되어있다면 사용자에게 요청
                 requestPermissions(PERMISSIONS, PERMISSIONS_REQUEST_CODE);
             } else {
                 initSurfaceView();
-
             }
         }
     }
@@ -133,13 +131,12 @@ public class CameraActivity extends AppCompatActivity {
         if (resultCode == RESULT_CANCELED) {
             Log.d("TAG", "From Preview");
         }
-        else if (resultCode == RESULT_OK && data.getData() != null) {
+        else if (resultCode == RESULT_OK) {
             if (requestCode == SELECT_IMAGE) {
                 Log.d("TAG", "cause IMAGE SELECTED..");
                 Uri selectedImageUri = data.getData();
 //                selectedImagePath = selectedImageUri.getPath();
                 sendImageToPrev(selectedImageUri);
-
             }
         }
     }
@@ -241,8 +238,14 @@ public class CameraActivity extends AppCompatActivity {
             CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
-            Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[0];
+            Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[1];
             Log.i("LargestSize", largestPreviewSize.getWidth() + " " + largestPreviewSize.getHeight());
+
+
+            int imgsize = map.getOutputSizes(ImageFormat.JPEG).length;
+            for (int i = 0; i < imgsize; i++){
+                System.out.println("resolution : " + map.getOutputSizes(ImageFormat.JPEG)[i]);
+            }
 
             setAspectRatioTextureView(largestPreviewSize.getHeight(), largestPreviewSize.getWidth());
 
@@ -346,7 +349,7 @@ public class CameraActivity extends AppCompatActivity {
     private void takePhotoFromGallery() {
         Intent intent = new Intent();
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setAction(Intent.ACTION_PICK);
         Toast.makeText(this, "처방전사진을 선택하세요.", Toast.LENGTH_SHORT).show();
         startActivityForResult(intent, SELECT_IMAGE);
         Log.d("TAG", "IMAGE SELECTING..");

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.inhacsecapstone.R;
 
@@ -26,6 +27,12 @@ public class RecogResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recog_result);
 
+        Drugs[] drugs = (Drugs[])getIntent().getSerializableExtra("drugs");
+        for(int i=0; i<drugs.length; i++) {
+            Toast.makeText(this, drugs[i].printres(), Toast.LENGTH_LONG).show();
+            System.out.println(drugs[i].printres());
+        }
+
         mRecyclerView = this.findViewById(R.id.recogList);
         adapter = new RecogResultListAdapter(this, new ArrayList<MedicineEntity>()); // 요 ArrayList를 medicine Entity 형식에 맞춰서 만들고 넣어주면 리스트 만들어짐.
         mRecyclerView.setAdapter(adapter);
@@ -35,4 +42,6 @@ public class RecogResultActivity extends AppCompatActivity {
         // mViewModel.insert(take); DB에 take 저장
         // mViewModel.insert(Medicine) DB에 medicine 저장
     }
+
+
 }
