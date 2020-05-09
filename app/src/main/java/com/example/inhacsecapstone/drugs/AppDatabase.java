@@ -2,18 +2,42 @@ package com.example.inhacsecapstone.drugs;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-@Database(entities = {DrugItem.class}, version = 1, exportSchema = false)
+// singleton 설계 방식
+@Database(entities = {MedicineEntity.class, TakesEntity.class}, version = 1, exportSchema = false) //exportSchema 수정
 public abstract class AppDatabase extends RoomDatabase {
 
-    public abstract DrugItemDao drugDao();
+    public abstract ListDao ListDao();
+    private static RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
+        @Override
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            super.onOpen(db);
 
+            // If you want to keep data through app restarts,
+            // comment out the following block
+            databaseWriteExecutor.execute(() -> {
+                // Populate the database in the background.
+                // If you want to start with more words, just add them.
+                ListDao listDao = INSTANCE.ListDao();
+                listDao.deleteMedicineAll();
+                listDao.deleteTakesAll();
+
+                MedicineEntity item1 = new MedicineEntity("130830ASY", "포크랄시럽", 30, "https://www.health.kr/images/ext_images/pack_img/P_A11AGGGGA5864_01.jpg",
+                        1, "3개", 3, 10, 0, "불면증, 수술 전 진정");
+                listDao.insert(item1);
+
+                TakesEntity take1 = new TakesEntity("130830ASY", "2020.5.9", "12:10");
+                listDao.insert(take1);
+            });
+        }
+    };
     private static volatile AppDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
     static final ExecutorService databaseWriteExecutor =
@@ -24,8 +48,8 @@ public abstract class AppDatabase extends RoomDatabase {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            AppDatabase.class, "word_database")
-                            .build();
+                            AppDatabase.class, "app_database")
+                            .addCallback(sRoomDatabaseCallback).build();
                 }
             }
         }

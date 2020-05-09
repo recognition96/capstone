@@ -15,6 +15,7 @@ import com.example.inhacsecapstone.calendars.Calendars;
 import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
 import com.example.inhacsecapstone.drugs.AllMedicineList;
+import com.example.inhacsecapstone.drugs.ViewModel;
 import com.example.inhacsecapstone.initial.InformationSetting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -25,10 +26,13 @@ public class MainActivity extends AppCompatActivity {
     private Boolean isFabOpen = false;
     private FloatingActionButton fab, fab1, fab2;
 
+    private ViewModel mViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         // Floating Action Bar Setting
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);

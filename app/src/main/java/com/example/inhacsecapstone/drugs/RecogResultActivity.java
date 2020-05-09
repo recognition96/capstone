@@ -1,30 +1,36 @@
 package com.example.inhacsecapstone.drugs;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
 
 import com.example.inhacsecapstone.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RecogResultActivity extends AppCompatActivity {
 
+    private ViewModel mViewModel;
+    private RecyclerView mRecyclerView;
+    private DayDrugListAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recog_result);
-        ListView listview;
-        //RecogResultListAdapter adapter;
-        //adapter = new RecogResultListAdapter() ;
-        //listview = (ListView) findViewById(R.id.listview);
-        //listview.setAdapter(adapter);
 
-        ArrayList<String> date1 = new ArrayList<String>();
-        date1.add("2018.10.30 12:10:13");
-        date1.add("2013.10.30 19:10:13");
-        //DrugItem item1 = new DrugItem(ContextCompat.getDrawable(this, R.drawable.example1), "약품", 3,"desc test",date1, 1, 1);
-        //adapter.addItem(item1);
+        mRecyclerView = this.findViewById(R.id.DayMedicineView);
+        adapter = new DayDrugListAdapter(this);
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        mViewModel = new ViewModelProvider(this).get(ViewModel.class);
     }
 }

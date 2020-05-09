@@ -1,39 +1,88 @@
 package com.example.inhacsecapstone.drugs;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
+import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.TimePicker;
 
+import com.bumptech.glide.Glide;
 import com.example.inhacsecapstone.R;
 
 import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.List;
 
-public class DayDrugActivity extends AppCompatActivity {
+public class DayDrugActivity extends AppCompatActivity implements EventListener {
+    private ViewModel mViewModel;
+    private RecyclerView mRecyclerView;
+    private DayDrugListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_day_drug);
         Intent intent = getIntent();
-        int year = intent.getIntExtra("Year", -1);
-        int month = intent.getIntExtra("Month", -1);
-        int day = intent.getIntExtra("Day", -1);
+        int year = intent.getIntExtra("year", -1);
+        int month = intent.getIntExtra("month", -1);
+        int day = intent.getIntExtra("day", -1);
+        String target = Integer.toString(year) + "." + Integer.toString(month) +"." + Integer.toString(day);
 
-        ListView listview ;
+        mRecyclerView = this.findViewById(R.id.DayMedicineView);
+        adapter = new DayDrugListAdapter(this);
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        /*
+        Context activityContext = this;
+        dayDrugText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView textView = (TextView)v;
+                TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        DayDrugListAdapter.DayDrugListHolder holder =  (DayDrugListAdapter.DayDrugListHolder) mRecyclerView.findContainingViewHolder(v);
+                        ArrayList<TakesEntity> takes =  holder.getTakes();
+                        for(TakesEntity take : takes){
+                            if(take.getTime().equals((String)textView.getText()))
+                                mViewModel.update(new TakesEntity(take.getCode(), take.getDay(), Integer.toString(hourOfDay) + ":" + Integer.toString(minute)));
+                        }
+                    }
+                };
+                String data = (String)mRecyclerView.getText();
+                TimePickerDialog dialog = new TimePickerDialog(activityContext, listener,Integer.parseInt(data.split(":")[0]), Integer.parseInt(data.split(":")[1]), true);
+                dialog.show();
+            }
+        });*/
 
-        //DayDrugListAdapter adapter;
-        //adapter = new DayDrugListAdapter() ;
-        //listview = (ListView) findViewById(R.id.listview);
-        //listview.setAdapter(adapter);
+        mViewModel = new ViewModelProvider(this).get(ViewModel.class);
+        mViewModel.getMediAtDay(target).observe(this, new Observer<List<MedicineEntity>>() {
+            @Override
+            public void onChanged(@Nullable final List<MedicineEntity> drugs) {
+                // Update the cached copy of the words in the adapter.
+                adapter.setDrugs(drugs);
+            }
+        });
 
-        ArrayList<String> date1 = new ArrayList<String>();
-        date1.add("2018.10.30 12:10:13");
-        date1.add("2013.10.30 19:10:13");
-
-        
-        //DrugItem item1 = new DrugItem(ContextCompat.getDrawable(this, R.drawable.example1), "약품", 3,"desc test",date1, 1, 1);
-        //adapter.addItem(item1);
+        mViewModel.getTakesAtDay(target).observe(this, new Observer<List<TakesEntity>>() {
+            @Override
+            public void onChanged(List<TakesEntity> takes) {
+                adapter.setTakes(takes);
+            }
+        });
     }
+
 }

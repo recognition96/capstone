@@ -11,7 +11,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 @Entity(tableName = "medicine_list")
-public class DrugItem {
+public class MedicineEntity {
 
     @PrimaryKey
     @NonNull
@@ -26,7 +26,7 @@ public class DrugItem {
     @ColumnInfo(name="category")
     private int category;
     @ColumnInfo(name="single_dose")
-    private int singleDose;
+    private String singleDose;
     @ColumnInfo(name="daily_dose")
     private int dailyDose;
     @ColumnInfo(name="number_of_day_takens")
@@ -36,7 +36,7 @@ public class DrugItem {
     @ColumnInfo(name="desc")
     private String desc;
 
-    public DrugItem(String code, String name, int amount, String image, int category, int singleDose, int dailyDose, int numberOfDayTakens, int warning, String desc)
+    public MedicineEntity(String code, String name, int amount, String image, int category, String singleDose, int dailyDose, int numberOfDayTakens, int warning, String desc)
     {
         this.code = code;
         this.name = name;
@@ -49,32 +49,6 @@ public class DrugItem {
         this.warning = warning;
         this.desc = desc;
     }
-    /*
-    public void setImage(Drawable image) {
-        this.image = image ;
-    }
-    public void setDrugName(String drugName) {
-        this.drugName = drugName ;
-    }
-    public void setAmount(int amount) {
-        this.amount = amount ;
-    }
-    public void setDesc(String desc) {
-        this.desc = desc ;
-    }
-    public void setTakes(ArrayList<String> takeTimes) {
-        this.takeTimes = takeTimes ;
-    }
-    public void setSingleDose(int singleDose) {
-        this.singleDose = singleDose ;
-    }
-    public void setDailyDose(int dailyDose) {
-        this.dailyDose = dailyDose ;
-    }
-    public void setPeriod(int period) {
-        this.period = period ;
-    }
-*/
 
 
         public String getCode()
@@ -95,7 +69,7 @@ public class DrugItem {
         {
             return this.category;
         }
-        public int getSingleDose()
+        public String getSingleDose()
         {
             return this.singleDose;
         }

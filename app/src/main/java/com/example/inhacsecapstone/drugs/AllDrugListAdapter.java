@@ -1,16 +1,24 @@
 package com.example.inhacsecapstone.drugs;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
 import com.example.inhacsecapstone.R;
 
 import java.util.List;
@@ -50,11 +58,15 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
             });
         }
     }
-
+    private Context context;
     private final LayoutInflater mInflater;
-    private List<DrugItem> mdrugs; // Cached copy of words
+    private List<MedicineEntity> mdrugs; // Cached copy of words
+    private List<TakesEntity> mtakes;
 
-    AllDrugListAdapter(Context context) { mInflater = LayoutInflater.from(context); }
+    public AllDrugListAdapter(Context context) {
+        mInflater = LayoutInflater.from(context);
+        this.context = context;
+    }
 
     @Override
     public AllDrugListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -65,105 +77,54 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
     @Override
     public void onBindViewHolder(AllDrugListHolder holder, int position) {
         if (mdrugs != null) {
-            DrugItem current = mdrugs.get(position);
-            //holder.imageView.setText(current.getWord()); 이미지 추가해야함
-            holder.progressBarView.setProgress(50); // 이부분도 수정
-            holder.amountView.setText(Integer.toString(current.getAmount()));
-            holder.dailyDoseView.setText(Integer.toString(current.getDailyDose()));
-            holder.descView.setText(current.getDesc());
-            holder.nameView.setText(current.getName());
-            holder.numberOfDayTakensView.setText(Integer.toString(current.getNumberOfDayTakens()));
-            holder.singleDoseView.setText(Integer.toString(current.getSingleDose()));
+            MedicineEntity curDrug = mdrugs.get(position);
+
+            Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
+
+            holder.imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                  showImage(curDrug.getImage());
+                }
+            });
+
+            int cnt = 0;
+            for(TakesEntity elem : mtakes){
+                if(curDrug.getCode().equals(elem.getCode()))
+                    cnt++;
+            }
+            holder.progressBarView.setProgress(cnt* 100 / curDrug.getAmount());
+            holder.amountView.setText(Integer.toString(curDrug.getAmount()));
+            holder.dailyDoseView.setText(Integer.toString(curDrug.getDailyDose()));
+            holder.descView.setText(curDrug.getDesc());
+            holder.nameView.setText(curDrug.getName());
+            holder.numberOfDayTakensView.setText(Integer.toString(curDrug.getNumberOfDayTakens()));
+            holder.singleDoseView.setText(curDrug.getSingleDose());
         } else {
-            // Covers the case of data not being ready yet.
-            // holder.wordItemView.setText("No Word");
         }
     }
 
-    void setWords(List<DrugItem> drugs){
-        drugs = drugs;
+    public void setDrugs(List<MedicineEntity> drugs){
+        mdrugs = drugs;
         notifyDataSetChanged();
     }
-
-    // getItemCount() is called many times, and when it is first called,
-    // mWords has not been updated (means initially, it's null, and we can't return null).
+    public void setTakes(List<TakesEntity> takes){
+        mtakes = takes;
+        notifyDataSetChanged();
+    }
     @Override
     public int getItemCount() {
         if (mdrugs != null)
             return mdrugs.size();
         else return 0;
     }
+    public void showImage(String url) {
+        LayoutInflater factory = LayoutInflater.from(context);
+        final View view = factory.inflate(R.layout.myphoto_layout, null);
+        Dialog dialog = new Dialog(context);
+        ImageView iv = view.findViewById(R.id.iv);
+        Glide.with(context).load(url).into(iv);
+        dialog.setContentView(view);
+        dialog.show();
+    }
 }
-
-
-/*
-public class AllDrugListAdapter extends BaseAdapter {
-    private ArrayList<DrugItem> listViewItemList = new ArrayList<DrugItem>() ;
-
-    public AllDrugListAdapter() {
-
-    }
-
-    @Override
-    public int getCount() {
-        return listViewItemList.size() ;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        final int pos = position;
-        final Context context = parent.getContext();
-
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.all_drug_list_item, parent, false);
-        }
-
-        ImageView ImageView = (ImageView) convertView.findViewById(R.id.drugImage) ;
-        TextView DrugNameView = (TextView) convertView.findViewById(R.id.drugName) ;
-        TextView AmountView = (TextView) convertView.findViewById(R.id.Amount) ;
-        TextView descTextView = (TextView) convertView.findViewById(R.id.desc) ;
-        TextView singleDoseTextView = (TextView) convertView.findViewById(R.id.singleDose) ;
-        TextView dailyDoseTextView = (TextView) convertView.findViewById(R.id.dailyDose) ;
-        TextView periodTextView = (TextView) convertView.findViewById(R.id.period) ;
-        ProgressBar progressBarView = (ProgressBar) convertView.findViewById(R.id.progressBar);
-        ViewGroup layout = (ViewGroup) convertView.findViewById(R.id.buttonLayout);
-
-        DrugItem listViewItem = listViewItemList.get(position);
-
-        layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(v.findViewById(R.id.toggleView).getVisibility() == View.GONE)
-                    v.findViewById(R.id.toggleView).setVisibility(View.VISIBLE);
-                else
-                    v.findViewById(R.id.toggleView).setVisibility(View.GONE);
-            }
-        });
-
-        progressBarView.setProgress(100* listViewItem.getTakeTimes().size() / listViewItem.getAmount());
-        ImageView.setImageDrawable(listViewItem.getImage());
-        DrugNameView.setText(listViewItem.getDrugName());
-        AmountView.setText(Integer.toString(listViewItem.getAmount()));
-        descTextView.setText(listViewItem.getDesc());
-        singleDoseTextView.setText(Integer.toString(listViewItem.getSingleDose()));
-        dailyDoseTextView.setText(Integer.toString(listViewItem.getDailyDose()));
-        periodTextView.setText(Integer.toString(listViewItem.getPeriod()));
-
-        return convertView;
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position ;
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return listViewItemList.get(position) ;
-    }
-
-    public void addItem(DrugItem item) {
-        listViewItemList.add(item);
-    }
-}*/

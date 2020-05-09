@@ -45,7 +45,7 @@ public class Calendars extends Fragment {
                 int Month = date.getMonth() + 1;
                 int Day = date.getDay();
 
-                String shot_Day = Year + "," + Month + "," + Day;
+                String shot_Day = Year + "." + Month + "." + Day;
 
                 Toast.makeText(context, shot_Day , Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), DayDrugActivity.class);
