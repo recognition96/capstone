@@ -10,12 +10,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.inhacsecapstone.R;
 
-import org.json.JSONObject;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,32 +22,26 @@ public class RecogResultActivity extends AppCompatActivity {
     private ViewModel mViewModel;
     private RecyclerView mRecyclerView;
     private RecogResultListAdapter adapter;
-    private ArrayList<Drugs> arrDurgs;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recog_result);
-        try {
-            arrDurgs = new ArrayList<Drugs>();
-            ArrayList<MedicineEntity> medi = new ArrayList<MedicineEntity>();
-            for(Drugs iter : arrDurgs) {
-                medi.add(new MedicineEntity(Integer.toString(iter.getCode()), iter.getDrug_name(), 0, (iter.getSmall_image() == null ? iter.getPack_image() : iter.getSmall_image()),
-                        0, null, 0, 0, 0, null));
-            }
-            medi.add(new MedicineEntity(Integer.toString(3333), "fjeif", 0, "fjei",
-                    0, null, 0, 0, 0, null));
-            mRecyclerView = this.findViewById(R.id.recogList);
-            adapter = new RecogResultListAdapter(this, medi);
-            mRecyclerView.setAdapter(adapter);
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        Drugs[] drugs = (Drugs[])getIntent().getSerializableExtra("drugs");
+        for(int i=0; i<drugs.length; i++) {
+            Toast.makeText(this, drugs[i].printres(), Toast.LENGTH_LONG).show();
+            System.out.println(drugs[i].printres());
         }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-        }
+
+        mRecyclerView = this.findViewById(R.id.recogList);
+        adapter = new RecogResultListAdapter(this, new ArrayList<MedicineEntity>()); // 요 ArrayList를 medicine Entity 형식에 맞춰서 만들고 넣어주면 리스트 만들어짐.
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // mViewModel = new ViewModelProvider(this).get(ViewModel.class);
         // mViewModel.insert(take); DB에 take 저장
         // mViewModel.insert(Medicine) DB에 medicine 저장
     }
+
+
 }
