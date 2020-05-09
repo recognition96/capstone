@@ -166,7 +166,7 @@ public class   PreviewActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            Toast.makeText(context, "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show(); //  이 부분에서 서버로 부터 응답 받음.
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
