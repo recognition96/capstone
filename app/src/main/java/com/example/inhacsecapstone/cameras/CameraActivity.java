@@ -44,8 +44,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -64,7 +66,17 @@ import java.util.Arrays;
 
 public class CameraActivity extends AppCompatActivity {
 
-    private static final int IMAGE_ACTIVITY = 1;
+    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+
+    static {
+        ORIENTATIONS.append(ExifInterface.ORIENTATION_NORMAL, 0);
+        ORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_90, 90);
+        ORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_180, 180);
+        ORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_270, 270);
+    }
+
+    private static final int SENDING_IMAGE = 1;
+    private static final int SELECT_IMAGE = 2;
     private SurfaceView mSurfaceView;
     private SurfaceHolder mSurfaceViewHolder;
     private Handler mHandler;
@@ -77,16 +89,9 @@ public class CameraActivity extends AppCompatActivity {
     private Sensor mMagnetometer;
     private SensorManager mSensorManager;
     private DeviceOrientation deviceOrientation;
+    private Object selectedImagePath;
+    private ImageView mImageView;
     int mDSI_height, mDSI_width;
-
-    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
-
-    static {
-        ORIENTATIONS.append(ExifInterface.ORIENTATION_NORMAL, 0);
-        ORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_90, 90);
-        ORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_180, 180);
-        ORIENTATIONS.append(ExifInterface.ORIENTATION_ROTATE_270, 270);
-    }
 
 
     @Override
@@ -94,25 +99,22 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //퍼미션 상태 확인
+            Log.d("@@@@@ ", "Camera_Act.. On Create!");
             if (!hasPermissions(PERMISSIONS)) {
 
                 //퍼미션 허가 안되어있다면 사용자에게 요청
                 requestPermissions(PERMISSIONS, PERMISSIONS_REQUEST_CODE);
             } else {
-//                Intent mainIntent = new Intent(LaunchActivity.this, CameraActivity.class);
-//                startActivity(mainIntent);
-//                finish();
                 initSurfaceView();
 
             }
         }
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
+        Log.d("@@@@@ ", "Camera_Act.. On Resume!");
         mSensorManager.registerListener(deviceOrientation.getEventListener(), mAccelerometer, SensorManager.SENSOR_DELAY_UI);
         mSensorManager.registerListener(deviceOrientation.getEventListener(), mMagnetometer, SensorManager.SENSOR_DELAY_UI);
     }
@@ -124,11 +126,28 @@ public class CameraActivity extends AppCompatActivity {
         mSensorManager.unregisterListener(deviceOrientation.getEventListener());
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("TAG", "BACK TO Camera");
+        if (resultCode == RESULT_CANCELED) {
+            Log.d("TAG", "From Preview");
+        }
+        else if (resultCode == RESULT_OK && data.getData() != null) {
+            if (requestCode == SELECT_IMAGE) {
+                Log.d("TAG", "cause IMAGE SELECTED..");
+                Uri selectedImageUri = data.getData();
+//                selectedImagePath = selectedImageUri.getPath();
+                sendImageToPrev(selectedImageUri);
+
+            }
+        }
+    }
+
     public void initSurfaceView() {
         // 상태바를 안보이도록 합니다.
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         // 화면 켜진 상태를 유지합니다.
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -136,33 +155,27 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
 
 
-        ImageButton button = findViewById(R.id.take_photo);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                takePicture();
-            }
-        });
-
+        // 프리뷰
         mSurfaceView = findViewById(R.id.surfaceView);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         deviceOrientation = new DeviceOrientation();
 
-
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         mDSI_height = displayMetrics.heightPixels;
         mDSI_width = displayMetrics.widthPixels;
 
-
+        Log.d("Surface : ", "after displayMetrics");
         mSurfaceViewHolder = mSurfaceView.getHolder();
         mSurfaceViewHolder.addCallback(new SurfaceHolder.Callback() {
 
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
+
                 initCameraAndPreview();
+                Log.d("@@@@@", "surfaceCreated");
             }
 
             @Override
@@ -172,15 +185,46 @@ public class CameraActivity extends AppCompatActivity {
                     mCameraDevice.close();
                     mCameraDevice = null;
                 }
+                Log.d("@@@@@", "surfaceDestroyed");
             }
 
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                Log.d("@@@@@", "surfaceChanged");
 
             }
 
-
         });
+
+
+        // 버튼
+        ImageButton takebtn = findViewById(R.id.take_photo);
+        Button gallerybtn = findViewById(R.id.gallery);
+        Button cancelbtn = findViewById(R.id.cancel);
+        takebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                takePicture();
+            }
+        });
+        gallerybtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("TAG", "Choose from GALLERY");
+                takePhotoFromGallery();
+            }
+        });
+        cancelbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("TAG", "Cancel to upload");
+                finish();
+            }
+        });
+
+        // 가이드라인
+        mImageView = findViewById(R.id.guide);
+        mImageView.setAlpha((float) 0.4);
     }
 
 
@@ -299,6 +343,14 @@ public class CameraActivity extends AppCompatActivity {
         }
     };
 
+    private void takePhotoFromGallery() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        Toast.makeText(this, "처방전사진을 선택하세요.", Toast.LENGTH_SHORT).show();
+        startActivityForResult(intent, SELECT_IMAGE);
+        Log.d("TAG", "IMAGE SELECTING..");
+    }
 
     public void takePicture() {
 
@@ -318,9 +370,18 @@ public class CameraActivity extends AppCompatActivity {
             captureRequestBuilder.set(CaptureRequest.JPEG_ORIENTATION, mDeviceRotation);
             CaptureRequest mCaptureRequest = captureRequestBuilder.build();
             mSession.capture(mCaptureRequest, mSessionCaptureCallback, mHandler);
+
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    // 이미지의 uri를 intent로 Preview로 보냄
+    private void sendImageToPrev(Uri uri){
+        Intent intent = new Intent(CameraActivity.this, PreviewActivity.class);
+        intent.putExtra("imageUri", uri);
+        Log.d("TAG", "Success taking a photo.. Transfer this to PreviewActivity");
+        startActivityForResult(intent, SENDING_IMAGE);
     }
 
     public Bitmap getRotatedBitmap(Bitmap bitmap, int degrees) throws Exception {
@@ -393,14 +454,9 @@ public class CameraActivity extends AppCompatActivity {
                 } finally {
                     imageOut.close();
                 }
+                sendImageToPrev(url);
 
-                // 촬영된 이미지의 uri를 intent로 Preview로 보냄
-                Intent intent = new Intent(CameraActivity.this, PreviewActivity.class);
-                intent.putExtra("imageUri", url);
-                Log.d("TAG", "Success taking a photo.. Transfer this to PreviewActivity");
-                startActivityForResult(intent, IMAGE_ACTIVITY);
-            }
-            else {
+            } else {
                 cr.delete(url, null, null);
                 url = null;
             }
@@ -416,7 +472,6 @@ public class CameraActivity extends AppCompatActivity {
         }
 
     }
-
 
     @SuppressLint("StaticFieldLeak")
     private class SaveImageTask extends AsyncTask<Bitmap, Void, Void> {
@@ -455,11 +510,16 @@ public class CameraActivity extends AppCompatActivity {
 
     private void updateTextureViewSize(int viewWidth, int viewHeight) {
         Log.d("@@@", "TextureView Width : " + viewWidth + " TextureView Height : " + viewHeight);
-        mSurfaceView.setLayoutParams(new FrameLayout.LayoutParams(viewWidth, viewHeight));
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(viewWidth, viewHeight);
+        lp.setMargins(0, viewHeight / 12, 0, 0);
+        mSurfaceView.setLayoutParams(lp);
+        mImageView.setLayoutParams(lp);
     }
 
 
-    // 여기서부터는 퍼미션 관련 코드입니다.
+    /*******************************
+        여기서부터는 퍼미션 관련 코드
+     ********************************/
     static final int PERMISSIONS_REQUEST_CODE = 1000;
     String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
 
@@ -497,9 +557,6 @@ public class CameraActivity extends AppCompatActivity {
                 if (!cameraPermissionAccepted || !diskPermissionAccepted)
                     showDialogForPermission("앱을 실행하려면 퍼미션을 허가하셔야합니다.");
                 else {
-//                    Intent mainIntent = new Intent(LaunchActivity.this, CameraActivity.class);
-//                    startActivity(mainIntent);
-//                    finish();
                     initSurfaceView();
                 }
             }
