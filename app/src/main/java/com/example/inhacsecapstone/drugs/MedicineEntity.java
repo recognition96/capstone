@@ -50,8 +50,47 @@ public class MedicineEntity {
         this.desc = desc;
     }
 
+    public void setWarning(int warning) {
+        this.warning = warning;
+    }
 
-        public String getCode()
+    public void setSingleDose(String singleDose) {
+        this.singleDose = singleDose;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDailyDose(int dailyDose) {
+        this.dailyDose = dailyDose;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public void setCategory(int category) {
+        this.category = category;
+    }
+
+    public void setCode(@NonNull String code) {
+        this.code = code;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public void setNumberOfDayTakens(int numberOfDayTakens) {
+        this.numberOfDayTakens = numberOfDayTakens;
+    }
+
+    public String getCode()
         {
             return this.code;
         }

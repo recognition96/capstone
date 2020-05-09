@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.inhacsecapstone.drugs.DayDrugActivity;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.RecogResultActivity;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;

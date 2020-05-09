@@ -11,7 +11,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 // singleton 설계 방식
-@Database(entities = {MedicineEntity.class, TakesEntity.class}, version = 1, exportSchema = false) //exportSchema 수정
+@Database(entities = {MedicineEntity.class, TakesEntity.class}, version = 1, exportSchema = true) //exportSchema 수정
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract ListDao ListDao();
@@ -19,21 +19,15 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
             super.onOpen(db);
-
-            // If you want to keep data through app restarts,
-            // comment out the following block
             databaseWriteExecutor.execute(() -> {
-                // Populate the database in the background.
-                // If you want to start with more words, just add them.
                 ListDao listDao = INSTANCE.ListDao();
                 listDao.deleteMedicineAll();
                 listDao.deleteTakesAll();
-
-                MedicineEntity item1 = new MedicineEntity("130830ASY", "포크랄시럽", 30, "https://www.health.kr/images/ext_images/pack_img/P_A11AGGGGA5864_01.jpg",
+                MedicineEntity item1 = new MedicineEntity("11111111", "포크랄시럽", 30, "https://www.health.kr/images/ext_images/pack_img/P_A11AGGGGA5864_01.jpg",
                         1, "3개", 3, 10, 0, "불면증, 수술 전 진정");
                 listDao.insert(item1);
 
-                TakesEntity take1 = new TakesEntity("130830ASY", "2020.5.9", "12:10");
+                TakesEntity take1 = new TakesEntity("11111111", "2020.5.9", "12:10");
                 listDao.insert(take1);
             });
         }

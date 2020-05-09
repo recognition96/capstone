@@ -113,7 +113,7 @@ public class CameraActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d("@@@@@ ", "Camera_Act.. On Resume!");
-        mSensorManager.registerListener(deviceOrientation.getEventListener(), mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(deviceOrientation.getEventListener(), mAccelerometer, SensorManager.SENSOR_DELAY_UI); // 에러 지점1
         mSensorManager.registerListener(deviceOrientation.getEventListener(), mMagnetometer, SensorManager.SENSOR_DELAY_UI);
     }
 
@@ -238,7 +238,7 @@ public class CameraActivity extends AppCompatActivity {
             CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
-            Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[1];
+            Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[0];
             Log.i("LargestSize", largestPreviewSize.getWidth() + " " + largestPreviewSize.getHeight());
 
 
@@ -385,6 +385,7 @@ public class CameraActivity extends AppCompatActivity {
         intent.putExtra("imageUri", uri);
         Log.d("TAG", "Success taking a photo.. Transfer this to PreviewActivity");
         startActivityForResult(intent, SENDING_IMAGE);
+        finish();
     }
 
     public Bitmap getRotatedBitmap(Bitmap bitmap, int degrees) throws Exception {
