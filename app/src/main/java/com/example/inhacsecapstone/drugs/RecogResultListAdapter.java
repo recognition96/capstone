@@ -40,11 +40,11 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
     }
     private Context context;
     private final LayoutInflater mInflater;
-    private List<MedicineEntity> mdrugs; // Cached copy of words
-    private List<TakesEntity> mtakes;
+    private ArrayList<MedicineEntity> mdrugs; // Cached copy of words
 
-    public RecogResultListAdapter(Context context) {
+    public RecogResultListAdapter(Context context, ArrayList<MedicineEntity> drugs) {
         mInflater = LayoutInflater.from(context);
+        this.mdrugs = drugs;
         this.context = context;
     }
 
@@ -75,15 +75,6 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
             holder.singleDoseView.setText(curDrug.getSingleDose());
         } else {
         }
-    }
-
-    public void setDrugs(List<MedicineEntity> drugs){
-        mdrugs = drugs;
-        notifyDataSetChanged();
-    }
-    public void setTakes(List<TakesEntity> takes){
-        mtakes = takes;
-        notifyDataSetChanged();
     }
     @Override
     public int getItemCount() {

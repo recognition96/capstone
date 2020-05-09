@@ -10,8 +10,6 @@ import java.util.List;
 
 @Dao
 public interface ListDao {
-    // allowing the insert of the same word multiple times by passing a
-    // conflict resolution strategy
     @Insert
     void insert(MedicineEntity medi);
 

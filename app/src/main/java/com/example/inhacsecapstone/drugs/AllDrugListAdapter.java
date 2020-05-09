@@ -60,7 +60,7 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
     }
     private Context context;
     private final LayoutInflater mInflater;
-    private List<MedicineEntity> mdrugs; // Cached copy of words
+    private List<MedicineEntity> mdrugs;
     private List<TakesEntity> mtakes;
 
     public AllDrugListAdapter(Context context) {

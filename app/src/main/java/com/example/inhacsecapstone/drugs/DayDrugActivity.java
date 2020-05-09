@@ -72,7 +72,6 @@ public class DayDrugActivity extends AppCompatActivity implements EventListener 
         mViewModel.getMediAtDay(target).observe(this, new Observer<List<MedicineEntity>>() {
             @Override
             public void onChanged(@Nullable final List<MedicineEntity> drugs) {
-                // Update the cached copy of the words in the adapter.
                 adapter.setDrugs(drugs);
             }
         });

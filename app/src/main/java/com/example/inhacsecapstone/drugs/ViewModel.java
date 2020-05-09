@@ -20,7 +20,6 @@ public class ViewModel extends AndroidViewModel {
         mAllMedicine = mRepository.getAllDrugs();
         mAllTakes = mRepository.getAllTakes();
     }
-
     public LiveData<List<MedicineEntity>> getAllDrugs() {
         return mAllMedicine;
     }
