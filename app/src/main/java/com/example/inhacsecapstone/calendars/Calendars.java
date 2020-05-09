@@ -49,7 +49,7 @@ public class Calendars extends Fragment {
                 String shot_Day = Year + "." + Month + "." + Day;
 
                 Toast.makeText(context, shot_Day , Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(), RecogResultActivity.class);
+                Intent intent = new Intent(getActivity(), DayDrugActivity.class);
                 intent.putExtra("year", Year);
                 intent.putExtra("month", Month);
                 intent.putExtra("day", Day);

@@ -38,16 +38,19 @@ class Repository {
     void insert(MedicineEntity drug) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             mListDao.insert(drug);
+            //mAllDrugs = mListDao.getAllMedicine();
         });
     }
     void insert(TakesEntity take){
         AppDatabase.databaseWriteExecutor.execute(() -> {
             mListDao.insert(take);
+            //mAllTakes = mListDao.getAllTakes();
         });
     }
     void update(TakesEntity take){
         AppDatabase.databaseWriteExecutor.execute(() ->{
             mListDao.update(take);
+            //mAllTakes = mListDao.getAllTakes();
         });
     }
 }

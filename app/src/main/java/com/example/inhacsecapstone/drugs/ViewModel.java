@@ -25,8 +25,10 @@ public class ViewModel extends AndroidViewModel {
     }
     public LiveData<List<TakesEntity>> getAllTakes() { return mAllTakes; }
 
-    public void insert(MedicineEntity item) { mRepository.insert(item); }
-    public void insert(TakesEntity item) { mRepository.insert(item); }
+    public void insert(MedicineEntity item) { mRepository.insert(item);
+    }
+    public void insert(TakesEntity item) { mRepository.insert(item);
+    }
     public void update(TakesEntity item) {mRepository.update(item);}
 
     public LiveData<List<MedicineEntity>> getMediAtDay(String day) {return mRepository.getMediAtDay(day);}

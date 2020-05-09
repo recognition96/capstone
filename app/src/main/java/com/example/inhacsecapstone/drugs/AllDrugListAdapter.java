@@ -89,10 +89,13 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
             });
 
             int cnt = 0;
-            for(TakesEntity elem : mtakes){
-                if(curDrug.getCode().equals(elem.getCode()))
-                    cnt++;
+            if(mtakes!= null){
+                for(TakesEntity elem : mtakes){
+                    if(curDrug.getCode().equals(elem.getCode()))
+                        cnt++;
+                }
             }
+
             holder.progressBarView.setProgress(cnt* 100 / curDrug.getAmount());
             holder.amountView.setText(Integer.toString(curDrug.getAmount()));
             holder.dailyDoseView.setText(Integer.toString(curDrug.getDailyDose()));

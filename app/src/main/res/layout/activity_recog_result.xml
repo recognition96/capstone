@@ -5,19 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recogList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/nosubmit"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/day_drug_list_item" />
+        tools:layout_editor_absoluteX="0dp"
+        tools:listitem="@layout/recog_result_list_item">
 
+    </androidx.recyclerview.widget.RecyclerView>
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/submit"
         android:layout_width="118dp"
         android:layout_height="56dp"
         android:layout_marginEnd="20dp"
@@ -27,7 +28,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/nosubmit"
         android:layout_width="118dp"
         android:layout_height="56dp"
         android:layout_marginStart="20dp"
