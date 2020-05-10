@@ -92,6 +92,8 @@ public class CameraActivity extends AppCompatActivity {
     private Object selectedImagePath;
     private ImageView mImageView;
     int mDSI_height, mDSI_width;
+    private CameraManager mCameraManager;
+    private CameraCharacteristics characteristics;
 
 
     @Override
@@ -235,42 +237,34 @@ public class CameraActivity extends AppCompatActivity {
         mHandler = new Handler(handlerThread.getLooper());
         Handler mainHandler = new Handler(getMainLooper());
         try {
-            String mCameraId = "" + CameraCharacteristics.LENS_FACING_FRONT; // 후면 카메라 사용
 
-            CameraManager mCameraManager = (CameraManager) this.getSystemService(Context.CAMERA_SERVICE);
-            CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
+            /*
+             CameraManager : 사용가능한 카메라와 카메라의 기능을 알려줌
+             CameraCharacteristics : 해당 카메라의 정보
+             */
+            mCameraManager = (CameraManager) this.getSystemService(Context.CAMERA_SERVICE);
+            String mCameraId = "" + CameraCharacteristics.LENS_FACING_FRONT;    // 후면 카메라 사용
+            mCameraManager.getCameraCharacteristics(mCameraId);
+
+            // 해당 카메라 지원하는 다양한 정보 (지원하는 화면크기 목록 등을 포함)
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-
+            // 위 객체에서 getOutPutSizes를 통해 해상도 목록이 Size객체의 배열로 반환 (내림차순인듯)
             Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[0];
             Log.i("LargestSize", largestPreviewSize.getWidth() + " " + largestPreviewSize.getHeight());
 
             setAspectRatioTextureView(largestPreviewSize.getHeight(), largestPreviewSize.getWidth());
 
-            mImageReader = ImageReader.newInstance(largestPreviewSize.getWidth(), largestPreviewSize.getHeight(), ImageFormat.JPEG,/*maxImages*/7);
+            mImageReader = ImageReader.newInstance(largestPreviewSize.getWidth(), largestPreviewSize.getHeight(), ImageFormat.JPEG,7);
             mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mainHandler);
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
+            // CameraDevice 객체 생성 (by call back)
             mCameraManager.openCamera(mCameraId, deviceStateCallback, mHandler);
         } catch (CameraAccessException e) {
             Toast.makeText(this, "카메라를 열지 못했습니다.", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-    private ImageReader.OnImageAvailableListener mOnImageAvailableListener = new ImageReader.OnImageAvailableListener() {
-        @Override
-        public void onImageAvailable(ImageReader reader) {
-
-            Image image = reader.acquireNextImage();
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            new SaveImageTask().execute(bitmap);
-        }
-    };
-
 
     private CameraDevice.StateCallback deviceStateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -298,12 +292,28 @@ public class CameraActivity extends AppCompatActivity {
     };
 
 
+
+    private ImageReader.OnImageAvailableListener mOnImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+        @Override
+        public void onImageAvailable(ImageReader reader) {
+
+            Image image = reader.acquireNextImage();
+            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+            byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+            final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            new SaveImageTask().execute(bitmap);
+        }
+    };
+
+
     public void takePreview() throws CameraAccessException {
         mPreviewBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
         mPreviewBuilder.addTarget(mSurfaceViewHolder.getSurface());
         mCameraDevice.createCaptureSession(Arrays.asList(mSurfaceViewHolder.getSurface(), mImageReader.getSurface()), mSessionPreviewStateCallback, mHandler);
     }
 
+    // CameraDevice에 의해 이미지 캡쳐를 위한 세션 연결
     private CameraCaptureSession.StateCallback mSessionPreviewStateCallback = new CameraCaptureSession.StateCallback() {
         @Override
         public void onConfigured(@NonNull CameraCaptureSession session) {
@@ -325,6 +335,7 @@ public class CameraActivity extends AppCompatActivity {
         }
     };
 
+    // CaptureRequest가 수행되고
     private CameraCaptureSession.CaptureCallback mSessionCaptureCallback = new CameraCaptureSession.CaptureCallback() {
         @Override
         public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
@@ -353,13 +364,14 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     public void takePicture() {
-
         try {
-            CaptureRequest.Builder captureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);//用来设置拍照请求的request
+            // CaptureRequset : CameraDevice에 의해 Builder 로 생성하며
+            // 단일 이미지 캡쳐를 위한 하드웨어(센서, 렌즈, 플래쉬) 설정 및 출력 버퍼 등의 정보
+            // 해당 리퀘스트가 연결될 세션의 surface를 타겟으로 지정
+            CaptureRequest.Builder captureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            captureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);   // auto-focus
+            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);        // auto-flash
             captureRequestBuilder.addTarget(mImageReader.getSurface());
-            captureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
-
 
             // 화면 회전 안되게 고정시켜 놓은 상태에서는 아래 로직으로 방향을 얻을 수 없어서
             // 센서를 사용하는 것으로 변경
@@ -483,6 +495,7 @@ public class CameraActivity extends AppCompatActivity {
             try {
                 bitmap = getRotatedBitmap(data[0], mDeviceRotation);
             } catch (Exception e) {
+
                 e.printStackTrace();
             }
             insertImage(getContentResolver(), bitmap, "" + System.currentTimeMillis(), "");
@@ -494,6 +507,7 @@ public class CameraActivity extends AppCompatActivity {
 
 
     // 출처 https://stackoverflow.com/a/43516672
+    // 가로 세로 비율 보정
     private void setAspectRatioTextureView(int ResolutionWidth, int ResolutionHeight) {
         if (ResolutionWidth > ResolutionHeight) {
             int newWidth = mDSI_width;
