@@ -103,12 +103,10 @@ public class CameraActivity extends AppCompatActivity {
             //퍼미션 상태 확인
             Log.d("@@@@@ ", "Camera_Act.. On Create!");
             if (!hasPermissions(PERMISSIONS)) {
-
                 //퍼미션 허가 안되어있다면 사용자에게 요청
                 requestPermissions(PERMISSIONS, PERMISSIONS_REQUEST_CODE);
             } else {
                 initSurfaceView();
-
             }
         }
     }
@@ -117,7 +115,7 @@ public class CameraActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d("@@@@@ ", "Camera_Act.. On Resume!");
-        mSensorManager.registerListener(deviceOrientation.getEventListener(), mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(deviceOrientation.getEventListener(), mAccelerometer, SensorManager.SENSOR_DELAY_UI); // 에러 지점1
         mSensorManager.registerListener(deviceOrientation.getEventListener(), mMagnetometer, SensorManager.SENSOR_DELAY_UI);
     }
 
@@ -135,13 +133,12 @@ public class CameraActivity extends AppCompatActivity {
         if (resultCode == RESULT_CANCELED) {
             Log.d("TAG", "From Preview");
         }
-        else if (resultCode == RESULT_OK && data.getData() != null) {
+        else if (resultCode == RESULT_OK) {
             if (requestCode == SELECT_IMAGE) {
                 Log.d("TAG", "cause IMAGE SELECTED..");
                 Uri selectedImageUri = data.getData();
 //                selectedImagePath = selectedImageUri.getPath();
                 sendImageToPrev(selectedImageUri);
-
             }
         }
     }
@@ -252,6 +249,12 @@ public class CameraActivity extends AppCompatActivity {
             Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[0];
             Log.i("LargestSize", largestPreviewSize.getWidth() + " " + largestPreviewSize.getHeight());
 
+
+            int imgsize = map.getOutputSizes(ImageFormat.JPEG).length;
+            for (int i = 0; i < imgsize; i++){
+                System.out.println("resolution : " + map.getOutputSizes(ImageFormat.JPEG)[i]);
+            }
+
             setAspectRatioTextureView(largestPreviewSize.getHeight(), largestPreviewSize.getWidth());
 
             mImageReader = ImageReader.newInstance(largestPreviewSize.getWidth(), largestPreviewSize.getHeight(), ImageFormat.JPEG,7);
@@ -357,7 +360,7 @@ public class CameraActivity extends AppCompatActivity {
     private void takePhotoFromGallery() {
         Intent intent = new Intent();
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setAction(Intent.ACTION_PICK);
         Toast.makeText(this, "처방전사진을 선택하세요.", Toast.LENGTH_SHORT).show();
         startActivityForResult(intent, SELECT_IMAGE);
         Log.d("TAG", "IMAGE SELECTING..");
@@ -394,6 +397,7 @@ public class CameraActivity extends AppCompatActivity {
         intent.putExtra("imageUri", uri);
         Log.d("TAG", "Success taking a photo.. Transfer this to PreviewActivity");
         startActivityForResult(intent, SENDING_IMAGE);
+        finish();
     }
 
     public Bitmap getRotatedBitmap(Bitmap bitmap, int degrees) throws Exception {

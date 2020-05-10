@@ -1,93 +1,143 @@
 package com.example.inhacsecapstone.drugs;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
+import android.media.Image;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.inhacsecapstone.R;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
-public class DayDrugListAdapter extends BaseAdapter {
-    private ArrayList<DrugItem> listViewItemList = new ArrayList<DrugItem>() ;
-
-    public DayDrugListAdapter() {
-
-    }
-
-    @Override
-    public int getCount() {
-        return listViewItemList.size() ;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        final int pos = position;
-        final Context context = parent.getContext();
-
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.day_drug_list_item, parent, false);
+public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.DayDrugListHolder> {
+    class DayDrugListHolder extends RecyclerView.ViewHolder {
+        private String code;
+        private ArrayList<TakesEntity> takes;
+        private final ImageView imageView;
+        private final TextView nameView;
+        private final TextView amountView;
+        private final View view;
+        private DayDrugListHolder(View itemView) {
+            super(itemView);
+            view = itemView;
+            takes = new ArrayList<TakesEntity>();
+            imageView = (ImageView) itemView.findViewById(R.id.drugImage) ;
+            nameView = (TextView) itemView.findViewById(R.id.drugName) ;
+            amountView = (TextView) itemView.findViewById(R.id.Amount) ;
         }
 
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.drugImage) ;
-        TextView drugNameView = (TextView) convertView.findViewById(R.id.drugName) ;
-        TextView amountView = convertView.findViewById(R.id.Amount);
-
-        DrugItem listViewItem = listViewItemList.get(position);
-
-        amountView.setText( "남은 수량 " + Integer.toString(listViewItem.getAmount()));
-        imageView.setImageDrawable(listViewItem.getImage());
-        drugNameView.setText(listViewItem.getDrugName());
-        ArrayList<String> takeTimes = listViewItem.getTakeTimes();
-
-        for(int i = 0; i < takeTimes.size(); i++)
-        {
-            String[] day_time = takeTimes.get(i).split(" ");
-
-            String[] data = day_time[1].split(":");
-
-            DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
-            int width = dm.widthPixels;
-            TextView text = new TextView(context);
-            text.setText(data[0] + ":" + data[1]);
-
-            int bottom = 10;
-            ConstraintLayout.LayoutParams layoutParams =
-                    new ConstraintLayout.LayoutParams(
-                            ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
-                    );
-            layoutParams.leftToLeft = R.id.target;
-            layoutParams.leftMargin = ((width-300)/ takeTimes.size()) * i;
-            layoutParams.bottomToTop = R.id.view;
-            layoutParams.bottomMargin = bottom;
-            text.setLayoutParams(layoutParams);
-
-            ConstraintLayout layout = (ConstraintLayout) convertView.findViewById(R.id.target) ;
-            layout.addView(text);
+        public ArrayList<TakesEntity> getTakes() {
+            return takes;
         }
 
-        return convertView;
+        public String getCode() {
+            return code;
+        }
+    }
+    private Context context;
+    private final LayoutInflater mInflater;
+    private List<MedicineEntity> mdrugs; // Cached copy of words
+    private List<TakesEntity> mtakes;
+
+    public DayDrugListAdapter(Context context) {
+        mInflater = LayoutInflater.from(context);
+        this.context = context;
     }
 
     @Override
-    public long getItemId(int position) {
-        return position ;
+    public DayDrugListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = mInflater.inflate(R.layout.day_drug_list_item, parent, false);
+        return new DayDrugListHolder(itemView);
     }
 
     @Override
-    public Object getItem(int position) {
-        return listViewItemList.get(position) ;
+    public void onBindViewHolder(DayDrugListHolder holder, int position) {
+        if (mdrugs != null) {
+            MedicineEntity curDrug = mdrugs.get(position);
+            //holder.takes.clear();
+            holder.code = curDrug.getCode();
+            for (TakesEntity elem : mtakes)
+                if(curDrug.getCode().equals(elem.getCode()))
+                    holder.takes.add(elem);
+
+            Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
+            holder.imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showImage(curDrug.getImage());
+                }
+            });
+
+            holder.amountView.setText("남은 수량: " + Integer.toString((curDrug.getAmount() - holder.takes.size())));
+            holder.nameView.setText(curDrug.getName());
+
+            View view = holder.view;
+            for(int i = 0; i < holder.takes.size(); i++)
+            {
+                String[] data = holder.takes.get(i).getTime().split(":");
+
+                DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
+                int width = dm.widthPixels;
+                TextView text = new TextView(context);
+
+                text.setId(R.id.DayDrug_text);
+                text.setText(data[0] + ":" + data[1]);
+
+                int bottom = 10;
+                ConstraintLayout.LayoutParams layoutParams =
+                        new ConstraintLayout.LayoutParams(
+                                ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
+                        );
+                layoutParams.leftToLeft = R.id.target;
+                layoutParams.leftMargin = ((width-300)/ holder.takes.size()) * i;
+                layoutParams.bottomToTop = R.id.view;
+                layoutParams.bottomMargin = bottom;
+                text.setLayoutParams(layoutParams);
+
+                ConstraintLayout layout = (ConstraintLayout) view.findViewById(R.id.target) ;
+                layout.addView(text);
+            }
+        } else {
+        }
+    }
+    public void setDrugs(List<MedicineEntity> drugs){
+        mdrugs = drugs;
+        notifyDataSetChanged();
+    }
+    public void setTakes(List<TakesEntity> takes){
+        mtakes = takes;
+        notifyDataSetChanged();
+    }
+    @Override
+    public int getItemCount() {
+        if (mdrugs != null)
+            return mdrugs.size();
+        else return 0;
     }
 
-    public void addItem(DrugItem item) {
-        listViewItemList.add(item);
+    public void showImage(String url) {
+        LayoutInflater factory = LayoutInflater.from(context);
+        final View view = factory.inflate(R.layout.myphoto_layout, null);
+        Dialog dialog = new Dialog(context);
+        ImageView iv = view.findViewById(R.id.iv);
+        Glide.with(context).load(url).into(iv);
+        dialog.setContentView(view);
+        dialog.show();
     }
 }

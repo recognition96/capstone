@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.inhacsecapstone.drugs.DayDrugActivity;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.RecogResultActivity;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
@@ -45,7 +46,7 @@ public class Calendars extends Fragment {
                 int Month = date.getMonth() + 1;
                 int Day = date.getDay();
 
-                String shot_Day = Year + "," + Month + "," + Day;
+                String shot_Day = Year + "." + Month + "." + Day;
 
                 Toast.makeText(context, shot_Day , Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), DayDrugActivity.class);

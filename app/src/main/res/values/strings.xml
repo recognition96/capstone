@@ -3,4 +3,8 @@
     <string name="calendar_title">달력</string>
     <string name="camera_title">처방전 찍기</string>
     <string name="userdrug_title">복약 정보</string>
+    <string name="error">오류</string>
+    <string name="options">옵션</string>
+    <string name="clear_messages">대화창 초기화</string>
+    <string name="send_picture">사진 전송</string>
 </resources>

@@ -2,15 +2,20 @@ package com.example.inhacsecapstone.drugs;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import com.example.inhacsecapstone.R;
 
-import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -22,6 +27,10 @@ public class AllMedicineList extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "type";
+    private ViewModel mViewModel;
+
+
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -59,20 +68,29 @@ public class AllMedicineList extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_medicine_list, container, false);
-        ListView listview ;
+
+        RecyclerView recyclerView = view.findViewById(R.id.allMedicineView);
+        final AllDrugListAdapter adapter = new AllDrugListAdapter(getActivity());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 
-            AllDrugListAdapter adapter;
-            adapter = new AllDrugListAdapter() ;
-            listview = (ListView) view.findViewById(R.id.listview);
-            listview.setAdapter(adapter);
+        mViewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
 
-            ArrayList<String> date1 = new ArrayList<String>();
-            date1.add("2018.10.30 12:10:13");
-            date1.add("2013.10.30 19:10:13");
-            //DrugItem item1 = new DrugItem(ContextCompat.getDrawable(getActivity(), R.drawable.example1), "약품", 3,"desc test",date1, 1, 1);
+        mViewModel.getAllDrugs().observe(requireActivity(), new Observer<List<MedicineEntity>>() {
+            @Override
+            public void onChanged(@Nullable final List<MedicineEntity> drugs) {
+                // Update the cached copy of the words in the adapter.
+                adapter.setDrugs(drugs);
+            }
+        });
 
-            //adapter.addItem(item1);
+        mViewModel.getAllTakes().observe(requireActivity(), new Observer<List<TakesEntity>>() {
+            @Override
+            public void onChanged(List<TakesEntity> takes) {
+                adapter.setTakes(takes );
+            }
+        });
 
         return view;
     }
