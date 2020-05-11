@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         // Floating Action Bar Setting
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
         fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
@@ -41,8 +40,6 @@ public class MainActivity extends AppCompatActivity {
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab1 = (FloatingActionButton) findViewById(R.id.chatbotbtn);
         fab2 = (FloatingActionButton) findViewById(R.id.userinfobtn);
-
-        //
 
         // Bottom Navigation View Setting
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -67,8 +64,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, InformationSetting.class));
                 break;
         }
-
-
     }
 
     public void anim() {

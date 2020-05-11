@@ -33,7 +33,7 @@ public class RecogResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recog_result);
         ArrayList<MedicineEntity> arrayList= new ArrayList<MedicineEntity>();
-        Drugs[] drugs = (Drugs[])getIntent().getSerializableExtra("drugs");
+        Drugs[] drugs = (Drugs[]) getIntent().getSerializableExtra("drugs");
         for(Drugs iter : drugs){
             arrayList.add(new MedicineEntity(Integer.toString(iter.getCode()), iter.getDrug_name(), -1, iter.getSmall_image().equals("null") ? iter.getPack_image(): iter.getSmall_image(), -1,
                     null, -1, -1, -1, null));

@@ -43,22 +43,17 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class   PreviewActivity extends AppCompatActivity {
-    private static final Pattern IP_ADDRESS
-            = Pattern.compile(
-            "((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\\.(25[0-5]|2[0-4]"
+    private static final Pattern IP_ADDRESS = Pattern.compile( "((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\\.(25[0-5]|2[0-4]"
                     + "[0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]"
                     + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
                     + "|[1-9][0-9]|[0-9]))");
     private static final String portNumber = "5000";
-    private static final String ipv4Address = "172.30.1.51";
-    private static final int SELECT_PICTURE = 1;
-    Context context;
+    private static final String ipv4Address = "192.168.0.20";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("TAG", "Preview_Called");
         setContentView(R.layout.activity_preview);
-        context = getApplicationContext();
         // intent로 촬영한 img의 uri를 받아옴
         final Uri uri = getIntent().getParcelableExtra("imageUri");
 
@@ -78,7 +73,6 @@ public class   PreviewActivity extends AppCompatActivity {
                 finish();
             }
         });
-
         bt_no.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,60 +87,32 @@ public class   PreviewActivity extends AppCompatActivity {
         });
     }
 
-    public void connectServerSendText(String texts){
-        Matcher matcher = IP_ADDRESS.matcher(ipv4Address);
-        // 전송 텍스트
-        String sendText = texts;
-
-        if (!matcher.matches()) {
-            Toast.makeText(this, "Invalid IPv4 Address. Please Check Your Inputs.", Toast.LENGTH_LONG).show();
-            return;
-        }
-        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/string";
-        RequestBody formBody = new FormBody.Builder()
-                .add("message", sendText)
-                .build();
-        postRequest(postUrl,formBody);
-
-    }
-
     public void connectServer(Uri uri) {
         Matcher matcher = IP_ADDRESS.matcher(ipv4Address);
         if (!matcher.matches()) {
             Toast.makeText(this, "Invalid IPv4 Address. Please Check Your Inputs.", Toast.LENGTH_LONG).show();
             return;
         }
-
         String postUrl = "http://" + ipv4Address + ":" + portNumber + "/image";
-
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.RGB_565;
-
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
         try {
-            // Read BitMap by file path.
-//            Bitmap bitmap = BitmapFactory.decodeFile(getPath(this,uri), options);
             Bitmap bitmap = BitmapFactory.decodeFile(getPath(uri), options);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         }catch(Exception e){
             Toast.makeText(this, "Please Make Sure the Selected File is an Image.", Toast.LENGTH_LONG).show();
             return;
         }
-
         byte[] byteArray = stream.toByteArray();
         multipartBodyBuilder.addFormDataPart("image" , "Android_Flask_" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
-
         RequestBody postBodyImage = multipartBodyBuilder.build();
         postRequest(postUrl, postBodyImage);
     }
 
     void postRequest(String postUrl, RequestBody postBody) {
-
         OkHttpClient client = new OkHttpClient();
-
         Request request = new Request.Builder()
                 .url(postUrl)
                 .post(postBody)
@@ -158,12 +124,11 @@ public class   PreviewActivity extends AppCompatActivity {
                 // Cancel the post on failure.
                 call.cancel();
                 Log.d("FAIL", e.getMessage());
-
                 // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(context, "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -174,10 +139,8 @@ public class   PreviewActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
                         try {
                             String strs = response.body().string();
-                            //Toast.makeText(context, "Server's Response\n" + strs, Toast.LENGTH_LONG).show();
                             Gson gson = new GsonBuilder().create();
                             JsonParser parser = new JsonParser();
                             JsonElement rootObject = parser.parse(strs)
@@ -186,14 +149,13 @@ public class   PreviewActivity extends AppCompatActivity {
                             for(int i=0; i<drugs.length; i++) {
                                 System.out.println(drugs[i].printres());
                             }
-                            Intent intent = new Intent(context, RecogResultActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), RecogResultActivity.class);
                             intent.putExtra("drugs", drugs);
                             startActivity(intent);
                             finish();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
                     }
                 });
             }

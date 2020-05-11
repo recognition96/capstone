@@ -11,7 +11,6 @@ import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 
 public class SplashActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

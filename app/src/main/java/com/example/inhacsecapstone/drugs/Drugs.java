@@ -31,6 +31,6 @@ public class Drugs implements Serializable {
     }
 
     public String printres() {
-        return Integer.toString(code) + " , " + drug_name + " , " + small_image + " , " + pack_image + " , " + usages + " , " + effect;
+        return Integer.toString(code) + " , " + drug_name + " , " + small_image + " , " + pack_image ;
     }
 }

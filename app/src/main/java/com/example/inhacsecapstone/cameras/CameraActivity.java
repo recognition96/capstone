@@ -238,7 +238,7 @@ public class CameraActivity extends AppCompatActivity {
             CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
-            Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[0];
+            Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[1];
             Log.i("LargestSize", largestPreviewSize.getWidth() + " " + largestPreviewSize.getHeight());
 
 
@@ -385,7 +385,6 @@ public class CameraActivity extends AppCompatActivity {
         intent.putExtra("imageUri", uri);
         Log.d("TAG", "Success taking a photo.. Transfer this to PreviewActivity");
         startActivityForResult(intent, SENDING_IMAGE);
-        finish();
     }
 
     public Bitmap getRotatedBitmap(Bitmap bitmap, int degrees) throws Exception {
