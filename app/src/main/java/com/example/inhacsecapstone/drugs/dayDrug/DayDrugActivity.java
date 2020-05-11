@@ -1,4 +1,4 @@
-package com.example.inhacsecapstone.drugs;
+package com.example.inhacsecapstone.drugs.dayDrug;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,22 +7,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Dialog;
-import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.TimePicker;
 
-import com.bumptech.glide.Glide;
+import com.example.inhacsecapstone.Entity.MedicineEntity;
+import com.example.inhacsecapstone.Entity.TakesEntity;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.ViewModel;
 
-import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
 

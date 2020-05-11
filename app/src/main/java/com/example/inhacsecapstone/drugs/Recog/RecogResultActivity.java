@@ -1,8 +1,6 @@
-package com.example.inhacsecapstone.drugs;
+package com.example.inhacsecapstone.drugs.Recog;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,23 +8,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.ListView;
-import android.widget.Toast;
 
+import com.example.inhacsecapstone.Entity.MedicineEntity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.cameras.CameraActivity;
+import com.example.inhacsecapstone.drugs.Drugs;
+import com.example.inhacsecapstone.drugs.ViewModel;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class RecogResultActivity extends AppCompatActivity {
-
+    private static String TAG = "RecogResultActivity";
     private ViewModel mViewModel;
     private RecyclerView mRecyclerView;
     private RecogResultListAdapter adapter;
     private Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         context = this;
@@ -35,12 +34,13 @@ public class RecogResultActivity extends AppCompatActivity {
         ArrayList<MedicineEntity> arrayList= new ArrayList<MedicineEntity>();
         Drugs[] drugs = (Drugs[])getIntent().getSerializableExtra("drugs");
         for(Drugs iter : drugs){
-            arrayList.add(new MedicineEntity(Integer.toString(iter.getCode()), iter.getDrug_name(), -1, iter.getSmall_image().equals("null") ? iter.getPack_image(): iter.getSmall_image(), -1,
+            String img = iter.getSmall_image().equals("null") || iter.getSmall_image().equals("") ? (iter.getPack_image().equals("null") || iter.getPack_image().equals("") ? null : iter.getPack_image()) : iter.getSmall_image();
+            arrayList.add(new MedicineEntity(Integer.toString(iter.getCode()), iter.getDrug_name(), -1, img, -1,
                     null, -1, -1, -1, null));
         }
 
         mRecyclerView = this.findViewById(R.id.recogList);
-        adapter = new RecogResultListAdapter(this, arrayList); // 요 ArrayList를 medicine Entity 형식에 맞춰서 만들고 넣어주면 리스트 만들어짐.
+        adapter = new RecogResultListAdapter(this, arrayList);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mViewModel = new ViewModelProvider(this).get(ViewModel.class);
@@ -48,22 +48,17 @@ public class RecogResultActivity extends AppCompatActivity {
         findViewById(R.id.submit).setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                for(MedicineEntity iter : arrayList)
+                /*for(MedicineEntity iter : arrayList)
                     if(iter.getAmount() == -1 || iter.getDailyDose() == -1 ||  iter.getSingleDose() == null || iter.getNumberOfDayTakens() == -1) {
                         Toast.makeText(context, "빈칸을 채워주세요.", Toast.LENGTH_SHORT).show();
                         return;
-                    }
+                    }*/
                 for(MedicineEntity iter : arrayList)
                 {
-                    try{
-                        mViewModel.insert(iter);
-                    }catch(Exception ex){
-                        ex.printStackTrace();
-                        Toast.makeText(context, "현재 복용중인 약과 같은 약이 있습니다.", Toast.LENGTH_SHORT).show();
-                    }
-
+                    mViewModel.insert(iter);
                 }
                 finish();
+
             }
         });
 
@@ -76,6 +71,40 @@ public class RecogResultActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart()");
+    }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart()");
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume()");
+    }
+
+    @Override
+    protected void onPause() {
+
+        super.onPause();
+        Log.d(TAG, "onPause()");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop()");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy()");
+    }
 }

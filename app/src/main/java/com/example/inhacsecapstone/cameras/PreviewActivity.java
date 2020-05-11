@@ -15,13 +15,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import org.json.*;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.Drugs;
-import com.example.inhacsecapstone.drugs.RecogResultActivity;
+import com.example.inhacsecapstone.drugs.Recog.RecogResultActivity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -50,7 +48,7 @@ public class   PreviewActivity extends AppCompatActivity {
                     + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
                     + "|[1-9][0-9]|[0-9]))");
     private static final String portNumber = "5000";
-    private static final String ipv4Address = "172.30.1.46";
+    private static final String ipv4Address = "192.168.0.19";
     private static final int SELECT_PICTURE = 1;
     Context context;
 
@@ -129,10 +127,11 @@ public class   PreviewActivity extends AppCompatActivity {
         try {
             // Read BitMap by file path.
 //            Bitmap bitmap = BitmapFactory.decodeFile(getPath(this,uri), options);
-            Bitmap bitmap = BitmapFactory.decodeFile(getPath(uri), options);
+            Bitmap bitmap = BitmapFactory.decodeFile(getPath(uri), options); // 에러 지점
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         }catch(Exception e){
             Toast.makeText(this, "Please Make Sure the Selected File is an Image.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
             return;
         }
 
@@ -174,26 +173,29 @@ public class   PreviewActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
-                        try {
-                            String strs = response.body().string();
-                            //Toast.makeText(context, "Server's Response\n" + strs, Toast.LENGTH_LONG).show();
-                            Gson gson = new GsonBuilder().create();
-                            JsonParser parser = new JsonParser();
-                            JsonElement rootObject = parser.parse(strs)
-                                    .getAsJsonObject().get("drugs");
-                            Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
-                            for(int i=0; i<drugs.length; i++) {
-                                System.out.println(drugs[i].printres());
-                            }
-                            Intent intent = new Intent(context, RecogResultActivity.class);
-                            intent.putExtra("drugs", drugs);
-                            startActivity(intent);
+                        if(!response.isSuccessful() || response.body() == null) {
+                            setResult(Activity.RESULT_CANCELED);
                             finish();
+                        }
+                        String OCR_Result = "";
+                        try {
+                            OCR_Result = response.body().string();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
+                        Gson gson = new GsonBuilder().create();
+                        JsonParser parser = new JsonParser();
+                        JsonElement rootObject = parser.parse(OCR_Result)
+                                .getAsJsonObject().get("drugs");
+                        Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
+                        for(int i=0; i<drugs.length; i++) {
+                            System.out.println(drugs[i].printres());
+                        }
+                        Intent intent = new Intent(context, RecogResultActivity.class);
+                        intent.putExtra("drugs", drugs);
+                        startActivity(intent);
+                        finish();
                     }
                 });
             }

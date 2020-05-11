@@ -1,27 +1,22 @@
-package com.example.inhacsecapstone.drugs;
+package com.example.inhacsecapstone.drugs.dayDrug;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
-import android.media.Image;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.inhacsecapstone.Entity.MedicineEntity;
+import com.example.inhacsecapstone.Entity.TakesEntity;
 import com.example.inhacsecapstone.R;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 

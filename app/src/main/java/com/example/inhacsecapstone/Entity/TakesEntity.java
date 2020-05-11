@@ -1,9 +1,8 @@
-package com.example.inhacsecapstone.drugs;
+package com.example.inhacsecapstone.Entity;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "takes")
@@ -21,7 +20,7 @@ public class TakesEntity {
     @ColumnInfo(name = "time")
     private String time;
 
-    TakesEntity(String code, String day, String time)
+    public TakesEntity(String code, String day, String time)
     {
         this.code = code;
         this.day = day;

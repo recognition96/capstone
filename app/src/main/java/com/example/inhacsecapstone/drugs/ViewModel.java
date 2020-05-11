@@ -5,9 +5,13 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import com.example.inhacsecapstone.Entity.MedicineEntity;
+import com.example.inhacsecapstone.Entity.TakesEntity;
+
+import java.io.Serializable;
 import java.util.List;
 
-public class ViewModel extends AndroidViewModel {
+public class ViewModel extends AndroidViewModel implements Serializable {
 
     private Repository mRepository;
 
@@ -16,7 +20,7 @@ public class ViewModel extends AndroidViewModel {
 
     public ViewModel (Application application) {
         super(application);
-        mRepository = new Repository(application);
+        mRepository = Repository.getRepository(application);
         mAllMedicine = mRepository.getAllDrugs();
         mAllTakes = mRepository.getAllTakes();
     }
@@ -30,6 +34,7 @@ public class ViewModel extends AndroidViewModel {
     public void insert(TakesEntity item) { mRepository.insert(item);
     }
     public void update(TakesEntity item) {mRepository.update(item);}
+
 
     public LiveData<List<MedicineEntity>> getMediAtDay(String day) {return mRepository.getMediAtDay(day);}
     public LiveData<List<TakesEntity>> getTakesAtDay(String day) { return mRepository.getTakesAtDay(day); }

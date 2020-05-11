@@ -1,4 +1,4 @@
-package com.example.inhacsecapstone.drugs;
+package com.example.inhacsecapstone.drugs.allDrug;
 
 import android.os.Bundle;
 
@@ -13,7 +13,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.inhacsecapstone.Entity.MedicineEntity;
+import com.example.inhacsecapstone.Entity.TakesEntity;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.ViewModel;
 
 import java.util.List;
 

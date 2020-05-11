@@ -8,8 +8,13 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.example.inhacsecapstone.Entity.ListDao;
+import com.example.inhacsecapstone.Entity.MedicineEntity;
+import com.example.inhacsecapstone.Entity.TakesEntity;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 // singleton 설계 방식
 @Database(entities = {MedicineEntity.class, TakesEntity.class}, version = 1, exportSchema = true) //exportSchema 수정
 public abstract class AppDatabase extends RoomDatabase {
@@ -19,7 +24,7 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
             super.onOpen(db);
-            databaseWriteExecutor.execute(() -> {
+           /* databaseWriteExecutor.execute(() -> { // 복약정보 안가고 바로 사진 찍으면 이게 나중에 실행됨...
                 ListDao listDao = INSTANCE.ListDao();
                 listDao.deleteMedicineAll();
                 listDao.deleteTakesAll();
@@ -29,22 +34,21 @@ public abstract class AppDatabase extends RoomDatabase {
 
                 TakesEntity take1 = new TakesEntity("11111111", "2020.5.9", "12:10");
                 listDao.insert(take1);
-            });
+            });*/
         }
     };
     private static volatile AppDatabase INSTANCE;
-    private static final int NUMBER_OF_THREADS = 4;
+    private static final int NUMBER_OF_THREADS = 10;
     static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+
 
     static AppDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            AppDatabase.class, "app_database")
-                            .addCallback(sRoomDatabaseCallback).build();
-                }
+                INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                        AppDatabase.class, "app_database")
+                        .build();
             }
         }
         return INSTANCE;

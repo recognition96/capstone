@@ -22,8 +22,8 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity android:name=".chatbot.MessengerActivity" />
-        <activity android:name=".drugs.RecogResultActivity" />
-        <activity android:name=".drugs.DayDrugActivity" />
+        <activity android:name=".drugs.Recog.RecogResultActivity" />
+        <activity android:name=".drugs.dayDrug.DayDrugActivity" />
         <activity
             android:name=".initial.SplashActivity"
             android:theme="@style/Splash">

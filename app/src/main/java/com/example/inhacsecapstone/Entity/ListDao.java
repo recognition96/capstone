@@ -1,10 +1,13 @@
-package com.example.inhacsecapstone.drugs;
+package com.example.inhacsecapstone.Entity;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
+
+import com.example.inhacsecapstone.Entity.MedicineEntity;
+import com.example.inhacsecapstone.Entity.TakesEntity;
 
 import java.util.List;
 
