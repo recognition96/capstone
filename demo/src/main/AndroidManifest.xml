@@ -27,9 +27,6 @@
             android:name=".PicturePreviewActivity"
             android:label="Picture Preview" />
 
-        <activity
-            android:name=".VideoPreviewActivity"
-            android:label="Video Preview" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

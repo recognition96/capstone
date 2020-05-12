@@ -1,9 +1,14 @@
 package com.otaliastudios.cameraview;
 
 import android.graphics.PointF;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 /**
  * The base class for receiving updates from a {@link CameraView} instance.
@@ -55,7 +60,26 @@ public abstract class CameraListener {
      * @param result captured picture
      */
     @UiThread
-    public void onPictureTaken(@NonNull PictureResult result) { }
+    public void onPictureTaken(@NonNull PictureResult result) {
+//        super.onPictureTaken(jpeg);
+        byte[] jpeg = result.getData();
+        SavePhotoTask(jpeg);
+    }
+
+    public void SavePhotoTask(byte[] jpeg){
+        File images = new File("/data/user/0/com.otaliastudios.cameraview.demo/files" + "TEST.jpg");
+        try
+        {
+            Log.d("plz ", "SAVING..");
+            FileOutputStream fos = new FileOutputStream(images);
+            fos.write(jpeg);
+            fos.close();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
 
 
     /**

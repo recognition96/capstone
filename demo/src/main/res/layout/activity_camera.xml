@@ -29,45 +29,29 @@
         app:cameraGestureScrollHorizontal="filterControl1"
         app:cameraGestureScrollVertical="exposureCorrection"
         app:cameraMode="picture"
-        app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker">
-
-        <!-- Watermark -->
-        <ImageView
-            android:id="@+id/watermark"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:layout_gravity="bottom|end"
-            android:src="@mipmap/logo_foreground"
-            app:layout_drawOnPictureSnapshot="true"
-            app:layout_drawOnPreview="true"
-            app:layout_drawOnVideoSnapshot="true" />
-
-    </com.otaliastudios.cameraview.CameraView>
+        app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginBottom="96dp"
-        android:layout_gravity="bottom|start">
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="처방전을 주황색 가이드 안쪽에 맞춰주세요!"
+            android:textAlignment="center"
+            android:textColor="#DDFF6C22"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-        <ImageButton
-            android:id="@+id/changeFilter"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_margin="16dp"
-            android:background="@drawable/background"
-            android:elevation="3dp"
-            app:srcCompat="@drawable/ic_filters" />
-
-        <ImageButton
-            android:id="@+id/toggleCamera"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_margin="16dp"
-            android:background="@drawable/background"
-            android:elevation="3dp"
-            app:srcCompat="@drawable/ic_switch" />
+        <ImageView
+            android:id="@+id/guide"
+            android:layout_width="match_parent"
+            android:layout_height="540dp"
+            android:src="@drawable/guideline"
+            android:alpha="0.5"/>
     </LinearLayout>
 
     <!-- Controls -->
@@ -76,28 +60,16 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:padding="16dp"
+        android:background="#DDFF6C22"
         android:orientation="horizontal"
-        android:background="@color/colorPrimary"
-        android:weightSum="4">
+        android:weightSum="2">
 
         <ImageButton
-            android:id="@+id/edit"
+            android:id="@+id/takeFromGallery"
             android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:srcCompat="@drawable/ic_edit" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:id="@+id/capturePicture"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_photo" />
 
         <Space
             android:layout_width="0dp"
@@ -107,7 +79,7 @@
         <LinearLayout
             android:id="@+id/capturePictureSnapshot"
             android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_height="40dp"
             android:orientation="vertical"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:gravity="center" >
@@ -130,9 +102,9 @@
             android:layout_weight="1" />
 
         <ImageButton
-            android:id="@+id/captureVideo"
+            android:id="@+id/cancel_button"
             android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:srcCompat="@drawable/ic_video" />
 
@@ -142,25 +114,25 @@
             android:layout_weight="1" />
 
 
-        <LinearLayout
-            android:id="@+id/captureVideoSnapshot"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:orientation="vertical"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:gravity="center" >
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_video"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                android:textStyle="bold"
-                android:textSize="10sp"
-                android:text="SNAP"/>
-        </LinearLayout>
+<!--        <LinearLayout-->
+<!--            android:id="@+id/captureVideoSnapshot"-->
+<!--            android:layout_width="56dp"-->
+<!--            android:layout_height="56dp"-->
+<!--            android:orientation="vertical"-->
+<!--            android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--            android:gravity="center" >-->
+<!--            <ImageView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:srcCompat="@drawable/ic_video"/>-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textColor="@android:color/white"-->
+<!--                android:textStyle="bold"-->
+<!--                android:textSize="10sp"-->
+<!--                android:text="SNAP"/>-->
+<!--        </LinearLayout>-->
     </LinearLayout>
 
     <!-- Edit -->

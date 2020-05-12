@@ -21,3 +21,4 @@ public interface FileCallback {
     @UiThread
     void onFileReady(@Nullable File file);
 }
+

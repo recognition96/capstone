@@ -1651,7 +1651,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      */
     public void addCameraListener(@NonNull CameraListener cameraListener) {
         mListeners.add(cameraListener);
+
     }
+
 
     /**
      * Remove a {@link CameraListener} that was previously registered.

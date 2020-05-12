@@ -9,15 +9,15 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Handler;
 
-import com.otaliastudios.cameraview.controls.Facing;
-import com.otaliastudios.cameraview.engine.mappers.Camera1Mapper;
-import com.otaliastudios.cameraview.internal.ExifHelper;
-import com.otaliastudios.cameraview.internal.WorkerHandler;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.exifinterface.media.ExifInterface;
+
+import com.otaliastudios.cameraview.controls.Facing;
+import com.otaliastudios.cameraview.engine.mappers.Camera1Mapper;
+import com.otaliastudios.cameraview.internal.ExifHelper;
+import com.otaliastudios.cameraview.internal.WorkerHandler;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -90,6 +90,14 @@ public class CameraUtils {
     public static File writeToFile(@NonNull final byte[] data, @NonNull File file) {
         if (file.exists() && !file.delete()) return null;
         try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(file))) {
+
+            File root = android.os.Environment.getExternalStorageDirectory();
+            String path = root.getAbsolutePath() + "/hello.jpg";
+            FileOutputStream fos = new FileOutputStream(file, true);
+            fos.write(data);
+            fos.flush();
+
+
             stream.write(data);
             stream.flush();
             return file;

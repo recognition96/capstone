@@ -1,38 +1,50 @@
 package com.otaliastudios.cameraview.demo;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-
+import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.otaliastudios.cameraview.CameraUtils;
-import com.otaliastudios.cameraview.FileCallback;
-import com.otaliastudios.cameraview.size.AspectRatio;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.otaliastudios.cameraview.BitmapCallback;
 import com.otaliastudios.cameraview.PictureResult;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 
-public class PicturePreviewActivity extends AppCompatActivity {
+public class PicturePreviewActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final Pattern IP_ADDRESS
+            = Pattern.compile(
+            "((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\\.(25[0-5]|2[0-4]"
+                    + "[0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]"
+                    + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
+                    + "|[1-9][0-9]|[0-9]))");
+    private static final String portNumber = "5000";
+    private static final String ipv4Address = "172.30.1.35";
+    private static final int SELECT_PICTURE = 1;
     private static PictureResult picture;
+    Bitmap mbitmap;
 
     public static void setPictureResult(@Nullable PictureResult pictureResult) {
         picture = pictureResult;
@@ -41,47 +53,62 @@ public class PicturePreviewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 상태바를 안보이도록 합니다.
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_picture_preview);
+
+        final Uri uri = getIntent().getParcelableExtra("imageUri");
         final PictureResult result = picture;
-        if (result == null) {
-            finish();
-            return;
-        }
-
         final ImageView imageView = findViewById(R.id.image);
-        final MessageView captureResolution = findViewById(R.id.nativeCaptureResolution);
-        final MessageView captureLatency = findViewById(R.id.captureLatency);
-        final MessageView exifRotation = findViewById(R.id.exifRotation);
-
-        final long delay = getIntent().getLongExtra("delay", 0);
-        AspectRatio ratio = AspectRatio.of(result.getSize());
-        captureLatency.setTitleAndMessage("Approx. latency", delay + " milliseconds");
-        captureResolution.setTitleAndMessage("Resolution", result.getSize() + " (" + ratio + ")");
-        exifRotation.setTitleAndMessage("EXIF rotation", result.getRotation() + "");
-        try {
-            result.toBitmap(1000, 1000, new BitmapCallback() {
-                @Override
-                public void onBitmapReady(Bitmap bitmap) {
-                    imageView.setImageBitmap(bitmap);
-                }
-            });
-        } catch (UnsupportedOperationException e) {
-            imageView.setImageDrawable(new ColorDrawable(Color.GREEN));
-            Toast.makeText(this, "Can't preview this format: " + picture.getFormat(),
-                    Toast.LENGTH_LONG).show();
+        if (result == null && uri == null) {
+                finish();
+                return;
         }
+        else if (result == null && uri != null){
+                imageView.setImageURI(uri);
+            try {
+                mbitmap = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else if (result != null && uri == null) {
+            try {
+                result.toBitmap(1000, 1000, new BitmapCallback() {
+                    @Override
+                    public void onBitmapReady(Bitmap bitmap) {
+                        imageView.setImageBitmap(bitmap);
+                        mbitmap = bitmap;
+                    }
+                });
+            } catch (UnsupportedOperationException e) {
+                imageView.setImageDrawable(new ColorDrawable(Color.GREEN));
+                Toast.makeText(this, "Can't preview this format: " + picture.getFormat(),
+                        Toast.LENGTH_LONG).show();
+            }
 
-        if (result.isSnapshot()) {
             // Log the real size for debugging reason.
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeByteArray(result.getData(), 0, result.getData().length, options);
+
+            Log.d("@@@", "The picture full size is " + result.getSize().getHeight() + "x" + result.getSize().getWidth());
             if (result.getRotation() % 180 != 0) {
                 Log.e("PicturePreview", "The picture full size is " + result.getSize().getHeight() + "x" + result.getSize().getWidth());
             } else {
                 Log.e("PicturePreview", "The picture full size is " + result.getSize().getWidth() + "x" + result.getSize().getHeight());
             }
         }
+        else{
+            Log.d("plz", "PictureResult == Null && UriFromGallery == Null");
+        }
+
+        findViewById(R.id.send_button).setOnClickListener(this);
+        findViewById(R.id.cancel_button).setOnClickListener(this);
+        findViewById(R.id.send_button2).setOnClickListener(this);
+        findViewById(R.id.cancel_button2).setOnClickListener(this);
     }
 
     @Override
@@ -93,44 +120,88 @@ public class PicturePreviewActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.share, menu);
-        return true;
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.send_button: sendToServer(); break;
+            case R.id.cancel_button: cancel(); break;
+            case R.id.send_button2: sendToServer(); break;
+            case R.id.cancel_button2: cancel(); break;
+        }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.share) {
-            Toast.makeText(this, "Sharing...", Toast.LENGTH_SHORT).show();
-            String extension;
-            switch (picture.getFormat()) {
-                case JPEG: extension = "jpg"; break;
-                case DNG: extension = "dng"; break;
-                default: throw new RuntimeException("Unknown format.");
-            }
-            File file = new File(getFilesDir(), "picture." + extension);
-            CameraUtils.writeToFile(picture.getData(), file, new FileCallback() {
-                @Override
-                public void onFileReady(@Nullable File file) {
-                    if (file != null) {
-                        Context context = PicturePreviewActivity.this;
-                        Intent intent = new Intent(Intent.ACTION_SEND);
-                        intent.setType("image/*");
-                        Uri uri = FileProvider.getUriForFile(context,
-                                context.getPackageName() + ".provider",
-                                file);
-                        intent.putExtra(Intent.EXTRA_STREAM, uri);
-                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(PicturePreviewActivity.this,
-                                "Error while writing file.",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-            return true;
+    public void connectServer(Bitmap bitmap) {
+        Matcher matcher = IP_ADDRESS.matcher(ipv4Address);
+        if (!matcher.matches()) {
+            Toast.makeText(this, "Invalid IPv4 Address. Please Check Your Inputs.", Toast.LENGTH_LONG).show();
+            return;
         }
-        return super.onOptionsItemSelected(item);
+
+        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/image";
+
+        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+
+        byte[] byteArray = stream.toByteArray();
+        multipartBodyBuilder.addFormDataPart("image", "Android_Flask_" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
+
+        RequestBody postBodyImage = multipartBodyBuilder.build();
+        postRequest(postUrl, postBodyImage);
+    }
+
+    void postRequest(String postUrl, RequestBody postBody) {
+
+        OkHttpClient client = new OkHttpClient();
+
+        okhttp3.Request request = new Request.Builder()
+                .url(postUrl)
+                .post(postBody)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                // Cancel the post on failure.
+                call.cancel();
+                Log.d("FAIL", e.getMessage());
+
+                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, final okhttp3.Response response) throws IOException {
+                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    public void sendToServer(){
+        connectServer(mbitmap);
+    }
+    public void cancel() {
+//        setResult(Activity.RESULT_CANCELED);
+        finish();
     }
 }
+
