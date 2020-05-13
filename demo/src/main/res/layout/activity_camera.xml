@@ -29,7 +29,20 @@
         app:cameraGestureScrollHorizontal="filterControl1"
         app:cameraGestureScrollVertical="exposureCorrection"
         app:cameraMode="picture"
-        app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"/>
+        app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker" >
+
+        <ImageView
+            android:id="@+id/guideline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
+            android:layout_gravity="center"
+            android:src="@drawable/guideline"
+            android:alpha="0.5"
+            app:layout_drawOnPreview="true"
+            app:layout_drawOnPictureSnapshot="false" />
+    </com.otaliastudios.cameraview.CameraView>
 
     <LinearLayout
         android:layout_height="match_parent"
@@ -45,13 +58,6 @@
             android:textColor="#DDFF6C22"
             android:textSize="20sp"
             android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/guide"
-            android:layout_width="match_parent"
-            android:layout_height="540dp"
-            android:src="@drawable/guideline"
-            android:alpha="0.5"/>
     </LinearLayout>
 
     <!-- Controls -->

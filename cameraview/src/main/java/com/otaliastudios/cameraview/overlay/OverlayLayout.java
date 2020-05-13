@@ -194,6 +194,7 @@ public class OverlayLayout extends FrameLayout implements Overlay {
             }
         }
 
+
         @VisibleForTesting
         boolean drawsOn(@NonNull Target target) {
             return ((target == Target.PREVIEW && drawOnPreview)

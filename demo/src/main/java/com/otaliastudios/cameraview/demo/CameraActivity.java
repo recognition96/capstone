@@ -98,8 +98,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
 
 //        Log.d("@@@", String.valueOf(camera.getSnapshotSize().getHeight() + camera.getSnapshotSize().getWidth()));
-        mImageView = findViewById(R.id.guide);
-        camera.getPreview().
+        mImageView = findViewById(R.id.guideline);
 //        mImageView.getLayoutParams().height = camera.getSnapshotSize().getHeight();
 //        mImageView.getLayoutParams().width = camera.getSnapshotSize().getWidth();
 //        mImageView.requestLayout();
