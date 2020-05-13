@@ -29,10 +29,10 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    
+
     //room db debug를 위한 것
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
-    
+
     implementation 'com.squareup.okhttp3:okhttp:3.8.0'
 
     // Room components

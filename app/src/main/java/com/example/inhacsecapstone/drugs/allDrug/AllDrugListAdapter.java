@@ -2,6 +2,7 @@ package com.example.inhacsecapstone.drugs.allDrug;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,11 +13,13 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.inhacsecapstone.Entity.MedicineEntity;
-import com.example.inhacsecapstone.Entity.TakesEntity;
+import com.example.inhacsecapstone.Entity.Medicine;
+import com.example.inhacsecapstone.Entity.Takes;
+import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.AllDrugListHolder> {
 
@@ -24,41 +27,35 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
         private final ImageView imageView;
         private final TextView nameView;
         private final TextView amountView;
-        private final TextView descView;
         private final TextView singleDoseView;
         private final TextView dailyDoseView;
         private final TextView numberOfDayTakensView;
         private final ProgressBar progressBarView;
+        private final ViewGroup layout;
         private AllDrugListHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.drugImage) ;
             nameView = (TextView) itemView.findViewById(R.id.drugName) ;
             amountView = (TextView) itemView.findViewById(R.id.Amount) ;
-            descView = (TextView) itemView.findViewById(R.id.desc) ;
             singleDoseView = (TextView) itemView.findViewById(R.id.singleDose) ;
             dailyDoseView = (TextView) itemView.findViewById(R.id.dailyDose) ;
             numberOfDayTakensView = (TextView) itemView.findViewById(R.id.period) ;
             progressBarView = (ProgressBar) itemView.findViewById(R.id.progressBar);
-            ViewGroup layout = (ViewGroup) itemView.findViewById(R.id.buttonLayout);
+            layout = (ViewGroup) itemView.findViewById(R.id.buttonLayout);
 
 
-            layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(v.findViewById(R.id.toggleView).getVisibility() == View.GONE)
-                        v.findViewById(R.id.toggleView).setVisibility(View.VISIBLE);
-                    else
-                        v.findViewById(R.id.toggleView).setVisibility(View.GONE);
-                }
-            });
+
         }
     }
     private Context context;
     private final LayoutInflater mInflater;
-    private List<MedicineEntity> mdrugs;
-    private List<TakesEntity> mtakes;
+    private ArrayList<Medicine> mdrugs;
+    private ArrayList<Takes> mtakes;
 
-    public AllDrugListAdapter(Context context) {
+    public AllDrugListAdapter(Context context, ArrayList<Medicine> mdrugs, ArrayList<Takes> mtakes) {
+        this.mdrugs = mdrugs;
+        this.mtakes = mtakes;
+
         mInflater = LayoutInflater.from(context);
         this.context = context;
     }
@@ -72,43 +69,41 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
     @Override
     public void onBindViewHolder(AllDrugListHolder holder, int position) {
         if (mdrugs != null) {
-            MedicineEntity curDrug = mdrugs.get(position);
+            Medicine curDrug = mdrugs.get(position);
 
             Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
 
-            holder.imageView.setOnClickListener(new View.OnClickListener() {
+            /*holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                   showImage(curDrug.getImage());
                 }
-            });
+            });*/
 
             int cnt = 0;
             if(mtakes!= null){
-                for(TakesEntity elem : mtakes){
-                    if(curDrug.getCode().equals(elem.getCode()))
+                for(Takes elem : mtakes){
+                    if(curDrug.getCode() == elem.getCode())
                         cnt++;
                 }
             }
 
+            holder.layout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, MedicineInfoActivity.class);
+                    intent.putExtra("medicine", curDrug);
+                    context.startActivity(intent);
+                }
+            });
             holder.progressBarView.setProgress(cnt* 100 / curDrug.getAmount());
             holder.amountView.setText(Integer.toString(curDrug.getAmount()));
             holder.dailyDoseView.setText(Integer.toString(curDrug.getDailyDose()));
-            holder.descView.setText(curDrug.getDesc());
             holder.nameView.setText(curDrug.getName());
             holder.numberOfDayTakensView.setText(Integer.toString(curDrug.getNumberOfDayTakens()));
             holder.singleDoseView.setText(curDrug.getSingleDose());
         } else {
         }
-    }
-
-    public void setDrugs(List<MedicineEntity> drugs){
-        mdrugs = drugs;
-        notifyDataSetChanged();
-    }
-    public void setTakes(List<TakesEntity> takes){
-        mtakes = takes;
-        notifyDataSetChanged();
     }
     @Override
     public int getItemCount() {

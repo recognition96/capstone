@@ -6,14 +6,13 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ReportFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.inhacsecapstone.drugs.Repository;
+import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.dayDrug.DayDrugActivity;
 import com.example.inhacsecapstone.R;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
@@ -62,8 +61,8 @@ public class Calendars extends Fragment {
 
             @Override
             public void onClick(View v) {
-                Repository rp =  Repository.getRepository(getActivity().getApplication());
-                rp.deleteAll();
+                AppDatabase db =  AppDatabase.getDataBase(getActivity().getApplicationContext(), null, 1);
+                db.init();
             }
         });
         return rootView;

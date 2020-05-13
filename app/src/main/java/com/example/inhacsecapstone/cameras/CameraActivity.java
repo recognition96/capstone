@@ -383,7 +383,7 @@ public class CameraActivity extends AppCompatActivity {
         intent.putExtra("imageUri", uri);
         Log.d("TAG", "Success taking a photo.. Transfer this to PreviewActivity");
         startActivityForResult(intent, SENDING_IMAGE);
-        finish();
+        //finish();
     }
 
     public Bitmap getRotatedBitmap(Bitmap bitmap, int degrees) throws Exception {

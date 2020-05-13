@@ -2,10 +2,7 @@ package com.example.inhacsecapstone.drugs.allDrug;
 
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,12 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.inhacsecapstone.Entity.MedicineEntity;
-import com.example.inhacsecapstone.Entity.TakesEntity;
 import com.example.inhacsecapstone.R;
-import com.example.inhacsecapstone.drugs.ViewModel;
-
-import java.util.List;
+import com.example.inhacsecapstone.drugs.AppDatabase;
+import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
 
 
 /**
@@ -30,8 +24,7 @@ public class AllMedicineList extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "type";
-    private ViewModel mViewModel;
-
+    private AppDatabase db;
 
 
 
@@ -70,30 +63,14 @@ public class AllMedicineList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_medicine_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_all_medicine_list, container, false);
 
+        db = AppDatabase.getDataBase(getActivity().getApplicationContext(), null, 1);
         RecyclerView recyclerView = view.findViewById(R.id.allMedicineView);
-        final AllDrugListAdapter adapter = new AllDrugListAdapter(getActivity());
+        final AllDrugListAdapter adapter = new AllDrugListAdapter(getActivity(), db.getAllMedicine(), db.getAllTakes());
         recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new RecyclerViewDecorator(30));
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-
-        mViewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
-
-        mViewModel.getAllDrugs().observe(requireActivity(), new Observer<List<MedicineEntity>>() {
-            @Override
-            public void onChanged(@Nullable final List<MedicineEntity> drugs) {
-                // Update the cached copy of the words in the adapter.
-                adapter.setDrugs(drugs);
-            }
-        });
-
-        mViewModel.getAllTakes().observe(requireActivity(), new Observer<List<TakesEntity>>() {
-            @Override
-            public void onChanged(List<TakesEntity> takes) {
-                adapter.setTakes(takes );
-            }
-        });
 
         return view;
     }

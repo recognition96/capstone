@@ -48,7 +48,7 @@ public class   PreviewActivity extends AppCompatActivity {
                     + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
                     + "|[1-9][0-9]|[0-9]))");
     private static final String portNumber = "5000";
-    private static final String ipv4Address = "192.168.0.19";
+    private static final String ipv4Address = "192.168.25.39";
     private static final int SELECT_PICTURE = 1;
     Context context;
 

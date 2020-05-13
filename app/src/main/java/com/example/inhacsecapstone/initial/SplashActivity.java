@@ -1,7 +1,6 @@
 package com.example.inhacsecapstone.initial;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,7 +9,6 @@ import android.widget.Toast;
 
 import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
-import com.example.inhacsecapstone.drugs.ViewModel;
 
 public class SplashActivity extends AppCompatActivity {
 
