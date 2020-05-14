@@ -11,7 +11,6 @@ import com.google.android.gms.tasks.Tasks;
 import com.otaliastudios.cameraview.CameraException;
 import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.PictureResult;
-import com.otaliastudios.cameraview.controls.Audio;
 import com.otaliastudios.cameraview.controls.Facing;
 import com.otaliastudios.cameraview.controls.Flash;
 import com.otaliastudios.cameraview.controls.Hdr;
@@ -67,11 +66,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
     private SizeSelector mVideoSizeSelector;
     private Facing mFacing;
     private Mode mMode;
-    private Audio mAudio;
-    private long mVideoMaxSize;
-    private int mVideoMaxDuration;
-    private int mVideoBitRate;
-    private int mAudioBitRate;
     private long mAutoFocusResetDelayMillis;
     private int mSnapshotMaxWidth; // in REF_VIEW like SizeSelectors
     private int mSnapshotMaxHeight; // in REF_VIEW like SizeSelectors

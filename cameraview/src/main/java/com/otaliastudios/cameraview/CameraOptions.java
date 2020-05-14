@@ -5,7 +5,6 @@ import android.graphics.ImageFormat;
 
 import androidx.annotation.NonNull;
 
-import com.otaliastudios.cameraview.controls.Audio;
 import com.otaliastudios.cameraview.controls.Control;
 import com.otaliastudios.cameraview.controls.Engine;
 import com.otaliastudios.cameraview.controls.Facing;
@@ -89,9 +88,7 @@ public abstract class CameraOptions {
     @NonNull
     public final <T extends Control> Collection<T> getSupportedControls(
             @NonNull Class<T> controlClass) {
-        if (controlClass.equals(Audio.class)) {
-            return (Collection<T>) Arrays.asList(Audio.values());
-        } else if (controlClass.equals(Facing.class)) {
+        if (controlClass.equals(Facing.class)) {
             return (Collection<T>) getSupportedFacing();
         } else if (controlClass.equals(Flash.class)) {
             return (Collection<T>) getSupportedFlash();

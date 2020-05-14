@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -36,10 +35,7 @@ public class OptionView<Value> extends LinearLayout implements Spinner.OnItemSel
     public OptionView(@NonNull Context context) {
         super(context);
         setOrientation(VERTICAL);
-        inflate(context, R.layout.option_view, this);
         ViewGroup content = findViewById(R.id.content);
-        spinner = new Spinner(context, Spinner.MODE_DROPDOWN);
-        content.addView(spinner);
     }
 
     public void setHasDivider(boolean hasDivider) {
@@ -67,14 +63,10 @@ public class OptionView<Value> extends LinearLayout implements Spinner.OnItemSel
             spinner.setOnItemSelectedListener(null);
             spinner.setEnabled(false);
             spinner.setAlpha(0.8f);
-            spinner.setAdapter(new ArrayAdapter(getContext(),
-                    R.layout.spinner_text, new String[]{ "Not supported." }));
             spinner.setSelection(0, false);
         } else {
             spinner.setEnabled(true);
             spinner.setAlpha(1f);
-            spinner.setAdapter(new ArrayAdapter(getContext(),
-                    R.layout.spinner_text, valuesStrings));
             spinner.setSelection(values.indexOf(value), false);
             spinner.setOnItemSelectedListener(this);
         }

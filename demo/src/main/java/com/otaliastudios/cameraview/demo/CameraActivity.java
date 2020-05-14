@@ -43,8 +43,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     private CameraView camera;
     private View mImageView;
-    private int mImageViewHeight = 0;
-    private int mImageViewWidth = 0;
     private ViewGroup controlPanel;
     private long mCaptureTime;
 
@@ -93,22 +91,11 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 }
             });
         }
-//        Option.Height.get(camera);
-//        Option.Width;
 
-
-//        Log.d("@@@", String.valueOf(camera.getSnapshotSize().getHeight() + camera.getSnapshotSize().getWidth()));
         mImageView = findViewById(R.id.guideline);
-//        mImageView.getLayoutParams().height = camera.getSnapshotSize().getHeight();
-//        mImageView.getLayoutParams().width = camera.getSnapshotSize().getWidth();
-//        mImageView.requestLayout();
-        Log.d("@@@", "h : " + mImageView.getLayoutParams().height + " w : " + mImageView.getLayoutParams().width);
-        Log.d("@@@", "h : " + camera.getHeight() + " w : " + camera.getWidth());
         findViewById(R.id.takeFromGallery).setOnClickListener(this);
         findViewById(R.id.capturePictureSnapshot).setOnClickListener(this);
         controlPanel = findViewById(R.id.controls);
-
-
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
