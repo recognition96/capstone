@@ -48,7 +48,7 @@ public class   PreviewActivity extends AppCompatActivity {
                     + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
                     + "|[1-9][0-9]|[0-9]))");
     private static final String portNumber = "5000";
-    private static final String ipv4Address = "192.168.0.20";
+    private static final String ipv4Address = "121.142.4.173";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,23 +139,30 @@ public class   PreviewActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            String strs = response.body().string();
-                            Gson gson = new GsonBuilder().create();
-                            JsonParser parser = new JsonParser();
-                            JsonElement rootObject = parser.parse(strs)
-                                    .getAsJsonObject().get("drugs");
-                            Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
-                            for(int i=0; i<drugs.length; i++) {
-                                System.out.println(drugs[i].printres());
-                            }
-                            Intent intent = new Intent(getApplicationContext(), RecogResultActivity.class);
-                            intent.putExtra("drugs", drugs);
-                            startActivity(intent);
+                        if(response == null || response.body() == null || !response.isSuccessful()) {
+                            Toast.makeText(getApplicationContext(), "오류가 발생했습니다. 사진을 다시 전송해주세요!", Toast.LENGTH_LONG);
+                            setResult(Activity.RESULT_CANCELED);
                             finish();
+                            return;
+                        }
+                        String OCR_Result = "";
+                        try {
+                            OCR_Result = response.body().string();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                        Gson gson = new GsonBuilder().create();
+                        JsonParser parser = new JsonParser();
+                        JsonElement rootObject = parser.parse(OCR_Result)
+                                .getAsJsonObject().get("drugs");
+                        Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
+                        for(int i=0; i<drugs.length; i++) {
+                            System.out.println(drugs[i].printres());
+                        }
+                        Intent intent = new Intent(getApplicationContext(), RecogResultActivity.class);
+                        intent.putExtra("drugs", drugs);
+                        startActivity(intent);
+                        finish();
                     }
                 });
             }

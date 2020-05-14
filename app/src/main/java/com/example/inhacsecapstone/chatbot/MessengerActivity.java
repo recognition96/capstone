@@ -29,6 +29,7 @@ import android.widget.GridLayout;
 import android.widget.Toast;
 
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.RecogResultActivity;
 import com.github.bassaer.chatmessageview.model.IChatUser;
 import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.util.ChatBot;
@@ -84,14 +85,8 @@ public class MessengerActivity extends Activity {
 
     private static final int READ_REQUEST_CODE = 100;
 
-    private static final Pattern IP_ADDRESS
-            = Pattern.compile(
-            "((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\\.(25[0-5]|2[0-4]"
-                    + "[0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]"
-                    + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
-                    + "|[1-9][0-9]|[0-9]))");
     private static final String portNumber = "5000";
-    private static final String ipv4Address = "192.168.0.20";
+    private static final String ipv4Address = "121.142.4.173";
     private Context context;
     private Intent SttIntent;
     private SpeechRecognizer mRecognizer;
@@ -127,6 +122,10 @@ public class MessengerActivity extends Activity {
         setContentView(R.layout.activity_messenger);
         context = this.getApplicationContext();
         initUsers();
+
+        // 화면 생성 시 Welcome Message 출력
+        connectServerSendText("");
+        //
 
         mChatView = findViewById(R.id.chat_view);
         setColors();
@@ -331,12 +330,7 @@ public class MessengerActivity extends Activity {
     }
 
     public void connectServerSendText(String texts){
-        Matcher matcher = IP_ADDRESS.matcher(ipv4Address);
-        if (!matcher.matches()) {
-            Toast.makeText(this, "Invalid IPv4 Address. Please Check Your Inputs.", Toast.LENGTH_LONG).show();
-            return;
-        }
-        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/string";
+        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/webhook";
         RequestBody formBody = new FormBody.Builder()
                 .add("message", texts)
                 .build();
@@ -352,10 +346,7 @@ public class MessengerActivity extends Activity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                // Cancel the post on failure.
                 call.cancel();
-                // Log.d("FAIL", e.getMessage());
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -366,14 +357,12 @@ public class MessengerActivity extends Activity {
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         String res = "";
                         try {
                             res = response.body().string();
-                            //Toast.makeText(context, "Server's Response\n" + res , Toast.LENGTH_LONG).show();
                         } catch (IOException e) {
                             e.printStackTrace();
                             Toast.makeText(context, "연결 오류가 발생되어 응답을 받지 못했습니다.", Toast.LENGTH_LONG).show();
