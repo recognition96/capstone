@@ -17,10 +17,6 @@ import com.otaliastudios.opengl.program.GlTextureProgram;
  * to be changed. Most effects can be rendered by simply changing the fragment shader, thus
  * by overriding {@link #getFragmentShader()}.
  *
- * All {@link BaseFilter}s should have a no-arguments public constructor.
- * This class will try to automatically implement {@link #copy()} thanks to this.
- * If your filter implements public parameters, please implement {@link OneParameterFilter}
- * and {@link TwoParameterFilter} to handle them and have them passed automatically to copies.
  *
  * NOTE - This class expects variable to have a certain name:
  * - {@link #vertexPositionName}
@@ -184,12 +180,6 @@ public abstract class BaseFilter implements Filter {
         BaseFilter copy = onCopy();
         if (size != null) {
             copy.setSize(size.getWidth(), size.getHeight());
-        }
-        if (this instanceof OneParameterFilter) {
-            ((OneParameterFilter) copy).setParameter1(((OneParameterFilter) this).getParameter1());
-        }
-        if (this instanceof TwoParameterFilter) {
-            ((TwoParameterFilter) copy).setParameter2(((TwoParameterFilter) this).getParameter2());
         }
         return copy;
     }

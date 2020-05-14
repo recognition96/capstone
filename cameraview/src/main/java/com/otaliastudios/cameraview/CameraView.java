@@ -50,12 +50,6 @@ import com.otaliastudios.cameraview.engine.Camera2Engine;
 import com.otaliastudios.cameraview.engine.CameraEngine;
 import com.otaliastudios.cameraview.engine.offset.Reference;
 import com.otaliastudios.cameraview.engine.orchestrator.CameraState;
-import com.otaliastudios.cameraview.filter.Filter;
-import com.otaliastudios.cameraview.filter.FilterParser;
-import com.otaliastudios.cameraview.filter.Filters;
-import com.otaliastudios.cameraview.filter.NoFilter;
-import com.otaliastudios.cameraview.filter.OneParameterFilter;
-import com.otaliastudios.cameraview.filter.TwoParameterFilter;
 import com.otaliastudios.cameraview.frame.Frame;
 import com.otaliastudios.cameraview.frame.FrameProcessor;
 import com.otaliastudios.cameraview.gesture.Gesture;
@@ -65,8 +59,8 @@ import com.otaliastudios.cameraview.gesture.GestureParser;
 import com.otaliastudios.cameraview.gesture.PinchGestureFinder;
 import com.otaliastudios.cameraview.gesture.ScrollGestureFinder;
 import com.otaliastudios.cameraview.gesture.TapGestureFinder;
-import com.otaliastudios.cameraview.internal.GridLinesLayout;
 import com.otaliastudios.cameraview.internal.CropHelper;
+import com.otaliastudios.cameraview.internal.GridLinesLayout;
 import com.otaliastudios.cameraview.internal.OrientationHelper;
 import com.otaliastudios.cameraview.markers.AutoFocusMarker;
 import com.otaliastudios.cameraview.markers.AutoFocusTrigger;
@@ -75,7 +69,6 @@ import com.otaliastudios.cameraview.markers.MarkerParser;
 import com.otaliastudios.cameraview.metering.MeteringRegions;
 import com.otaliastudios.cameraview.overlay.OverlayLayout;
 import com.otaliastudios.cameraview.preview.CameraPreview;
-import com.otaliastudios.cameraview.preview.FilterCameraPreview;
 import com.otaliastudios.cameraview.preview.GlCameraPreview;
 import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
@@ -128,7 +121,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     private HashMap<Gesture, GestureAction> mGestureMap = new HashMap<>(4);
     private Preview mPreview;
     private Engine mEngine;
-    private Filter mPendingFilter;
     private int mFrameProcessingExecutors;
 
     // Components
@@ -227,7 +219,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         SizeSelectorParser sizeSelectors = new SizeSelectorParser(a);
         GestureParser gestures = new GestureParser(a);
         MarkerParser markers = new MarkerParser(a);
-        FilterParser filters = new FilterParser(a);
 
         a.recycle();
 
@@ -296,8 +287,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         // Apply markers
         setAutoFocusMarker(markers.getAutoFocusMarker());
 
-        // Apply filters
-        setFilter(filters.getFilter());
 
         // Create the orientation helper
         mOrientationHelper = new OrientationHelper(context, mCameraCallbacks);
@@ -327,10 +316,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         LOG.w("doInstantiateEngine:", "instantiated. preview:",
                 mCameraPreview.getClass().getSimpleName());
         mCameraEngine.setPreview(mCameraPreview);
-        if (mPendingFilter != null) {
-            setFilter(mPendingFilter);
-            mPendingFilter = null;
-        }
     }
 
     /**
@@ -693,28 +678,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
                 if (newValue != oldValue) {
                     float[] bounds = new float[]{minValue, maxValue};
                     mCameraEngine.setExposureCorrection(newValue, bounds, points, true);
-                }
-                break;
-
-            case FILTER_CONTROL_1:
-                if (getFilter() instanceof OneParameterFilter) {
-                    OneParameterFilter filter = (OneParameterFilter) getFilter();
-                    oldValue = filter.getParameter1();
-                    newValue = source.computeValue(oldValue, 0, 1);
-                    if (newValue != oldValue) {
-                        filter.setParameter1(newValue);
-                    }
-                }
-                break;
-
-            case FILTER_CONTROL_2:
-                if (getFilter() instanceof TwoParameterFilter) {
-                    TwoParameterFilter filter = (TwoParameterFilter) getFilter();
-                    oldValue = filter.getParameter2();
-                    newValue = source.computeValue(oldValue, 0, 1);
-                    if (newValue != oldValue) {
-                        filter.setParameter2(newValue);
-                    }
                 }
                 break;
         }
@@ -2610,65 +2573,4 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     //endregion
 
-    //region Filters
-
-    /**
-     * Applies a real-time filter to the camera preview, if it supports it.
-     * The only preview type that does so is currently {@link Preview#GL_SURFACE}.
-     *
-     * The filter will be applied to any picture snapshot taken with
-     * {@link #takePictureSnapshot()} and any video snapshot taken with
-     * {@link #takeVideoSnapshot(File)}.
-     *
-     * Use {@link NoFilter} to clear the existing filter,
-     * and take a look at the {@link Filters} class for commonly used filters.
-     *
-     * This method will throw an exception if the current preview does not support real-time
-     * filters. Make sure you use {@link Preview#GL_SURFACE} (the default).
-     *
-     * @see Filters
-     * @param filter a new filter
-     */
-    public void setFilter(@NonNull Filter filter) {
-        if (mCameraPreview == null) {
-            mPendingFilter = filter;
-        } else {
-            boolean isNoFilter = filter instanceof NoFilter;
-            boolean isFilterPreview = mCameraPreview instanceof FilterCameraPreview;
-            // If not a filter preview, we only allow NoFilter (called on creation).
-            if (!isNoFilter && !isFilterPreview) {
-                throw new RuntimeException("Filters are only supported by the GL_SURFACE preview." +
-                        " Current preview:" + mPreview);
-            }
-            // If we have a filter preview, apply.
-            if (isFilterPreview) {
-                ((FilterCameraPreview) mCameraPreview).setFilter(filter);
-            }
-            // No-op: !isFilterPreview && isNoPreview
-        }
-    }
-
-    /**
-     * Returns the current real-time filter applied to the camera preview.
-     *
-     * This method will throw an exception if the current preview does not support real-time
-     * filters. Make sure you use {@link Preview#GL_SURFACE} (the default).
-     *
-     * @see #setFilter(Filter)
-     * @return the current filter
-     */
-    @NonNull
-    public Filter getFilter() {
-        if (mCameraPreview == null) {
-            return mPendingFilter;
-        } else if (mCameraPreview instanceof FilterCameraPreview) {
-            return ((FilterCameraPreview) mCameraPreview).getCurrentFilter();
-        } else {
-            throw new RuntimeException("Filters are only supported by the GL_SURFACE preview. " +
-                    "Current:" + mPreview);
-        }
-
-    }
-
-    //endregion
 }
