@@ -47,7 +47,7 @@ public class CameraUtils {
     public static boolean hasCameras(@NonNull Context context) {
         PackageManager manager = context.getPackageManager();
         // There's also FEATURE_CAMERA_EXTERNAL , should we support it?
-        return manager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
+        return manager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
                 || manager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
     }
 

@@ -572,21 +572,6 @@ public class Camera1Engine extends CameraBaseEngine implements
         return false;
     }
 
-    @Override
-    public void setPreviewFrameRate(float previewFrameRate) {
-        final float old = previewFrameRate;
-        mPreviewFrameRate = previewFrameRate;
-        mPreviewFrameRateTask = getOrchestrator().scheduleStateful(
-                "preview fps (" + previewFrameRate + ")",
-                CameraState.ENGINE,
-                new Runnable() {
-            @Override
-            public void run() {
-                Camera.Parameters params = mCamera.getParameters();
-                if (applyPreviewFrameRate(params, old)) mCamera.setParameters(params);
-            }
-        });
-    }
 
     private boolean applyPreviewFrameRate(@NonNull Camera.Parameters params,
                                           float oldPreviewFrameRate) {
@@ -646,6 +631,11 @@ public class Camera1Engine extends CameraBaseEngine implements
             throw new UnsupportedOperationException("Unsupported picture format: " + pictureFormat);
         }
         mPictureFormat = pictureFormat;
+    }
+
+    @Override
+    public void setPreviewFrameRate(float previewFrameRate) {
+
     }
 
     //endregion

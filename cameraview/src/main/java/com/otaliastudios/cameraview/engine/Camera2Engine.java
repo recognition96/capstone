@@ -1164,23 +1164,6 @@ public class Camera2Engine extends CameraBaseEngine implements
     }
 
 
-    @Override
-    public void setPreviewFrameRate(float previewFrameRate) {
-        final float oldPreviewFrameRate = mPreviewFrameRate;
-        mPreviewFrameRate = previewFrameRate;
-        mPreviewFrameRateTask = getOrchestrator().scheduleStateful(
-                "preview fps (" + previewFrameRate + ")",
-                CameraState.ENGINE,
-                new Runnable() {
-            @Override
-            public void run() {
-                if (applyPreviewFrameRate(mRepeatingRequestBuilder, oldPreviewFrameRate)) {
-                    applyRepeatingRequestBuilder();
-                }
-            }
-        });
-    }
-
     @SuppressWarnings("WeakerAccess")
     protected boolean applyPreviewFrameRate(@NonNull CaptureRequest.Builder builder,
                                             float oldPreviewFrameRate) {
@@ -1248,6 +1231,11 @@ public class Camera2Engine extends CameraBaseEngine implements
                 }
             });
         }
+    }
+
+    @Override
+    public void setPreviewFrameRate(float previewFrameRate) {
+
     }
 
     //endregion

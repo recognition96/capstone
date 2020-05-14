@@ -1181,31 +1181,6 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         verify(overlay, times(1)).drawOn(eq(Overlay.Target.PICTURE_SNAPSHOT), any(Canvas.class));
     }
 
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testOverlay_forVideoSnapshot() {
-        Overlay overlay = mock(Overlay.class);
-        when(overlay.drawsOn(any(Overlay.Target.class))).thenReturn(true);
-        controller.setOverlay(overlay);
-        openSync(true);
-        takeVideoSnapshotSync(true, 4000);
-        waitForVideoResult(true);
-        verify(overlay, atLeastOnce()).drawsOn(Overlay.Target.VIDEO_SNAPSHOT);
-        verify(overlay, atLeastOnce()).drawOn(eq(Overlay.Target.VIDEO_SNAPSHOT), any(Canvas.class));
-    }
 
     //endregion
-
-    @SuppressWarnings("SameParameterValue")
-    private static long estimateVideoBitRate(@NonNull Size size, int frameRate) {
-        // Nasty estimate for a LQ video
-        return Math.round(0.05D * size.getWidth() * size.getHeight() * frameRate);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static long estimateVideoBytes(long videoBitRate, long millis) {
-        // 1.3F accounts for audio.
-        return Math.round((videoBitRate * 1.3F) * (millis / 1000D) / 8D);
-    }
 }

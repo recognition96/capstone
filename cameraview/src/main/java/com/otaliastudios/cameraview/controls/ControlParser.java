@@ -15,12 +15,9 @@ public class ControlParser {
     private int preview;
     private int facing;
     private int flash;
-    private int grid;
     private int whiteBalance;
     private int mode;
     private int hdr;
-    private int audio;
-    private int videoCodec;
     private int engine;
     private int pictureFormat;
 

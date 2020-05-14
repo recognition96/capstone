@@ -103,7 +103,7 @@ public class OverlayLayout extends FrameLayout implements Overlay {
      * For {@link Target#PREVIEW}, this method is called by the View hierarchy. We will
      * just forward the call to super.
      *
-     * For {@link Target#PICTURE_SNAPSHOT} and {@link Target#VIDEO_SNAPSHOT},
+     * For {@link Target#PICTURE_SNAPSHOT}
      * this method is called by the overlay drawer. We call {@link #dispatchDraw(Canvas)}
      * to draw our children only.
      *
@@ -118,7 +118,6 @@ public class OverlayLayout extends FrameLayout implements Overlay {
                 case PREVIEW:
                     super.draw(canvas);
                     break;
-                case VIDEO_SNAPSHOT:
                 case PICTURE_SNAPSHOT:
                     canvas.save();
                     // The input canvas size is that of the preview stream, cropped to match
@@ -173,7 +172,6 @@ public class OverlayLayout extends FrameLayout implements Overlay {
         @SuppressWarnings("unused")
         public boolean drawOnPreview = false;
         public boolean drawOnPictureSnapshot = false;
-        public boolean drawOnVideoSnapshot = false;
 
         public LayoutParams(int width, int height) {
             super(width, height);
@@ -187,8 +185,6 @@ public class OverlayLayout extends FrameLayout implements Overlay {
                         false);
                 drawOnPictureSnapshot = a.getBoolean(
                         R.styleable.CameraView_Layout_layout_drawOnPictureSnapshot, false);
-                drawOnVideoSnapshot = a.getBoolean(
-                        R.styleable.CameraView_Layout_layout_drawOnVideoSnapshot, false);
             } finally {
                 a.recycle();
             }
@@ -198,7 +194,6 @@ public class OverlayLayout extends FrameLayout implements Overlay {
         @VisibleForTesting
         boolean drawsOn(@NonNull Target target) {
             return ((target == Target.PREVIEW && drawOnPreview)
-                    || (target == Target.VIDEO_SNAPSHOT && drawOnVideoSnapshot)
                     || (target == Target.PICTURE_SNAPSHOT && drawOnPictureSnapshot));
         }
 
@@ -208,7 +203,6 @@ public class OverlayLayout extends FrameLayout implements Overlay {
             return getClass().getName() + "["
                     + "drawOnPreview:" + drawOnPreview
                     + ",drawOnPictureSnapshot:" + drawOnPictureSnapshot
-                    + ",drawOnVideoSnapshot:" + drawOnVideoSnapshot
                     + "]";
         }
     }

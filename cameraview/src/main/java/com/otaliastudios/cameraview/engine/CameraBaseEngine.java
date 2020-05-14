@@ -63,7 +63,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
     private final Angles mAngles = new Angles();
     @Nullable private SizeSelector mPreviewStreamSizeSelector;
     private SizeSelector mPictureSizeSelector;
-    private SizeSelector mVideoSizeSelector;
     private Facing mFacing;
     private Mode mMode;
     private long mAutoFocusResetDelayMillis;
@@ -87,10 +86,7 @@ public abstract class CameraBaseEngine extends CameraEngine {
             = Tasks.forResult(null);
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) Task<Void> mLocationTask
             = Tasks.forResult(null);
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) Task<Void> mPlaySoundsTask
-            = Tasks.forResult(null);
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) Task<Void> mPreviewFrameRateTask
-            = Tasks.forResult(null);
+
 
     @SuppressWarnings("WeakerAccess")
     protected CameraBaseEngine(@NonNull Callback callback) {
@@ -589,13 +585,8 @@ public abstract class CameraBaseEngine extends CameraEngine {
         boolean flip = getAngles().flip(Reference.SENSOR, Reference.VIEW);
         SizeSelector selector;
         Collection<Size> sizes;
-        if (mode == Mode.PICTURE) {
-            selector = mPictureSizeSelector;
-            sizes = mCameraOptions.getSupportedPictureSizes();
-        } else {
-            selector = mVideoSizeSelector;
-            sizes = mCameraOptions.getSupportedVideoSizes();
-        }
+        selector = mPictureSizeSelector;
+        sizes = mCameraOptions.getSupportedPictureSizes();
         selector = SizeSelectors.or(selector, SizeSelectors.biggest());
         List<Size> list = new ArrayList<>(sizes);
         Size result = selector.select(list).get(0);

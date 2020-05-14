@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 public interface Overlay {
 
     enum Target {
-        PREVIEW, PICTURE_SNAPSHOT, VIDEO_SNAPSHOT
+        PREVIEW, PICTURE_SNAPSHOT
     }
 
     /**

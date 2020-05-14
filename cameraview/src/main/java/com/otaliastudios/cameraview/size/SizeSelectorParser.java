@@ -2,12 +2,12 @@ package com.otaliastudios.cameraview.size;
 
 import android.content.res.TypedArray;
 
+import androidx.annotation.NonNull;
+
 import com.otaliastudios.cameraview.R;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
 
 /**
  * Parses size selectors from XML attributes.
@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 public class SizeSelectorParser {
 
     private SizeSelector pictureSizeSelector;
-    private SizeSelector videoSizeSelector;
 
     public SizeSelectorParser(@NonNull TypedArray array) {
         List<SizeSelector> pictureConstraints = new ArrayList<>(3);
@@ -110,19 +109,13 @@ public class SizeSelectorParser {
         if (array.getBoolean(R.styleable.CameraView_cameraVideoSizeBiggest, false)) {
             videoConstraints.add(SizeSelectors.biggest());
         }
-        videoSizeSelector = !videoConstraints.isEmpty() ?
-                SizeSelectors.and(videoConstraints.toArray(new SizeSelector[0])) :
-                SizeSelectors.biggest();
+
     }
 
     @NonNull
     public SizeSelector getPictureSizeSelector() {
         return pictureSizeSelector;
     }
-
-    @NonNull
-    public SizeSelector getVideoSizeSelector() {
-        return videoSizeSelector;
-    }
+    
 
 }
