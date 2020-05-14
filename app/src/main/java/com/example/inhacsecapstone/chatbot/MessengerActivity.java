@@ -97,6 +97,7 @@ public class MessengerActivity extends Activity {
         mChatView.setLeftBubbleColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
         mChatView.setBackgroundColor(ContextCompat.getColor(context, R.color.white));
         mChatView.setSendButtonColor(ContextCompat.getColor(context, R.color.colorAccent));
+
         mChatView.setSendIcon(SEND_ICON);
         mChatView.setOptionIcon(R.drawable.ic_mic_black_24dp);
         mChatView.setOptionButtonColor(R.color.colorAccent);

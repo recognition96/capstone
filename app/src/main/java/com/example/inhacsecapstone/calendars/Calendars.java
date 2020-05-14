@@ -12,9 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.inhacsecapstone.drugs.DayDrugActivity;
+import com.example.inhacsecapstone.drugs.AppDatabase;
+import com.example.inhacsecapstone.drugs.dayDrug.DayDrugActivity;
 import com.example.inhacsecapstone.R;
-import com.example.inhacsecapstone.drugs.RecogResultActivity;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
@@ -56,8 +56,15 @@ public class Calendars extends Fragment {
                 startActivity(intent);
             }
         });
+        // DeleteAll 추가 부분
+        rootView.findViewById(R.id.deleteAll).setOnClickListener(new View.OnClickListener(){
 
-
+            @Override
+            public void onClick(View v) {
+                AppDatabase db =  AppDatabase.getDataBase(getActivity().getApplicationContext(), null, 1);
+                db.init();
+            }
+        });
         return rootView;
     }
 }

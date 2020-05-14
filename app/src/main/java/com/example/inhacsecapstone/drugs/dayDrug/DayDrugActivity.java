@@ -1,28 +1,19 @@
-package com.example.inhacsecapstone.drugs;
+package com.example.inhacsecapstone.drugs.dayDrug;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Dialog;
-import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.TimePicker;
 
-import com.bumptech.glide.Glide;
+import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.AppDatabase;
+import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
 
-import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
 
@@ -30,6 +21,7 @@ public class DayDrugActivity extends AppCompatActivity implements EventListener 
     private ViewModel mViewModel;
     private RecyclerView mRecyclerView;
     private DayDrugListAdapter adapter;
+    private AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +33,13 @@ public class DayDrugActivity extends AppCompatActivity implements EventListener 
         int day = intent.getIntExtra("day", -1);
         String target = Integer.toString(year) + "." + Integer.toString(month) +"." + Integer.toString(day);
 
+        db = AppDatabase.getDataBase(getApplicationContext(), null, 1);
         mRecyclerView = this.findViewById(R.id.DayMedicineView);
-        adapter = new DayDrugListAdapter(this);
+        List<Medicine> list = db.getMedicineAtDay(target);
+        adapter = new DayDrugListAdapter(this, db.getMedicineAtDay(target), db.gettakesAtDay(target));
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.addItemDecoration(new RecyclerViewDecorator(30));
         /*
         Context activityContext = this;
         dayDrugText.setOnClickListener(new View.OnClickListener() {
@@ -67,21 +62,6 @@ public class DayDrugActivity extends AppCompatActivity implements EventListener 
                 dialog.show();
             }
         });*/
-
-        mViewModel = new ViewModelProvider(this).get(ViewModel.class);
-        mViewModel.getMediAtDay(target).observe(this, new Observer<List<MedicineEntity>>() {
-            @Override
-            public void onChanged(@Nullable final List<MedicineEntity> drugs) {
-                adapter.setDrugs(drugs);
-            }
-        });
-
-        mViewModel.getTakesAtDay(target).observe(this, new Observer<List<TakesEntity>>() {
-            @Override
-            public void onChanged(List<TakesEntity> takes) {
-                adapter.setTakes(takes);
-            }
-        });
     }
 
 }

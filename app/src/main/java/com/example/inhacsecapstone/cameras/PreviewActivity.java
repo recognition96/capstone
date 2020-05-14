@@ -15,13 +15,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import org.json.*;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.Drugs;
-import com.example.inhacsecapstone.drugs.RecogResultActivity;
+import com.example.inhacsecapstone.drugs.Recog.RecogResultActivity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -103,6 +101,7 @@ public class   PreviewActivity extends AppCompatActivity {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         }catch(Exception e){
             Toast.makeText(this, "Please Make Sure the Selected File is an Image.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
             return;
         }
         byte[] byteArray = stream.toByteArray();
