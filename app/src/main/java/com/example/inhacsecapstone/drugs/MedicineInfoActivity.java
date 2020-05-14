@@ -29,8 +29,8 @@ public class MedicineInfoActivity extends AppCompatActivity {
         ImageView img = findViewById(R.id.image);
 
         Glide.with(this).load(medi.getImage()).into(img);
-        text1.setText(medi.getDesc());
-        text2.setText("성인: \n 하루 한알"); // 추후 추가
+        text1.setText(medi.getEffect());
+        text2.setText(medi.getUsage());
         text2.setVisibility(View.INVISIBLE);
 
         t.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

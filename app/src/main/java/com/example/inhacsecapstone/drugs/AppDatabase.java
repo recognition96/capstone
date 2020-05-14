@@ -35,7 +35,8 @@ public class AppDatabase extends SQLiteOpenHelper {
                 "name TEXT , "+
                 "amount INTEGER,"+
                 "image TEXT,"+
-                "des TEXT,"+
+                "effct TEXT,"+
+                "usage TEXT,"+
                 "category INTEGER,"+
                 "single_dose TEXT,"+
                 "daily_dose INTEGER,"+
@@ -51,7 +52,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM medicine_list");
         db.execSQL("DELETE FROM takes");
 
-        Medicine medi = new Medicine(11111111, "포크랄시럽", 30, "https://www.health.kr/images/ext_images/pack_img/P_A11AGGGGA5864_01.jpg","불면증, 수술 전 진정"
+        Medicine medi = new Medicine(11111111, "포크랄시럽", 30, "https://www.health.kr/images/ext_images/pack_img/P_A11AGGGGA5864_01.jpg","불면증, 수술 전 진정", "1일 1회 복용"
                 , 0, "3개", 10, 0, 0);
         Takes take = new Takes(11111111, "2020.5.9", "12:10");
         insert(medi);
@@ -70,7 +71,8 @@ public class AppDatabase extends SQLiteOpenHelper {
                 medicine.getName() + "',"+
                 medicine.getAmount() + ",'" +
                 medicine.getImage() + "','" +
-                medicine.getDesc() + "'," +
+                medicine.getEffect() + "','" +
+                medicine.getUsage() + "'," +
                 medicine.getCategory() + ",'" +
                 medicine.getSingleDose() + "'," +
                 medicine.getDailyDose() + "," +
@@ -109,11 +111,12 @@ public class AppDatabase extends SQLiteOpenHelper {
                         cursor.getInt(2),
                         cursor.getString(3),
                         cursor.getString(4),
-                        cursor.getInt(5),
-                        cursor.getString(6),
-                        cursor.getInt(7),
+                        cursor.getString(5),
+                        cursor.getInt(6),
+                        cursor.getString(7),
                         cursor.getInt(8),
-                        cursor.getInt(9));
+                        cursor.getInt(9),
+                        cursor.getInt(10));
                 result.add(current);
             }
         }catch(Exception ex){
@@ -167,11 +170,12 @@ public class AppDatabase extends SQLiteOpenHelper {
                         cursor.getInt(2),
                         cursor.getString(3),
                         cursor.getString(4),
-                        cursor.getInt(5),
-                        cursor.getString(6),
-                        cursor.getInt(7),
+                        cursor.getString(5),
+                        cursor.getInt(6),
+                        cursor.getString(7),
                         cursor.getInt(8),
-                        cursor.getInt(9));
+                        cursor.getInt(9),
+                        cursor.getInt(10));
                 result.add(current);
             }
         }catch(Exception ex){

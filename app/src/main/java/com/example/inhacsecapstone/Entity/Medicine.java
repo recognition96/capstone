@@ -7,14 +7,15 @@ public class Medicine implements Serializable {
     private String name;
     private int amount;
     private String image;
-    private String desc;
+    private String effect;
+    private String usage;
     private int category;
     private String singleDose;
     private int dailyDose;
     private int numberOfDayTakens;
     private int warning;
 
-    public Medicine(int code, String name, int amount, String image, String desc, int category, String singleDose, int dailyDose, int numberOfDayTakens, int warning)
+    public Medicine(int code, String name, int amount, String image, String effect, String usage, int category, String singleDose, int dailyDose, int numberOfDayTakens, int warning)
     {
         this.code = code;
         this.name = name;
@@ -25,9 +26,12 @@ public class Medicine implements Serializable {
         this.numberOfDayTakens = numberOfDayTakens;
         this.dailyDose = dailyDose;
         this.warning = warning;
-        this.desc = desc;
+        this.effect = effect;
+        this.usage = usage;
     }
 
+
+    public void setUsage(String usage){this.usage =usage;}
     public void setWarning(int warning) {
         this.warning = warning;
     }
@@ -56,8 +60,8 @@ public class Medicine implements Serializable {
         this.code = code;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setEffect(String effect) {
+        this.effect = effect;
     }
 
     public void setImage(String image) {
@@ -96,9 +100,14 @@ public class Medicine implements Serializable {
     public int getWarning(){
         return this.warning;
     }
-    public String getDesc(){
-        return this.desc;
+    public String getEffect(){
+        return this.effect;
     }
+
+    public String getUsage() {
+        return usage;
+    }
+
     public int getNumberOfDayTakens(){
         return this.numberOfDayTakens;
     }

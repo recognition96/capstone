@@ -37,7 +37,7 @@ public class RecogResultActivity extends AppCompatActivity {
         Drugs[] drugs = (Drugs[])getIntent().getSerializableExtra("drugs");
         for(Drugs iter : drugs){
             String img = iter.getSmall_image().equals("null") || iter.getSmall_image().equals("") ? (iter.getPack_image().equals("null") || iter.getPack_image().equals("") ? null : iter.getPack_image()) : iter.getSmall_image();
-            arrayList.add(new Medicine(iter.getCode(), iter.getDrug_name(), -1, img, null,
+            arrayList.add(new Medicine(iter.getCode(), iter.getDrug_name(), -1, img, null, null,
                     -1, null, -1, -1, -1));
         }
 
@@ -93,7 +93,6 @@ public class RecogResultActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-
         super.onPause();
         Log.d(TAG, "onPause()");
     }
