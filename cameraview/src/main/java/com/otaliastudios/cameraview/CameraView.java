@@ -77,8 +77,6 @@ import com.otaliastudios.cameraview.overlay.OverlayLayout;
 import com.otaliastudios.cameraview.preview.CameraPreview;
 import com.otaliastudios.cameraview.preview.FilterCameraPreview;
 import com.otaliastudios.cameraview.preview.GlCameraPreview;
-import com.otaliastudios.cameraview.preview.SurfaceCameraPreview;
-import com.otaliastudios.cameraview.preview.TextureCameraPreview;
 import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
 import com.otaliastudios.cameraview.size.SizeSelector;
@@ -369,11 +367,11 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
                                                @NonNull ViewGroup container) {
         switch (preview) {
             case SURFACE:
-                return new SurfaceCameraPreview(context, container);
+                return null;
             case TEXTURE: {
                 if (isHardwareAccelerated()) {
                     // TextureView is not supported without hardware acceleration.
-                    return new TextureCameraPreview(context, container);
+                    return null;
                 }
             }
             case GL_SURFACE: default: {
