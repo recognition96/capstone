@@ -1,10 +1,9 @@
 package com.otaliastudios.cameraview.controls;
 
 
-import com.otaliastudios.cameraview.CameraView;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
+import com.otaliastudios.cameraview.CameraView;
 
 /**
  * The preview engine to be used.
@@ -14,25 +13,12 @@ import androidx.annotation.Nullable;
 public enum Preview implements Control {
 
     /**
-     * Preview engine based on {@link android.view.SurfaceView}.
-     * Not recommended.
-     */
-    SURFACE(0),
-
-    /**
-     * Preview engine based on {@link android.view.TextureView}.
-     * Stable, but does not support all features (like video snapshots,
-     * or picture snapshot while taking videos).
-     */
-    TEXTURE(1),
-
-    /**
      * Preview engine based on {@link android.opengl.GLSurfaceView}.
      * This is the best engine available. Supports video snapshots,
      * supports picture snapshots while taking videos, supports
      * watermarks and overlays, supports real-time filters.
      */
-    GL_SURFACE(2);
+    GL_SURFACE(0);
 
     final static Preview DEFAULT = GL_SURFACE;
 

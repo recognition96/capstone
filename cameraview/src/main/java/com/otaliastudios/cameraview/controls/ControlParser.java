@@ -3,10 +3,9 @@ package com.otaliastudios.cameraview.controls;
 import android.content.Context;
 import android.content.res.TypedArray;
 
-import com.otaliastudios.cameraview.R;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
+import com.otaliastudios.cameraview.R;
 
 /**
  * Parses controls from XML attributes.
@@ -30,14 +29,12 @@ public class ControlParser {
         facing = array.getInteger(R.styleable.CameraView_cameraFacing,
                 Facing.DEFAULT(context).value());
         flash = array.getInteger(R.styleable.CameraView_cameraFlash, Flash.DEFAULT.value());
-        grid = array.getInteger(R.styleable.CameraView_cameraGrid, Grid.DEFAULT.value());
+
         whiteBalance = array.getInteger(R.styleable.CameraView_cameraWhiteBalance,
                 WhiteBalance.DEFAULT.value());
         mode = array.getInteger(R.styleable.CameraView_cameraMode, Mode.DEFAULT.value());
         hdr = array.getInteger(R.styleable.CameraView_cameraHdr, Hdr.DEFAULT.value());
-        audio = array.getInteger(R.styleable.CameraView_cameraAudio, Audio.DEFAULT.value());
-        videoCodec = array.getInteger(R.styleable.CameraView_cameraVideoCodec,
-                VideoCodec.DEFAULT.value());
+
         engine = array.getInteger(R.styleable.CameraView_cameraEngine, Engine.DEFAULT.value());
         pictureFormat = array.getInteger(R.styleable.CameraView_cameraPictureFormat,
                 PictureFormat.DEFAULT.value());
@@ -60,11 +57,6 @@ public class ControlParser {
     }
 
     @NonNull
-    public Grid getGrid() {
-        return Grid.fromValue(grid);
-    }
-
-    @NonNull
     public Mode getMode() {
         return Mode.fromValue(mode);
     }
@@ -79,15 +71,6 @@ public class ControlParser {
         return Hdr.fromValue(hdr);
     }
 
-    @NonNull
-    public Audio getAudio() {
-        return Audio.fromValue(audio);
-    }
-
-    @NonNull
-    public VideoCodec getVideoCodec() {
-        return VideoCodec.fromValue(videoCodec);
-    }
 
     @NonNull
     public Engine getEngine() {

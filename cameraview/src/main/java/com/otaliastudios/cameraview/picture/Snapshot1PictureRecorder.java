@@ -4,6 +4,8 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
 
+import androidx.annotation.NonNull;
+
 import com.otaliastudios.cameraview.PictureResult;
 import com.otaliastudios.cameraview.engine.Camera1Engine;
 import com.otaliastudios.cameraview.engine.offset.Reference;
@@ -12,8 +14,6 @@ import com.otaliastudios.cameraview.internal.RotationHelper;
 import com.otaliastudios.cameraview.internal.WorkerHandler;
 import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
-
-import androidx.annotation.NonNull;
 
 import java.io.ByteArrayOutputStream;
 
@@ -44,9 +44,8 @@ public class Snapshot1PictureRecorder extends SnapshotPictureRecorder {
         mCamera.setOneShotPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(@NonNull final byte[] yuv, Camera camera) {
-                dispatchOnShutter(false);
 
-                // Got to rotate the preview frame, since byte[] data here does not include
+                 // Got to rotate the preview frame, since byte[] data here does not include
                 // EXIF tags automatically set by camera. So either we add EXIF, or we rotate.
                 // Adding EXIF to a byte array, unfortunately, is hard.
                 final int sensorToOutput = mResult.rotation;

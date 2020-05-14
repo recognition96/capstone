@@ -3,7 +3,6 @@ package com.otaliastudios.cameraview.internal;
 
 import com.otaliastudios.cameraview.BaseTest;
 import com.otaliastudios.cameraview.TestActivity;
-import com.otaliastudios.cameraview.controls.Grid;
 import com.otaliastudios.cameraview.tools.Op;
 import com.otaliastudios.cameraview.tools.Retry;
 import com.otaliastudios.cameraview.tools.RetryRule;

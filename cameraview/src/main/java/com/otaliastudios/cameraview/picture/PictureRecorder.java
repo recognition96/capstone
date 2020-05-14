@@ -1,10 +1,10 @@
 package com.otaliastudios.cameraview.picture;
 
-import com.otaliastudios.cameraview.PictureResult;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+
+import com.otaliastudios.cameraview.PictureResult;
 
 /**
  * Interface for picture capturing.
@@ -17,13 +17,6 @@ public abstract class PictureRecorder {
      * Listens for picture recorder events.
      */
     public interface PictureResultListener {
-
-        /**
-         * The shutter was activated.
-         * @param didPlaySound whether a sound was played
-         */
-        void onPictureShutter(boolean didPlaySound);
-
         /**
          * Picture was taken or there was some error, if
          * the result is null.
@@ -55,15 +48,6 @@ public abstract class PictureRecorder {
      */
     public abstract void take();
 
-    /**
-     * Subclasses can call this to notify that the shutter was activated,
-     * and whether it did play some sound or not.
-     * @param didPlaySound whether it played sounds
-     */
-    @SuppressWarnings("WeakerAccess")
-    protected void dispatchOnShutter(boolean didPlaySound) {
-        if (mListener != null) mListener.onPictureShutter(didPlaySound);
-    }
 
     /**
      * Subclasses can call this to notify that the result was obtained,

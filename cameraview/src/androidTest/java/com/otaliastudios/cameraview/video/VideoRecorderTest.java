@@ -2,7 +2,6 @@ package com.otaliastudios.cameraview.video;
 
 
 import com.otaliastudios.cameraview.BaseTest;
-import com.otaliastudios.cameraview.VideoResult;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;

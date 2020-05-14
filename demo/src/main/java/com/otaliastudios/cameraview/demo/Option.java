@@ -1,12 +1,10 @@
 package com.otaliastudios.cameraview.demo;
 
-import android.graphics.Color;
-import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
-
 import android.graphics.ImageFormat;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
 
 import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraOptions;
@@ -302,18 +300,6 @@ public abstract class Option<T> {
         }
     }
 
-    public static class VideoCodec extends ControlOption<com.otaliastudios.cameraview.controls.VideoCodec> {
-        public VideoCodec() {
-            super(com.otaliastudios.cameraview.controls.VideoCodec.class, "Video Codec");
-        }
-    }
-
-    public static class Audio extends ControlOption<com.otaliastudios.cameraview.controls.Audio> {
-        public Audio() {
-            super(com.otaliastudios.cameraview.controls.Audio.class, "Audio");
-        }
-    }
-
     private static abstract class GestureOption extends Option<GestureAction> {
         private final Gesture gesture;
         private final GestureAction[] allActions = GestureAction.values();
@@ -400,7 +386,6 @@ public abstract class Option<T> {
             switch (target) {
                 case PREVIEW: return params.drawOnPreview;
                 case PICTURE_SNAPSHOT: return params.drawOnPictureSnapshot;
-                case VIDEO_SNAPSHOT: return params.drawOnVideoSnapshot;
             }
             return false;
         }
@@ -411,7 +396,6 @@ public abstract class Option<T> {
             switch (target) {
                 case PREVIEW: params.drawOnPreview = value; break;
                 case PICTURE_SNAPSHOT: params.drawOnPictureSnapshot = value; break;
-                case VIDEO_SNAPSHOT: params.drawOnVideoSnapshot = value; break;
             }
             overlay.setLayoutParams(params);
         }
@@ -429,62 +413,6 @@ public abstract class Option<T> {
         }
     }
 
-    public static class OverlayInVideoSnapshot extends OverlayOption {
-        public OverlayInVideoSnapshot(@NonNull View overlay) {
-            super(Overlay.Target.VIDEO_SNAPSHOT, "Overlay in Video Snapshot", overlay);
-        }
-    }
-
-    public static class Grid extends ControlOption<com.otaliastudios.cameraview.controls.Grid> {
-        public Grid() {
-            super(com.otaliastudios.cameraview.controls.Grid.class, "Grid Lines");
-        }
-    }
-
-    public static class GridColor extends Option<Pair<Integer, String>> {
-
-        public GridColor() {
-            super("Grid Color");
-        }
-
-        private static final List<Pair<Integer, String>> ALL = Arrays.asList(
-                new Pair<>(Color.argb(160, 255, 255, 255), "default"),
-                new Pair<>(Color.WHITE, "white"),
-                new Pair<>(Color.BLACK, "black"),
-                new Pair<>(Color.YELLOW, "yellow")
-        );
-
-        @NonNull
-        @Override
-        public Collection<Pair<Integer, String>> getAll(@NonNull CameraView view, @NonNull CameraOptions options) {
-            return ALL;
-        }
-
-        @NonNull
-        @Override
-        public Pair<Integer, String> get(@NonNull CameraView view) {
-            for (Pair<Integer, String> pair : ALL) {
-                //noinspection ConstantConditions
-                if (pair.first == view.getGridColor()) {
-                    return pair;
-                }
-            }
-            throw new RuntimeException("Could not find grid color");
-        }
-
-        @Override
-        public void set(@NonNull CameraView view, @NonNull Pair<Integer, String> value) {
-            //noinspection ConstantConditions
-            view.setGridColor(value.first);
-        }
-
-        @NonNull
-        @Override
-        public String toString(@NonNull Pair<Integer, String> value) {
-            //noinspection ConstantConditions
-            return value.second;
-        }
-    }
 
     public static class UseDeviceOrientation extends Option<Boolean> {
         public UseDeviceOrientation() {

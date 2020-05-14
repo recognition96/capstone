@@ -36,7 +36,6 @@ import com.google.android.gms.tasks.Tasks;
 import com.otaliastudios.cameraview.CameraException;
 import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.PictureResult;
-import com.otaliastudios.cameraview.VideoResult;
 import com.otaliastudios.cameraview.controls.Facing;
 import com.otaliastudios.cameraview.controls.Flash;
 import com.otaliastudios.cameraview.controls.Hdr;
@@ -60,15 +59,12 @@ import com.otaliastudios.cameraview.frame.Frame;
 import com.otaliastudios.cameraview.frame.FrameManager;
 import com.otaliastudios.cameraview.frame.ImageFrameManager;
 import com.otaliastudios.cameraview.gesture.Gesture;
-import com.otaliastudios.cameraview.internal.CropHelper;
 import com.otaliastudios.cameraview.metering.MeteringRegions;
 import com.otaliastudios.cameraview.picture.Full2PictureRecorder;
 import com.otaliastudios.cameraview.picture.Snapshot2PictureRecorder;
 import com.otaliastudios.cameraview.preview.RendererCameraPreview;
 import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
-import com.otaliastudios.cameraview.video.Full2VideoRecorder;
-import com.otaliastudios.cameraview.video.SnapshotVideoRecorder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,9 +99,6 @@ public class Camera2Engine extends CameraBaseEngine implements
     // Preview
     private Surface mPreviewStreamSurface;
 
-    // Video recording
-    // When takeVideo is called, we restart the session.
-    private VideoResult.Stub mFullVideoPendingStub;
 
     // Picture capturing
     private ImageReader mPictureReader;
@@ -512,18 +505,6 @@ public class Camera2Engine extends CameraBaseEngine implements
         }
         outputSurfaces.add(mPreviewStreamSurface);
 
-        // 2. VIDEO RECORDING
-        if (getMode() == Mode.VIDEO) {
-            if (mFullVideoPendingStub != null) {
-                Full2VideoRecorder recorder = new Full2VideoRecorder(this, mCameraId);
-                try {
-                    outputSurfaces.add(recorder.createInputSurface(mFullVideoPendingStub));
-                } catch (Full2VideoRecorder.PrepareException e) {
-                    throw new CameraException(e, CameraException.REASON_FAILED_TO_CONNECT);
-                }
-                mVideoRecorder = recorder;
-            }
-        }
 
         // 3. PICTURE RECORDING
         // Format is supported, or it would have thrown in Camera2Options constructor.
@@ -619,20 +600,6 @@ public class Camera2Engine extends CameraBaseEngine implements
                 CameraException.REASON_FAILED_TO_START_PREVIEW);
         LOG.i("onStartPreview:", "Started preview.");
 
-        // Start delayed video if needed.
-        if (mFullVideoPendingStub != null) {
-            // Do not call takeVideo/onTakeVideo. It will reset some stub parameters that
-            // the recorder sets. Also we are posting so that doTakeVideo sees a started preview.
-            final VideoResult.Stub stub = mFullVideoPendingStub;
-            mFullVideoPendingStub = null;
-            getOrchestrator().scheduleStateful("do take video", CameraState.PREVIEW,
-                    new Runnable() {
-                @Override
-                public void run() {
-                    doTakeVideo(stub);
-                }
-            });
-        }
 
         // Wait for the first frame.
         final TaskCompletionSource<Void> task = new TaskCompletionSource<>();
@@ -658,12 +625,7 @@ public class Camera2Engine extends CameraBaseEngine implements
     @Override
     protected Task<Void> onStopPreview() {
         LOG.i("onStopPreview:", "Started.");
-        if (mVideoRecorder != null) {
-            // This should synchronously call onVideoResult that will reset the repeating builder
-            // to the PREVIEW template. This is very important.
-            mVideoRecorder.stop(true);
-            mVideoRecorder = null;
-        }
+
         mPictureRecorder = null;
         if (hasFrameProcessors()) {
             getFrameManager().release();
@@ -755,7 +717,6 @@ public class Camera2Engine extends CameraBaseEngine implements
 
         mCameraCharacteristics = null;
         mCameraOptions = null;
-        mVideoRecorder = null;
         mRepeatingRequestBuilder = null;
         LOG.w("onStopEngine:", "Returning.");
         return Tasks.forResult(null);
@@ -842,6 +803,7 @@ public class Camera2Engine extends CameraBaseEngine implements
         }
     }
 
+
     @Override
     public void onPictureResult(@Nullable PictureResult.Stub result, @Nullable Exception error) {
         boolean fullPicture = mPictureRecorder instanceof Full2PictureRecorder;
@@ -863,128 +825,6 @@ public class Camera2Engine extends CameraBaseEngine implements
                     unlockAndResetMetering();
                 }
             });
-        }
-    }
-
-    //endregion
-
-    //region Videos
-
-    @EngineThread
-    @Override
-    protected void onTakeVideo(@NonNull VideoResult.Stub stub) {
-        LOG.i("onTakeVideo", "called.");
-        stub.rotation = getAngles().offset(Reference.SENSOR, Reference.OUTPUT,
-                Axis.RELATIVE_TO_SENSOR);
-        stub.size = getAngles().flip(Reference.SENSOR, Reference.OUTPUT) ?
-                mCaptureSize.flip() : mCaptureSize;
-        // We must restart the session at each time.
-        // Save the pending data and restart the session.
-        LOG.w("onTakeVideo", "calling restartBind.");
-        mFullVideoPendingStub = stub;
-        restartBind();
-    }
-
-    private void doTakeVideo(@NonNull final VideoResult.Stub stub) {
-        if (!(mVideoRecorder instanceof Full2VideoRecorder)) {
-            throw new IllegalStateException("doTakeVideo called, but video recorder " +
-                    "is not a Full2VideoRecorder! " + mVideoRecorder);
-        }
-        Full2VideoRecorder recorder = (Full2VideoRecorder) mVideoRecorder;
-        try {
-            createRepeatingRequestBuilder(CameraDevice.TEMPLATE_RECORD);
-            addRepeatingRequestBuilderSurfaces(recorder.getInputSurface());
-            applyRepeatingRequestBuilder(true, CameraException.REASON_DISCONNECTED);
-            mVideoRecorder.start(stub);
-        } catch (CameraAccessException e) {
-            onVideoResult(null, e);
-            throw createCameraException(e);
-        } catch (CameraException e) {
-            onVideoResult(null, e);
-            throw e;
-        }
-    }
-
-    @EngineThread
-    @Override
-    protected void onTakeVideoSnapshot(@NonNull VideoResult.Stub stub,
-                                       @NonNull AspectRatio outputRatio) {
-        if (!(mPreview instanceof RendererCameraPreview)) {
-            throw new IllegalStateException("Video snapshots are only supported with GL_SURFACE.");
-        }
-        RendererCameraPreview glPreview = (RendererCameraPreview) mPreview;
-        Size outputSize = getUncroppedSnapshotSize(Reference.OUTPUT);
-        if (outputSize == null) {
-            throw new IllegalStateException("outputSize should not be null.");
-        }
-        Rect outputCrop = CropHelper.computeCrop(outputSize, outputRatio);
-        outputSize = new Size(outputCrop.width(), outputCrop.height());
-        stub.size = outputSize;
-        stub.rotation = getAngles().offset(Reference.VIEW, Reference.OUTPUT, Axis.ABSOLUTE);
-        stub.videoFrameRate = Math.round(mPreviewFrameRate);
-        LOG.i("onTakeVideoSnapshot", "rotation:", stub.rotation, "size:", stub.size);
-        mVideoRecorder = new SnapshotVideoRecorder(this, glPreview, getOverlay());
-        mVideoRecorder.start(stub);
-    }
-
-    /**
-     * When video ends we must stop the recorder and remove the recorder surface from
-     * camera outputs. This is done in onVideoResult. However, on some devices, order matters.
-     * If we stop the recorder and AFTER send camera frames to it, the camera will try to fill
-     * the recorder "abandoned" Surface and on some devices with a poor internal implementation
-     * (HW_LEVEL_LEGACY) this crashes. So if the conditions are met, we restore here. Issue #549.
-     */
-    @Override
-    public void onVideoRecordingEnd() {
-        super.onVideoRecordingEnd();
-        // SnapshotRecorder will invoke this on its own thread which is risky, but if it was a
-        // snapshot, this function does nothing so it's safe.
-        boolean needsIssue549Workaround = (mVideoRecorder instanceof Full2VideoRecorder) &&
-                (readCharacteristic(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, -1)
-                        == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
-        if (needsIssue549Workaround) {
-            LOG.w("Applying the Issue549 workaround.", Thread.currentThread());
-            maybeRestorePreviewTemplateAfterVideo();
-            LOG.w("Applied the Issue549 workaround. Sleeping...");
-            try { Thread.sleep(600); } catch (InterruptedException ignore) {}
-            LOG.w("Applied the Issue549 workaround. Slept!");
-        }
-    }
-
-    @Override
-    public void onVideoResult(@Nullable VideoResult.Stub result, @Nullable Exception exception) {
-        super.onVideoResult(result, exception);
-        // SnapshotRecorder will invoke this on its own thread, so let's post in our own thread
-        // and check camera state before trying to restore the preview. Engine might have been
-        // torn down in the engine thread while this was still being called.
-        getOrchestrator().scheduleStateful("restore preview template", CameraState.BIND,
-                new Runnable() {
-            @Override
-            public void run() {
-                maybeRestorePreviewTemplateAfterVideo();
-            }
-        });
-    }
-
-    /**
-     * Video recorders might change the camera template to {@link CameraDevice#TEMPLATE_RECORD}.
-     * After the video is taken, we should restore the template preview, which also means that
-     * we'll remove any extra surface target that was added by the video recorder.
-     *
-     * This method avoids doing this twice by checking the request tag, as set by
-     * the {@link #createRepeatingRequestBuilder(int)} method.
-     */
-    @EngineThread
-    private void maybeRestorePreviewTemplateAfterVideo() {
-        int template = (int) mRepeatingRequestBuilder.build().getTag();
-        if (template != CameraDevice.TEMPLATE_PREVIEW) {
-            try {
-                createRepeatingRequestBuilder(CameraDevice.TEMPLATE_PREVIEW);
-                addRepeatingRequestBuilderSurfaces();
-                applyRepeatingRequestBuilder();
-            } catch (CameraAccessException e) {
-                throw createCameraException(e);
-            }
         }
     }
 
@@ -1027,12 +867,7 @@ public class Camera2Engine extends CameraBaseEngine implements
                 new int[]{});
         List<Integer> modes = new ArrayList<>();
         for (int mode : modesArray) { modes.add(mode); }
-        if (getMode() == Mode.VIDEO &&
-                modes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)) {
-            builder.set(CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
-            return;
-        }
+
 
         if (modes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)) {
             builder.set(CaptureRequest.CONTROL_AF_MODE,
@@ -1069,12 +904,6 @@ public class Camera2Engine extends CameraBaseEngine implements
         for (int mode : modesArray) { modes.add(mode); }
         if (modes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO)) {
             builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
-            return;
-        }
-        if (getMode() == Mode.VIDEO &&
-                modes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)) {
-            builder.set(CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
             return;
         }
 
@@ -1334,11 +1163,6 @@ public class Camera2Engine extends CameraBaseEngine implements
         return false;
     }
 
-    @Override
-    public void setPlaySounds(boolean playSounds) {
-        mPlaySounds = playSounds;
-        mPlaySoundsTask = Tasks.forResult(null);
-    }
 
     @Override
     public void setPreviewFrameRate(float previewFrameRate) {

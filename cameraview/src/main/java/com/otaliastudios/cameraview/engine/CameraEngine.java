@@ -3,10 +3,12 @@ package com.otaliastudios.cameraview.engine;
 import android.content.Context;
 import android.graphics.PointF;
 import android.location.Location;
-
-
 import android.os.Handler;
 import android.os.Looper;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -17,38 +19,28 @@ import com.otaliastudios.cameraview.CameraException;
 import com.otaliastudios.cameraview.CameraLogger;
 import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.PictureResult;
+import com.otaliastudios.cameraview.controls.Facing;
+import com.otaliastudios.cameraview.controls.Flash;
+import com.otaliastudios.cameraview.controls.Hdr;
+import com.otaliastudios.cameraview.controls.Mode;
 import com.otaliastudios.cameraview.controls.PictureFormat;
+import com.otaliastudios.cameraview.controls.WhiteBalance;
+import com.otaliastudios.cameraview.engine.offset.Angles;
+import com.otaliastudios.cameraview.engine.offset.Reference;
 import com.otaliastudios.cameraview.engine.orchestrator.CameraOrchestrator;
 import com.otaliastudios.cameraview.engine.orchestrator.CameraState;
 import com.otaliastudios.cameraview.engine.orchestrator.CameraStateOrchestrator;
-import com.otaliastudios.cameraview.metering.MeteringRegions;
-import com.otaliastudios.cameraview.overlay.Overlay;
-import com.otaliastudios.cameraview.VideoResult;
-import com.otaliastudios.cameraview.engine.offset.Angles;
-import com.otaliastudios.cameraview.engine.offset.Reference;
 import com.otaliastudios.cameraview.frame.Frame;
 import com.otaliastudios.cameraview.frame.FrameManager;
+import com.otaliastudios.cameraview.gesture.Gesture;
 import com.otaliastudios.cameraview.internal.WorkerHandler;
+import com.otaliastudios.cameraview.metering.MeteringRegions;
+import com.otaliastudios.cameraview.overlay.Overlay;
 import com.otaliastudios.cameraview.picture.PictureRecorder;
 import com.otaliastudios.cameraview.preview.CameraPreview;
-import com.otaliastudios.cameraview.controls.Audio;
-import com.otaliastudios.cameraview.controls.Facing;
-import com.otaliastudios.cameraview.controls.Flash;
-import com.otaliastudios.cameraview.gesture.Gesture;
-import com.otaliastudios.cameraview.controls.Hdr;
-import com.otaliastudios.cameraview.controls.Mode;
-import com.otaliastudios.cameraview.controls.VideoCodec;
-import com.otaliastudios.cameraview.controls.WhiteBalance;
 import com.otaliastudios.cameraview.size.Size;
 import com.otaliastudios.cameraview.size.SizeSelector;
-import com.otaliastudios.cameraview.video.VideoRecorder;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-
-import java.io.File;
-import java.io.FileDescriptor;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -107,16 +99,13 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class CameraEngine implements
         CameraPreview.SurfaceCallback,
-        PictureRecorder.PictureResultListener,
-        VideoRecorder.VideoResultListener {
+        PictureRecorder.PictureResultListener {
 
     public interface Callback {
         @NonNull Context getContext();
         void dispatchOnCameraOpened(@NonNull CameraOptions options);
         void dispatchOnCameraClosed();
         void onCameraPreviewStreamSizeChanged();
-        void onShutter(boolean shouldPlaySound);
-        void dispatchOnVideoTaken(@NonNull VideoResult.Stub stub);
         void dispatchOnPictureTaken(@NonNull PictureResult.Stub stub);
         void dispatchOnFocusStart(@Nullable Gesture trigger, @NonNull PointF where);
         void dispatchOnFocusEnd(@Nullable Gesture trigger, boolean success, @NonNull PointF where);
@@ -125,8 +114,6 @@ public abstract class CameraEngine implements
                                                  @Nullable PointF[] fingers);
         void dispatchFrame(@NonNull Frame frame);
         void dispatchError(CameraException exception);
-        void dispatchOnVideoRecordingStart();
-        void dispatchOnVideoRecordingEnd();
     }
 
     protected static final String TAG = CameraEngine.class.getSimpleName();
@@ -595,9 +582,6 @@ public abstract class CameraEngine implements
     public abstract Size getPictureSize(@NonNull Reference reference);
 
     @Nullable
-    public abstract Size getVideoSize(@NonNull Reference reference);
-
-    @Nullable
     public abstract Size getPreviewStreamSize(@NonNull Reference reference);
 
     @Nullable
@@ -618,24 +602,6 @@ public abstract class CameraEngine implements
 
     public abstract void setPictureSizeSelector(@NonNull SizeSelector selector);
     @NonNull public abstract SizeSelector getPictureSizeSelector();
-
-    public abstract void setVideoSizeSelector(@NonNull SizeSelector selector);
-    @NonNull public abstract SizeSelector getVideoSizeSelector();
-
-    public abstract void setVideoMaxSize(long videoMaxSizeBytes);
-    public abstract long getVideoMaxSize();
-
-    public abstract void setVideoMaxDuration(int videoMaxDurationMillis);
-    public abstract int getVideoMaxDuration();
-
-    public abstract void setVideoCodec(@NonNull VideoCodec codec);
-    @NonNull public abstract VideoCodec getVideoCodec();
-
-    public abstract void setVideoBitRate(int videoBitRate);
-    public abstract int getVideoBitRate();
-
-    public abstract void setAudioBitRate(int audioBitRate);
-    public abstract int getAudioBitRate();
 
     public abstract void setSnapshotMaxWidth(int maxWidth);
     public abstract int getSnapshotMaxWidth();
@@ -661,8 +627,6 @@ public abstract class CameraEngine implements
     public abstract void setFacing(final @NonNull Facing facing);
     @NonNull public abstract Facing getFacing();
 
-    public abstract void setAudio(@NonNull Audio audio);
-    @NonNull public abstract Audio getAudio();
 
     public abstract void setMode(@NonNull Mode mode);
     @NonNull public abstract Mode getMode();
@@ -707,18 +671,10 @@ public abstract class CameraEngine implements
                                         @NonNull MeteringRegions regions,
                                         @NonNull PointF legacyPoint);
 
-    public abstract void setPlaySounds(boolean playSounds);
-
     public abstract boolean isTakingPicture();
     public abstract void takePicture(@NonNull PictureResult.Stub stub);
     public abstract void takePictureSnapshot(final @NonNull PictureResult.Stub stub);
 
-    public abstract boolean isTakingVideo();
-    public abstract void takeVideo(@NonNull VideoResult.Stub stub,
-                                   @Nullable File file,
-                                   @Nullable FileDescriptor fileDescriptor);
-    public abstract void takeVideoSnapshot(@NonNull VideoResult.Stub stub, @NonNull File file);
-    public abstract void stopVideo();
 
     //endregion
 }

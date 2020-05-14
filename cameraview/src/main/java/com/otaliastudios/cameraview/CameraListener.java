@@ -83,15 +83,6 @@ public abstract class CameraListener {
 
 
     /**
-     * Notifies that a video capture has just ended.
-     *
-     * @param result the video result
-     */
-    @UiThread
-    public void onVideoTaken(@NonNull VideoResult result) { }
-
-
-    /**
      * Notifies that the device was tilted or the window offset changed.
      * The orientation passed is exactly the counter-clockwise rotation that a View should have,
      * in order to appear correctly oriented to the user, considering the way she is
@@ -157,32 +148,6 @@ public abstract class CameraListener {
                                             @NonNull float[] bounds,
                                             @Nullable PointF[] fingers) { }
 
-
-    /**
-     * Notifies that the actual video recording has started.
-     * This is the time when actual frames recording starts.
-     *
-     * This can be used to show some UI indicator for video recording or counting time.
-     *
-     * @see #onVideoRecordingEnd()
-     */
-    @UiThread
-    public void onVideoRecordingStart() {
-
-    }
-
-    /**
-     * Notifies that the actual video recording has ended.
-     * At this point recording has ended, though the file might still be processed.
-     * The {@link #onVideoTaken(VideoResult)} callback will be called soon.
-     *
-     * This can be used to remove UI indicators for video recording.
-     *
-     * @see #onVideoRecordingStart()
-     */
-    @UiThread
-    public void onVideoRecordingEnd() {
-
-    }
+                                            
 
 }

@@ -1,25 +1,28 @@
 package com.otaliastudios.cameraview.engine;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.graphics.ImageFormat;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.location.Location;
 import android.os.Build;
+import android.view.SurfaceHolder;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-
-import android.view.SurfaceHolder;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.otaliastudios.cameraview.CameraException;
 import com.otaliastudios.cameraview.CameraOptions;
+import com.otaliastudios.cameraview.PictureResult;
+import com.otaliastudios.cameraview.controls.Facing;
+import com.otaliastudios.cameraview.controls.Flash;
+import com.otaliastudios.cameraview.controls.Hdr;
+import com.otaliastudios.cameraview.controls.Mode;
 import com.otaliastudios.cameraview.controls.PictureFormat;
+import com.otaliastudios.cameraview.controls.WhiteBalance;
 import com.otaliastudios.cameraview.engine.mappers.Camera1Mapper;
 import com.otaliastudios.cameraview.engine.metering.Camera1MeteringTransform;
 import com.otaliastudios.cameraview.engine.offset.Axis;
@@ -28,16 +31,8 @@ import com.otaliastudios.cameraview.engine.options.Camera1Options;
 import com.otaliastudios.cameraview.engine.orchestrator.CameraState;
 import com.otaliastudios.cameraview.frame.ByteBufferFrameManager;
 import com.otaliastudios.cameraview.frame.Frame;
-import com.otaliastudios.cameraview.PictureResult;
-import com.otaliastudios.cameraview.VideoResult;
-import com.otaliastudios.cameraview.controls.Facing;
-import com.otaliastudios.cameraview.controls.Flash;
 import com.otaliastudios.cameraview.frame.FrameManager;
 import com.otaliastudios.cameraview.gesture.Gesture;
-import com.otaliastudios.cameraview.controls.Hdr;
-import com.otaliastudios.cameraview.controls.Mode;
-import com.otaliastudios.cameraview.controls.WhiteBalance;
-import com.otaliastudios.cameraview.internal.CropHelper;
 import com.otaliastudios.cameraview.metering.MeteringRegions;
 import com.otaliastudios.cameraview.metering.MeteringTransform;
 import com.otaliastudios.cameraview.picture.Full1PictureRecorder;
@@ -46,8 +41,6 @@ import com.otaliastudios.cameraview.picture.SnapshotGlPictureRecorder;
 import com.otaliastudios.cameraview.preview.RendererCameraPreview;
 import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
-import com.otaliastudios.cameraview.video.Full1VideoRecorder;
-import com.otaliastudios.cameraview.video.SnapshotVideoRecorder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -255,10 +248,7 @@ public class Camera1Engine extends CameraBaseEngine implements
     @Override
     protected Task<Void> onStopPreview() {
         LOG.i("onStopPreview:", "Started.");
-        if (mVideoRecorder != null) {
-            mVideoRecorder.stop(true);
-            mVideoRecorder = null;
-        }
+
         mPictureRecorder = null;
         getFrameManager().release();
         LOG.i("onStopPreview:", "Releasing preview buffers.");
@@ -327,7 +317,6 @@ public class Camera1Engine extends CameraBaseEngine implements
             mCamera = null;
             mCameraOptions = null;
         }
-        mVideoRecorder = null;
         mCameraOptions = null;
         mCamera = null;
         LOG.w("onStopEngine:", "Clean up.", "Returning.");
@@ -372,80 +361,9 @@ public class Camera1Engine extends CameraBaseEngine implements
 
     //endregion
 
-    //region Videos
-
-    @EngineThread
-    @Override
-    protected void onTakeVideo(@NonNull VideoResult.Stub stub) {
-        stub.rotation = getAngles().offset(Reference.SENSOR, Reference.OUTPUT,
-                Axis.RELATIVE_TO_SENSOR);
-        stub.size = getAngles().flip(Reference.SENSOR, Reference.OUTPUT) ? mCaptureSize.flip()
-                : mCaptureSize;
-        // Unlock the camera and start recording.
-        try {
-            mCamera.unlock();
-        } catch (Exception e) {
-            // If this failed, we are unlikely able to record the video.
-            // Dispatch an error.
-            onVideoResult(null, e);
-            return;
-        }
-        mVideoRecorder = new Full1VideoRecorder(Camera1Engine.this, mCamera, mCameraId);
-        mVideoRecorder.start(stub);
-    }
-
-    @SuppressLint("NewApi")
-    @EngineThread
-    @Override
-    protected void onTakeVideoSnapshot(@NonNull VideoResult.Stub stub,
-                                       @NonNull AspectRatio outputRatio) {
-        if (!(mPreview instanceof RendererCameraPreview)) {
-            throw new IllegalStateException("Video snapshots are only supported with GL_SURFACE.");
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            throw new IllegalStateException("Video snapshots are only supported on API 18+.");
-        }
-        RendererCameraPreview glPreview = (RendererCameraPreview) mPreview;
-        Size outputSize = getUncroppedSnapshotSize(Reference.OUTPUT);
-        if (outputSize == null) {
-            throw new IllegalStateException("outputSize should not be null.");
-        }
-        Rect outputCrop = CropHelper.computeCrop(outputSize, outputRatio);
-        outputSize = new Size(outputCrop.width(), outputCrop.height());
-        stub.size = outputSize;
-        // Vertical:               0   (270-0-0)
-        // Left (unlocked):        0   (270-90-270)
-        // Right (unlocked):       0   (270-270-90)
-        // Upside down (unlocked): 0   (270-180-180)
-        // Left (locked):          270 (270-0-270)
-        // Right (locked):         90  (270-0-90)
-        // Upside down (locked):   180 (270-0-180)
-        // The correct formula seems to be deviceOrientation+displayOffset,
-        // which means offset(Reference.VIEW, Reference.OUTPUT, Axis.ABSOLUTE).
-        stub.rotation = getAngles().offset(Reference.VIEW, Reference.OUTPUT, Axis.ABSOLUTE);
-        stub.videoFrameRate = Math.round(mPreviewFrameRate);
-        LOG.i("onTakeVideoSnapshot", "rotation:", stub.rotation, "size:", stub.size);
-
-        // Start.
-        mVideoRecorder = new SnapshotVideoRecorder(Camera1Engine.this, glPreview, getOverlay());
-        mVideoRecorder.start(stub);
-    }
-
-    @Override
-    public void onVideoResult(@Nullable VideoResult.Stub result, @Nullable Exception exception) {
-        super.onVideoResult(result, exception);
-        if (result == null) {
-            // Something went wrong, lock the camera again.
-            mCamera.lock();
-        }
-    }
-
-    //endregion
-
     //region Parameters
 
     private void applyAllParameters(@NonNull Camera.Parameters params) {
-        params.setRecordingHint(getMode() == Mode.VIDEO);
         applyDefaultFocus(params);
         applyFlash(params, Flash.OFF);
         applyLocation(params, null);
@@ -453,18 +371,11 @@ public class Camera1Engine extends CameraBaseEngine implements
         applyHdr(params, Hdr.OFF);
         applyZoom(params, 0F);
         applyExposureCorrection(params, 0F);
-        applyPlaySounds(mPlaySounds);
         applyPreviewFrameRate(params, 0F);
     }
 
     private void applyDefaultFocus(@NonNull Camera.Parameters params) {
         List<String> modes = params.getSupportedFocusModes();
-
-        if (getMode() == Mode.VIDEO &&
-                modes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
-            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-            return;
-        }
 
         if (modes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
@@ -658,43 +569,6 @@ public class Camera1Engine extends CameraBaseEngine implements
             return true;
         }
         mExposureCorrectionValue = oldExposureCorrection;
-        return false;
-    }
-
-    @Override
-    public void setPlaySounds(boolean playSounds) {
-        final boolean old = mPlaySounds;
-        mPlaySounds = playSounds;
-        mPlaySoundsTask = getOrchestrator().scheduleStateful(
-                "play sounds (" + playSounds + ")",
-                CameraState.ENGINE,
-                new Runnable() {
-            @Override
-            public void run() {
-                applyPlaySounds(old);
-            }
-        });
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    @TargetApi(17)
-    private boolean applyPlaySounds(boolean oldPlaySound) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            Camera.CameraInfo info = new Camera.CameraInfo();
-            Camera.getCameraInfo(mCameraId, info);
-            if (info.canDisableShutterSound) {
-                try {
-                    // this method is documented to throw on some occasions. #377
-                    return mCamera.enableShutterSound(mPlaySounds);
-                } catch (RuntimeException exception) {
-                    return false;
-                }
-            }
-        }
-        if (mPlaySounds) {
-            return true;
-        }
-        mPlaySounds = oldPlaySound;
         return false;
     }
 

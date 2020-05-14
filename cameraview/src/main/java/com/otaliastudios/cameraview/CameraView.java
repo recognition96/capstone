@@ -6,8 +6,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -23,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -32,18 +29,15 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 
-import com.otaliastudios.cameraview.controls.Audio;
 import com.otaliastudios.cameraview.controls.Control;
 import com.otaliastudios.cameraview.controls.ControlParser;
 import com.otaliastudios.cameraview.controls.Engine;
 import com.otaliastudios.cameraview.controls.Facing;
 import com.otaliastudios.cameraview.controls.Flash;
-import com.otaliastudios.cameraview.controls.Grid;
 import com.otaliastudios.cameraview.controls.Hdr;
 import com.otaliastudios.cameraview.controls.Mode;
 import com.otaliastudios.cameraview.controls.PictureFormat;
 import com.otaliastudios.cameraview.controls.Preview;
-import com.otaliastudios.cameraview.controls.VideoCodec;
 import com.otaliastudios.cameraview.controls.WhiteBalance;
 import com.otaliastudios.cameraview.engine.Camera1Engine;
 import com.otaliastudios.cameraview.engine.Camera2Engine;
@@ -60,7 +54,6 @@ import com.otaliastudios.cameraview.gesture.PinchGestureFinder;
 import com.otaliastudios.cameraview.gesture.ScrollGestureFinder;
 import com.otaliastudios.cameraview.gesture.TapGestureFinder;
 import com.otaliastudios.cameraview.internal.CropHelper;
-import com.otaliastudios.cameraview.internal.GridLinesLayout;
 import com.otaliastudios.cameraview.internal.OrientationHelper;
 import com.otaliastudios.cameraview.markers.AutoFocusMarker;
 import com.otaliastudios.cameraview.markers.AutoFocusTrigger;
@@ -76,8 +69,6 @@ import com.otaliastudios.cameraview.size.SizeSelector;
 import com.otaliastudios.cameraview.size.SizeSelectorParser;
 import com.otaliastudios.cameraview.size.SizeSelectors;
 
-import java.io.File;
-import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -126,32 +117,39 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     // Components
     private Handler mUiHandler;
     private Executor mFrameProcessingExecutor;
-    @VisibleForTesting CameraCallbacks mCameraCallbacks;
+    @VisibleForTesting
+    CameraCallbacks mCameraCallbacks;
     private CameraPreview mCameraPreview;
     private OrientationHelper mOrientationHelper;
     private CameraEngine mCameraEngine;
     private Size mLastPreviewStreamSize;
     private MediaActionSound mSound;
     private AutoFocusMarker mAutoFocusMarker;
-    @VisibleForTesting List<CameraListener> mListeners = new CopyOnWriteArrayList<>();
-    @VisibleForTesting List<FrameProcessor> mFrameProcessors = new CopyOnWriteArrayList<>();
+    @VisibleForTesting
+    List<CameraListener> mListeners = new CopyOnWriteArrayList<>();
+    @VisibleForTesting
+    List<FrameProcessor> mFrameProcessors = new CopyOnWriteArrayList<>();
     private Lifecycle mLifecycle;
 
     // Gestures
-    @VisibleForTesting PinchGestureFinder mPinchGestureFinder;
-    @VisibleForTesting TapGestureFinder mTapGestureFinder;
-    @VisibleForTesting ScrollGestureFinder mScrollGestureFinder;
+    @VisibleForTesting
+    PinchGestureFinder mPinchGestureFinder;
+    @VisibleForTesting
+    TapGestureFinder mTapGestureFinder;
+    @VisibleForTesting
+    ScrollGestureFinder mScrollGestureFinder;
 
     // Views
-    @VisibleForTesting GridLinesLayout mGridLinesLayout;
-    @VisibleForTesting MarkerLayout mMarkerLayout;
+    @VisibleForTesting
+    MarkerLayout mMarkerLayout;
     private boolean mKeepScreenOn;
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private boolean mExperimental;
     private boolean mInEditor;
 
     // Overlays
-    @VisibleForTesting OverlayLayout mOverlayLayout;
+    @VisibleForTesting
+    OverlayLayout mOverlayLayout;
 
     public CameraView(@NonNull Context context) {
         super(context, null);
@@ -176,8 +174,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         ControlParser controls = new ControlParser(context, a);
 
         // Self managed
-        boolean playSounds = a.getBoolean(R.styleable.CameraView_cameraPlaySounds,
-                DEFAULT_PLAY_SOUNDS);
         boolean useDeviceOrientation = a.getBoolean(
                 R.styleable.CameraView_cameraUseDeviceOrientation, DEFAULT_USE_DEVICE_ORIENTATION);
         mExperimental = a.getBoolean(R.styleable.CameraView_cameraExperimental, false);
@@ -187,16 +183,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         mEngine = controls.getEngine();
 
         // Camera engine params
-        int gridColor = a.getColor(R.styleable.CameraView_cameraGridColor,
-                GridLinesLayout.DEFAULT_COLOR);
-        long videoMaxSize = (long) a.getFloat(R.styleable.CameraView_cameraVideoMaxSize,
-                0);
-        int videoMaxDuration = a.getInteger(R.styleable.CameraView_cameraVideoMaxDuration,
-                0);
-        int videoBitRate = a.getInteger(R.styleable.CameraView_cameraVideoBitRate, 0);
-        int audioBitRate = a.getInteger(R.styleable.CameraView_cameraAudioBitRate, 0);
-        float videoFrameRate = a.getFloat(R.styleable.CameraView_cameraPreviewFrameRate, 0);
-        boolean videoFrameRateExact = a.getBoolean(R.styleable.CameraView_cameraPreviewFrameRateExact, false);
         long autoFocusResetDelay = (long) a.getInteger(
                 R.styleable.CameraView_cameraAutoFocusResetDelay,
                 (int) DEFAULT_AUTOFOCUS_RESET_DELAY_MILLIS);
@@ -232,10 +218,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         mScrollGestureFinder = new ScrollGestureFinder(mCameraCallbacks);
 
         // Views
-        mGridLinesLayout = new GridLinesLayout(context);
         mOverlayLayout = new OverlayLayout(context);
         mMarkerLayout = new MarkerLayout(context);
-        addView(mGridLinesLayout);
         addView(mMarkerLayout);
         addView(mOverlayLayout);
 
@@ -243,10 +227,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         doInstantiateEngine();
 
         // Apply self managed
-        setPlaySounds(playSounds);
         setUseDeviceOrientation(useDeviceOrientation);
-        setGrid(controls.getGrid());
-        setGridColor(gridColor);
+
 
         // Apply camera engine params
         // Adding new ones? See setEngine().
@@ -255,20 +237,11 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         setMode(controls.getMode());
         setWhiteBalance(controls.getWhiteBalance());
         setHdr(controls.getHdr());
-        setAudio(controls.getAudio());
-        setAudioBitRate(audioBitRate);
         setPictureSize(sizeSelectors.getPictureSizeSelector());
         setPictureMetering(pictureMetering);
         setPictureSnapshotMetering(pictureSnapshotMetering);
         setPictureFormat(controls.getPictureFormat());
-        setVideoSize(sizeSelectors.getVideoSizeSelector());
-        setVideoCodec(controls.getVideoCodec());
-        setVideoMaxSize(videoMaxSize);
-        setVideoMaxDuration(videoMaxDuration);
-        setVideoBitRate(videoBitRate);
         setAutoFocusResetDelay(autoFocusResetDelay);
-        setPreviewFrameRateExact(videoFrameRateExact);
-        setPreviewFrameRate(videoFrameRate);
         setSnapshotMaxWidth(snapshotMaxWidth);
         setSnapshotMaxHeight(snapshotMaxHeight);
         setFrameProcessingMaxWidth(frameMaxWidth);
@@ -321,7 +294,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Instantiates the camera engine.
      *
-     * @param engine the engine preference
+     * @param engine   the engine preference
      * @param callback the engine callback
      * @return the engine
      */
@@ -341,8 +314,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Instantiates the camera preview.
      *
-     * @param preview current preview value
-     * @param context a context
+     * @param preview   current preview value
+     * @param context   a context
      * @param container the container
      * @return the preview
      */
@@ -350,20 +323,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     protected CameraPreview instantiatePreview(@NonNull Preview preview,
                                                @NonNull Context context,
                                                @NonNull ViewGroup container) {
-        switch (preview) {
-            case SURFACE:
-                return null;
-            case TEXTURE: {
-                if (isHardwareAccelerated()) {
-                    // TextureView is not supported without hardware acceleration.
-                    return null;
-                }
-            }
-            case GL_SURFACE: default: {
-                mPreview = Preview.GL_SURFACE;
-                return new GlCameraPreview(context, container);
-            }
-        }
+        mPreview = Preview.GL_SURFACE;
+        return new GlCameraPreview(context, container);
     }
 
     @Override
@@ -391,9 +352,12 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     private String ms(int mode) {
         switch (mode) {
-            case AT_MOST: return "AT_MOST";
-            case EXACTLY: return "EXACTLY";
-            case UNSPECIFIED: return "UNSPECIFIED";
+            case AT_MOST:
+                return "AT_MOST";
+            case EXACTLY:
+                return "EXACTLY";
+            case UNSPECIFIED:
+                return "UNSPECIFIED";
         }
         return null;
     }
@@ -401,16 +365,16 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Measuring is basically controlled by layout params width and height.
      * The basic semantics are:
-     *
+     * <p>
      * - MATCH_PARENT: CameraView should completely fill this dimension, even if this might mean
-     *                 not respecting the preview aspect ratio.
+     * not respecting the preview aspect ratio.
      * - WRAP_CONTENT: CameraView should try to adapt this dimension to respect the preview
-     *                 aspect ratio.
-     *
+     * aspect ratio.
+     * <p>
      * When both dimensions are MATCH_PARENT, CameraView will fill its
      * parent no matter the preview. Thanks to what happens in {@link CameraPreview}, this acts like
      * a CENTER CROP scale type.
-     *
+     * <p>
      * When both dimensions are WRAP_CONTENT, CameraView will take the biggest dimensions that
      * fit the preview aspect ratio. This acts like a CENTER INSIDE scale type.
      */
@@ -455,7 +419,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         LOG.i("onMeasure:", "requested dimensions are ("
                 + widthValue + "[" + ms(widthMode) + "]x"
                 + heightValue + "[" + ms(heightMode) + "])");
-        LOG.i("onMeasure:",  "previewSize is", "("
+        LOG.i("onMeasure:", "previewSize is", "("
                 + previewWidth + "x" + previewHeight + ")");
 
         // (1) If we have fixed dimensions (either 300dp or MATCH_PARENT), there's nothing we
@@ -554,15 +518,15 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Maps a {@link Gesture} to a certain gesture action.
      * For example, you can assign zoom control to the pinch gesture by just calling:
      * <code>
-     *     cameraView.mapGesture(Gesture.PINCH, GestureAction.ZOOM);
+     * cameraView.mapGesture(Gesture.PINCH, GestureAction.ZOOM);
      * </code>
-     *
+     * <p>
      * Not all actions can be assigned to a certain gesture. For example, zoom control can't be
      * assigned to the Gesture.TAP gesture. Look at {@link Gesture} to know more.
      * This method returns false if they are not assignable.
      *
      * @param gesture which gesture to map
-     * @param action which action should be assigned
+     * @param action  which action should be assigned
      * @return true if this action could be assigned to this gesture
      */
     public boolean mapGesture(@NonNull Gesture gesture, @NonNull GestureAction action) {
@@ -574,18 +538,18 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
                     mPinchGestureFinder.setActive(mGestureMap.get(Gesture.PINCH) != none);
                     break;
                 case TAP:
-                // case DOUBLE_TAP:
+                    // case DOUBLE_TAP:
                 case LONG_TAP:
                     mTapGestureFinder.setActive(
                             mGestureMap.get(Gesture.TAP) != none ||
-                            // mGestureMap.get(Gesture.DOUBLE_TAP) != none ||
-                            mGestureMap.get(Gesture.LONG_TAP) != none);
+                                    // mGestureMap.get(Gesture.DOUBLE_TAP) != none ||
+                                    mGestureMap.get(Gesture.LONG_TAP) != none);
                     break;
                 case SCROLL_HORIZONTAL:
                 case SCROLL_VERTICAL:
                     mScrollGestureFinder.setActive(
                             mGestureMap.get(Gesture.SCROLL_HORIZONTAL) != none ||
-                            mGestureMap.get(Gesture.SCROLL_VERTICAL) != none);
+                                    mGestureMap.get(Gesture.SCROLL_VERTICAL) != none);
                     break;
             }
             return true;
@@ -596,6 +560,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Clears any action mapped to the given gesture.
+     *
      * @param gesture which gesture to clear
      */
     public void clearGesture(@NonNull Gesture gesture) {
@@ -689,6 +654,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Sets permissions flag if you want enable auto check permissions or disable it.
+     *
      * @param requestPermissions - true: auto check permissions enabled, false: auto check permissions disabled.
      */
     public void setRequestPermissions(boolean requestPermissions) {
@@ -697,6 +663,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Returns whether the camera engine has started.
+     *
      * @return whether the camera has started
      */
     public boolean isOpened() {
@@ -712,7 +679,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Sets the lifecycle owner for this view. This means you don't need
      * to call {@link #open()}, {@link #close()} or {@link #destroy()} at all.
-     *
+     * <p>
      * If you want that lifecycle stopped controlling the state of the camera,
      * pass null in this method.
      *
@@ -743,69 +710,12 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     public void open() {
         if (mInEditor) return;
         if (mCameraPreview != null) mCameraPreview.onResume();
-        if (checkPermissions(getAudio())) {
-            // Update display orientation for current CameraEngine
-            mOrientationHelper.enable();
-            mCameraEngine.getAngles().setDisplayOffset(mOrientationHelper.getLastDisplayOffset());
-            mCameraEngine.start();
-        }
+
+        mOrientationHelper.enable();
+        mCameraEngine.getAngles().setDisplayOffset(mOrientationHelper.getLastDisplayOffset());
+        mCameraEngine.start();
     }
 
-    /**
-     * Checks that we have appropriate permissions.
-     * This means checking that we have audio permissions if audio = Audio.ON.
-     * @param audio the audio setting to be checked
-     * @return true if we can go on, false otherwise.
-     */
-    @SuppressWarnings("ConstantConditions")
-    @SuppressLint("NewApi")
-    protected boolean checkPermissions(@NonNull Audio audio) {
-        checkPermissionsManifestOrThrow(audio);
-        // Manifest is OK at this point. Let's check runtime permissions.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true;
-
-        Context c = getContext();
-        boolean needsCamera = true;
-        boolean needsAudio = audio == Audio.ON || audio == Audio.MONO || audio == Audio.STEREO;
-
-        needsCamera = needsCamera && c.checkSelfPermission(Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED;
-        needsAudio = needsAudio && c.checkSelfPermission(Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED;
-
-        if (!needsCamera && !needsAudio) {
-            return true;
-        } else if (mRequestPermissions) {
-            requestPermissions(needsCamera, needsAudio);
-            return false;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * If audio is on we will ask for RECORD_AUDIO permission.
-     * If the developer did not add this to its manifest, throw and fire warnings.
-     */
-    private void checkPermissionsManifestOrThrow(@NonNull Audio audio) {
-        if (audio == Audio.ON || audio == Audio.MONO || audio == Audio.STEREO) {
-            try {
-                PackageManager manager = getContext().getPackageManager();
-                PackageInfo info = manager.getPackageInfo(getContext().getPackageName(),
-                        PackageManager.GET_PERMISSIONS);
-                for (String requestedPermission : info.requestedPermissions) {
-                    if (requestedPermission.equals(Manifest.permission.RECORD_AUDIO)) {
-                        return;
-                    }
-                }
-                String message = LOG.e("Permission error: when audio is enabled (Audio.ON)" +
-                        " the RECORD_AUDIO permission should be added to the app manifest file.");
-                throw new IllegalStateException(message);
-            } catch (PackageManager.NameNotFoundException e) {
-                // Not possible.
-            }
-        }
-    }
 
     /**
      * Stops the current preview, if any was started.
@@ -838,6 +748,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Sets the experimental flag which occasionally can enable
      * new, unstable beta features.
+     *
      * @param experimental true to enable new features
      */
     public void setExperimental(boolean experimental) {
@@ -851,22 +762,16 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * @param control desired value
      */
     public void set(@NonNull Control control) {
-        if (control instanceof Audio) {
-            setAudio((Audio) control);
-        } else if (control instanceof Facing) {
+        if (control instanceof Facing) {
             setFacing((Facing) control);
         } else if (control instanceof Flash) {
             setFlash((Flash) control);
-        } else if (control instanceof Grid) {
-            setGrid((Grid) control);
         } else if (control instanceof Hdr) {
             setHdr((Hdr) control);
         } else if (control instanceof Mode) {
             setMode((Mode) control);
         } else if (control instanceof WhiteBalance) {
             setWhiteBalance((WhiteBalance) control);
-        } else if (control instanceof VideoCodec) {
-            setVideoCodec((VideoCodec) control);
         } else if (control instanceof Preview) {
             setPreview((Preview) control);
         } else if (control instanceof Engine) {
@@ -881,28 +786,22 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * For example, if control class is a {@link Grid}, this calls {@link #getGrid()}.
      *
      * @param controlClass desired value class
-     * @param <T> the class type
+     * @param <T>          the class type
      * @return the control
      */
     @SuppressWarnings("unchecked")
     @NonNull
     public <T extends Control> T get(@NonNull Class<T> controlClass) {
-        if (controlClass == Audio.class) {
-            return (T) getAudio();
-        } else if (controlClass == Facing.class) {
+        if (controlClass == Facing.class) {
             return (T) getFacing();
         } else if (controlClass == Flash.class) {
             return (T) getFlash();
-        } else if (controlClass == Grid.class) {
-            return (T) getGrid();
         } else if (controlClass == Hdr.class) {
             return (T) getHdr();
         } else if (controlClass == Mode.class) {
             return (T) getMode();
         } else if (controlClass == WhiteBalance.class) {
             return (T) getWhiteBalance();
-        } else if (controlClass == VideoCodec.class) {
-            return (T) getVideoCodec();
         } else if (controlClass == Preview.class) {
             return (T) getPreview();
         } else if (controlClass == Engine.class) {
@@ -920,11 +819,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * (like if you created it programmatically).
      * Otherwise, it has no effect.
      *
-     * @see Preview#SURFACE
-     * @see Preview#TEXTURE
-     * @see Preview#GL_SURFACE
-     *
      * @param preview desired preview engine
+     * @see Preview#GL_SURFACE
      */
     public void setPreview(@NonNull Preview preview) {
         boolean isNew = preview != mPreview;
@@ -942,8 +838,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Returns the current preview control.
      *
-     * @see #setPreview(Preview)
      * @return the current preview control
+     * @see #setPreview(Preview)
      */
     @NonNull
     public Preview getPreview() {
@@ -955,10 +851,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * if this CameraView is closed (open() was never called).
      * Otherwise, it has no effect.
      *
+     * @param engine desired engine
      * @see Engine#CAMERA1
      * @see Engine#CAMERA2
-     *
-     * @param engine desired engine
      */
     public void setEngine(@NonNull Engine engine) {
         if (!isClosed()) return;
@@ -973,15 +868,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         setMode(oldEngine.getMode());
         setWhiteBalance(oldEngine.getWhiteBalance());
         setHdr(oldEngine.getHdr());
-        setAudio(oldEngine.getAudio());
-        setAudioBitRate(oldEngine.getAudioBitRate());
+
         setPictureSize(oldEngine.getPictureSizeSelector());
         setPictureFormat(oldEngine.getPictureFormat());
-        setVideoSize(oldEngine.getVideoSizeSelector());
-        setVideoCodec(oldEngine.getVideoCodec());
-        setVideoMaxSize(oldEngine.getVideoMaxSize());
-        setVideoMaxDuration(oldEngine.getVideoMaxDuration());
-        setVideoBitRate(oldEngine.getVideoBitRate());
         setAutoFocusResetDelay(oldEngine.getAutoFocusResetDelay());
         setPreviewFrameRate(oldEngine.getPreviewFrameRate());
         setPreviewFrameRateExact(oldEngine.getPreviewFrameRateExact());
@@ -997,8 +886,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Returns the current engine control.
      *
-     * @see #setEngine(Engine)
      * @return the current engine control
+     * @see #setEngine(Engine)
      */
     @NonNull
     public Engine getEngine() {
@@ -1019,16 +908,15 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Sets exposure adjustment, in EV stops. A positive value will mean brighter picture.
-     *
+     * <p>
      * If camera is not opened, this will have no effect.
      * If {@link CameraOptions#isExposureCorrectionSupported()} is false, this will have no effect.
      * The provided value should be between the bounds returned by {@link CameraOptions}, or it will
      * be capped.
      *
+     * @param EVvalue exposure correction value.
      * @see CameraOptions#getExposureCorrectionMinValue()
      * @see CameraOptions#getExposureCorrectionMaxValue()
-     *
-     * @param EVvalue exposure correction value.
      */
     public void setExposureCorrection(float EVvalue) {
         CameraOptions options = getCameraOptions();
@@ -1045,6 +933,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Returns the current exposure correction value, typically 0
      * at start-up.
+     *
      * @return the current exposure correction value
      */
     public float getExposureCorrection() {
@@ -1055,7 +944,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Sets a zoom value. This is not guaranteed to be supported by the current device,
      * but you can take a look at {@link CameraOptions#isZoomSupported()}.
      * This will have no effect if called before the camera is opened.
-     *
+     * <p>
      * Zoom value should be between 0 and 1, where 1 will be the maximum available zoom.
      * If it's not, it will be capped.
      *
@@ -1069,60 +958,20 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Returns the current zoom value, something between 0 and 1.
+     *
      * @return the current zoom value
      */
     public float getZoom() {
         return mCameraEngine.getZoomValue();
     }
 
-    /**
-     * Controls the grids to be drawn over the current layout.
-     *
-     * @see Grid#OFF
-     * @see Grid#DRAW_3X3
-     * @see Grid#DRAW_4X4
-     * @see Grid#DRAW_PHI
-     *
-     * @param gridMode desired grid mode
-     */
-    public void setGrid(@NonNull Grid gridMode) {
-        mGridLinesLayout.setGridMode(gridMode);
-    }
-
-    /**
-     * Gets the current grid mode.
-     * @return the current grid mode
-     */
-    @NonNull
-    public Grid getGrid() {
-        return mGridLinesLayout.getGridMode();
-    }
-
-    /**
-     * Controls the color of the grid lines that will be drawn
-     * over the current layout.
-     *
-     * @param color a resolved color
-     */
-    public void setGridColor(@ColorInt int color) {
-        mGridLinesLayout.setGridColor(color);
-    }
-
-    /**
-     * Returns the current grid color.
-     * @return the current grid color
-     */
-    public int getGridColor() {
-        return mGridLinesLayout.getGridColor();
-    }
 
     /**
      * Controls the grids to be drawn over the current layout.
-     *
-     * @see Hdr#OFF
-     * @see Hdr#ON
      *
      * @param hdr desired hdr value
+     * @see Hdr#OFF
+     * @see Hdr#ON
      */
     public void setHdr(@NonNull Hdr hdr) {
         mCameraEngine.setHdr(hdr);
@@ -1130,6 +979,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Gets the current hdr value.
+     *
      * @return the current hdr value
      */
     @NonNull
@@ -1140,7 +990,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Set location coordinates to be found later in the EXIF header
      *
-     * @param latitude current latitude
+     * @param latitude  current latitude
      * @param longitude current longitude
      */
     public void setLocation(double latitude, double longitude) {
@@ -1174,13 +1024,12 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Sets desired white balance to current camera session.
      *
+     * @param whiteBalance desired white balance behavior.
      * @see WhiteBalance#AUTO
      * @see WhiteBalance#INCANDESCENT
      * @see WhiteBalance#FLUORESCENT
      * @see WhiteBalance#DAYLIGHT
      * @see WhiteBalance#CLOUDY
-     *
-     * @param whiteBalance desired white balance behavior.
      */
     public void setWhiteBalance(@NonNull WhiteBalance whiteBalance) {
         mCameraEngine.setWhiteBalance(whiteBalance);
@@ -1188,6 +1037,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Returns the current white balance behavior.
+     *
      * @return white balance value.
      */
     @NonNull
@@ -1198,10 +1048,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Sets which camera sensor should be used.
      *
+     * @param facing a facing value.
      * @see Facing#FRONT
      * @see Facing#BACK
-     *
-     * @param facing a facing value.
      */
     public void setFacing(@NonNull Facing facing) {
         mCameraEngine.setFacing(facing);
@@ -1209,6 +1058,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Gets the facing camera currently being used.
+     *
      * @return a facing value.
      */
     @NonNull
@@ -1240,12 +1090,11 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Sets the flash mode.
      *
+     * @param flash desired flash mode.
      * @see Flash#OFF
      * @see Flash#ON
      * @see Flash#AUTO
      * @see Flash#TORCH
-
-     * @param flash desired flash mode.
      */
     public void setFlash(@NonNull Flash flash) {
         mCameraEngine.setFlash(flash);
@@ -1253,6 +1102,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Gets the current flash mode.
+     *
      * @return a flash mode
      */
     @NonNull
@@ -1260,43 +1110,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         return mCameraEngine.getFlash();
     }
 
-    /**
-     * Controls the audio mode.
-     *
-     * @see Audio#OFF
-     * @see Audio#ON
-     * @see Audio#MONO
-     * @see Audio#STEREO
-     *
-     * @param audio desired audio value
-     */
-    public void setAudio(@NonNull Audio audio) {
-
-        if (audio == getAudio() || isClosed()) {
-            // Check did took place, or will happen on start().
-            mCameraEngine.setAudio(audio);
-
-        } else if (checkPermissions(audio)) {
-            // Camera is running. Pass.
-            mCameraEngine.setAudio(audio);
-
-        } else {
-            // This means that the audio permission is being asked.
-            // Stop the camera so it can be restarted by the developer onPermissionResult.
-            // Developer must also set the audio value again...
-            // Not ideal but good for now.
-            close();
-        }
-    }
-
-    /**
-     * Gets the current audio value.
-     * @return the current audio value
-     */
-    @NonNull
-    public Audio getAudio() {
-        return mCameraEngine.getAudio();
-    }
 
     /**
      * Sets an {@link AutoFocusMarker} to be notified of metering start, end and fail events
@@ -1326,7 +1139,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * @return the current reset delay in milliseconds
      */
     @SuppressWarnings("unused")
-    public long getAutoFocusResetDelay() { return mCameraEngine.getAutoFocusResetDelay(); }
+    public long getAutoFocusResetDelay() {
+        return mCameraEngine.getAutoFocusResetDelay();
+    }
 
     /**
      * Starts a 3A touch metering process at the given coordinates, with respect
@@ -1369,15 +1184,14 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * <strong>ADVANCED FEATURE</strong> - sets a size selector for the preview stream.
      * The {@link SizeSelector} will be invoked with the list of available sizes, and the first
      * acceptable size will be accepted and passed to the internal engine and surface.
-     *
+     * <p>
      * This is typically NOT NEEDED. The default size selector is already smart enough to respect
      * the picture/video output aspect ratio, and be bigger than the surface so that there is no
-     * upscaling. If all you want is set an aspect ratio, use {@link #setPictureSize(SizeSelector)}
-     * and {@link #setVideoSize(SizeSelector)}.
-     *
+     * upscaling. If all you want is set an aspect ratio, use {@link #setPictureSize(SizeSelector)}.
+     * <p>
      * When stream size changes, the {@link CameraView} is remeasured so any WRAP_CONTENT dimension
      * is recomputed accordingly.
-     *
+     * <p>
      * See the {@link SizeSelectors} class for handy utilities for creating selectors.
      *
      * @param selector a size selector
@@ -1389,10 +1203,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Set the current session type to either picture or video.
      *
-     * @see Mode#PICTURE
-     * @see Mode#VIDEO
-     *
      * @param mode desired session type.
+     * @see Mode#PICTURE
      */
     public void setMode(@NonNull Mode mode) {
         mCameraEngine.setMode(mode);
@@ -1400,6 +1212,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Gets the current mode.
+     *
      * @return the current mode
      */
     @NonNull
@@ -1423,14 +1236,14 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Whether the engine should perform a metering sequence before taking pictures requested
      * with {@link #takePicture()}. A metering sequence includes adjusting focus, exposure
      * and white balance to ensure a good quality of the result.
-     *
+     * <p>
      * When this parameter is true, the quality of the picture increases, but the latency
      * increases as well. Defaults to true.
-     *
+     * <p>
      * This is a CAMERA2 only API. On CAMERA1, picture metering is always enabled.
      *
-     * @see #setPictureSnapshotMetering(boolean)
      * @param enable true to enable
+     * @see #setPictureSnapshotMetering(boolean)
      */
     public void setPictureMetering(boolean enable) {
         mCameraEngine.setPictureMetering(enable);
@@ -1440,8 +1253,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Whether the engine should perform a metering sequence before taking pictures requested
      * with {@link #takePicture()}. See {@link #setPictureMetering(boolean)}.
      *
-     * @see #setPictureMetering(boolean)
      * @return true if picture metering is enabled
+     * @see #setPictureMetering(boolean)
      */
     public boolean getPictureMetering() {
         return mCameraEngine.getPictureMetering();
@@ -1451,14 +1264,14 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Whether the engine should perform a metering sequence before taking pictures requested
      * with {@link #takePictureSnapshot()}. A metering sequence includes adjusting focus,
      * exposure and white balance to ensure a good quality of the result.
-     *
+     * <p>
      * When this parameter is true, the quality of the picture increases, but the latency
      * increases as well. To keep snapshots fast, this defaults to false.
-     *
+     * <p>
      * This is a CAMERA2 only API. On CAMERA1, picture snapshot metering is always disabled.
      *
-     * @see #setPictureMetering(boolean)
      * @param enable true to enable
+     * @see #setPictureMetering(boolean)
      */
     public void setPictureSnapshotMetering(boolean enable) {
         mCameraEngine.setPictureSnapshotMetering(enable);
@@ -1468,8 +1281,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Whether the engine should perform a metering sequence before taking pictures requested
      * with {@link #takePictureSnapshot()}. See {@link #setPictureSnapshotMetering(boolean)}.
      *
-     * @see #setPictureSnapshotMetering(boolean)
      * @return true if picture metering is enabled
+     * @see #setPictureSnapshotMetering(boolean)
      */
     public boolean getPictureSnapshotMetering() {
         return mCameraEngine.getPictureSnapshotMetering();
@@ -1489,8 +1302,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Returns the current picture format.
-     * @see #setPictureFormat(PictureFormat)
+     *
      * @return the picture format
+     * @see #setPictureFormat(PictureFormat)
      */
     @NonNull
     public PictureFormat getPictureFormat() {
@@ -1499,50 +1313,18 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
 
     /**
-     * Sets a capture size selector for video mode.
-     * The {@link SizeSelector} will be invoked with the list of available sizes, and the first
-     * acceptable size will be accepted and passed to the internal engine.
-     * See the {@link SizeSelectors} class for handy utilities for creating selectors.
-     *
-     * @param selector a size selector
-     */
-    public void setVideoSize(@NonNull SizeSelector selector) {
-        mCameraEngine.setVideoSizeSelector(selector);
-    }
-
-    /**
-     * Sets the bit rate in bits per second for video capturing.
-     * Will be used by both {@link #takeVideo(File)} and {@link #takeVideoSnapshot(File)}.
-     *
-     * @param bitRate desired bit rate
-     */
-    public void setVideoBitRate(int bitRate) {
-        mCameraEngine.setVideoBitRate(bitRate);
-    }
-
-    /**
-     * Returns the current video bit rate.
-     * @return current bit rate
-     */
-    @SuppressWarnings("unused")
-    public int getVideoBitRate() {
-        return mCameraEngine.getVideoBitRate();
-    }
-
-    /**
      * A flag to control the behavior when calling {@link #setPreviewFrameRate(float)}.
-     *
+     * <p>
      * If the value is set to true, {@link #setPreviewFrameRate(float)} will choose the preview
      * frame range as close to the desired new frame rate as possible. Which mean it may choose a
      * narrow range around the desired frame rate. Note: This option will give you as exact fps as
      * you want but the sensor will have less freedom when adapting the exposure to the environment,
      * which may lead to dark preview.
-     *
+     * <p>
      * If the value is set to false, {@link #setPreviewFrameRate(float)} will choose as broad range
      * as it can.
      *
      * @param videoFrameRateExact whether want a more exact preview frame range
-     *
      * @see #setPreviewFrameRate(float)
      */
     public void setPreviewFrameRateExact(boolean videoFrameRateExact) {
@@ -1553,9 +1335,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Returns whether we want to set preview fps as exact as we set through
      * {@link #setPreviewFrameRate(float)}.
      *
+     * @return current option
      * @see #setPreviewFrameRateExact(boolean)
      * @see #setPreviewFrameRate(float)
-     * @return current option
      */
     public boolean getPreviewFrameRateExact() {
         return mCameraEngine.getPreviewFrameRateExact();
@@ -1564,8 +1346,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     /**
      * Sets the preview frame rate in frames per second.
      * This rate will be used, for example, by the frame processor and in video
-     * snapshot taken through {@link #takeVideo(File)}.
-     *
+     * <p>
      * A value of 0F will restore the rate to a default value.
      *
      * @param frameRate desired frame rate
@@ -1578,31 +1359,13 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Returns the current preview frame rate.
      * This can return 0F if no frame rate was set.
      *
-     * @see #setPreviewFrameRate(float)
      * @return current frame rate
+     * @see #setPreviewFrameRate(float)
      */
     public float getPreviewFrameRate() {
         return mCameraEngine.getPreviewFrameRate();
     }
 
-    /**
-     * Sets the bit rate in bits per second for audio capturing.
-     * Will be used by both {@link #takeVideo(File)} and {@link #takeVideoSnapshot(File)}.
-     *
-     * @param bitRate desired bit rate
-     */
-    public void setAudioBitRate(int bitRate) {
-        mCameraEngine.setAudioBitRate(bitRate);
-    }
-
-    /**
-     * Returns the current audio bit rate.
-     * @return current bit rate
-     */
-    @SuppressWarnings("unused")
-    public int getAudioBitRate() {
-        return mCameraEngine.getAudioBitRate();
-    }
 
     /**
      * Adds a {@link CameraListener} instance to be notified of all
@@ -1649,7 +1412,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Asks the camera to capture a snapshot of the current preview.
      * This eventually triggers {@link CameraListener#onPictureTaken(PictureResult)} if a listener
      * was registered.
-     *
+     * <p>
      * The difference with {@link #takePicture()} is that this capture is faster, so it might be
      * better on slower cameras, though the result can be generally blurry or low quality.
      *
@@ -1660,168 +1423,10 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         mCameraEngine.takePictureSnapshot(stub);
     }
 
-    /**
-     * Starts recording a video. Video will be written to the given file,
-     * so callers should ensure they have appropriate permissions to write to the file.
-     *
-     * @param file a file where the video will be saved
-     */
-    public void takeVideo(@NonNull File file) {
-        takeVideo(file, null);
-    }
 
     /**
-     * Starts recording a video. Video will be written to the given file,
-     * so callers should ensure they have appropriate permissions to write to the file.
-     *
-     * @param fileDescriptor a file descriptor where the video will be saved
-     */
-    public void takeVideo(@NonNull FileDescriptor fileDescriptor) {
-        takeVideo(null, fileDescriptor);
-    }
-
-    private void takeVideo(@Nullable File file, @Nullable FileDescriptor fileDescriptor) {
-        VideoResult.Stub stub = new VideoResult.Stub();
-        if (file != null) {
-            mCameraEngine.takeVideo(stub, file, null);
-        } else if (fileDescriptor != null) {
-            mCameraEngine.takeVideo(stub, null, fileDescriptor);
-        } else {
-            throw new IllegalStateException("file and fileDescriptor are both null.");
-        }
-        mUiHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mKeepScreenOn = getKeepScreenOn();
-                if (!mKeepScreenOn) setKeepScreenOn(true);
-            }
-        });
-    }
-
-    /**
-     * Starts recording a fast, low quality video snapshot. Video will be written to the given file,
-     * so callers should ensure they have appropriate permissions to write to the file.
-     *
-     * Throws an exception if API level is below 18, or if the preview being used is not
-     * {@link Preview#GL_SURFACE}.
-     *
-     * @param file a file where the video will be saved
-     */
-    public void takeVideoSnapshot(@NonNull File file) {
-        VideoResult.Stub stub = new VideoResult.Stub();
-        mCameraEngine.takeVideoSnapshot(stub, file);
-        mUiHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mKeepScreenOn = getKeepScreenOn();
-                if (!mKeepScreenOn) setKeepScreenOn(true);
-            }
-        });
-    }
-
-    /**
-     * Starts recording a video. Video will be written to the given file,
-     * so callers should ensure they have appropriate permissions to write to the file.
-     * Recording will be automatically stopped after the given duration, overriding
-     * temporarily any duration limit set by {@link #setVideoMaxDuration(int)}.
-     *
-     * @param file a file where the video will be saved
-     * @param durationMillis recording max duration
-     */
-    public void takeVideo(@NonNull File file, int durationMillis) {
-        takeVideo(file, null, durationMillis);
-    }
-
-    /**
-     * Starts recording a video. Video will be written to the given file,
-     * so callers should ensure they have appropriate permissions to write to the file.
-     * Recording will be automatically stopped after the given duration, overriding
-     * temporarily any duration limit set by {@link #setVideoMaxDuration(int)}.
-     *
-     * @param fileDescriptor a file descriptor where the video will be saved
-     * @param durationMillis recording max duration
-     */
-    public void takeVideo(@NonNull FileDescriptor fileDescriptor, int durationMillis) {
-        takeVideo(null, fileDescriptor, durationMillis);
-    }
-
-    private void takeVideo(@Nullable File file, @Nullable FileDescriptor fileDescriptor,
-                           int durationMillis) {
-        final int old = getVideoMaxDuration();
-        addCameraListener(new CameraListener() {
-            @Override
-            public void onVideoTaken(@NonNull VideoResult result) {
-                setVideoMaxDuration(old);
-                removeCameraListener(this);
-            }
-
-            @Override
-            public void onCameraError(@NonNull CameraException exception) {
-                super.onCameraError(exception);
-                if (exception.getReason() == CameraException.REASON_VIDEO_FAILED) {
-                    setVideoMaxDuration(old);
-                    removeCameraListener(this);
-                }
-            }
-        });
-        setVideoMaxDuration(durationMillis);
-        takeVideo(file, fileDescriptor);
-    }
-
-    /**
-     * Starts recording a fast, low quality video snapshot. Video will be written to the given file,
-     * so callers should ensure they have appropriate permissions to write to the file.
-     * Recording will be automatically stopped after the given duration, overriding
-     * temporarily any duration limit set by {@link #setVideoMaxDuration(int)}.
-     *
-     * Throws an exception if API level is below 18, or if the preview being used is not
-     * {@link Preview#GL_SURFACE}.
-     *
-     * @param file a file where the video will be saved
-     * @param durationMillis recording max duration
-     *
-     */
-    public void takeVideoSnapshot(@NonNull File file, int durationMillis) {
-        final int old = getVideoMaxDuration();
-        addCameraListener(new CameraListener() {
-            @Override
-            public void onVideoTaken(@NonNull VideoResult result) {
-                setVideoMaxDuration(old);
-                removeCameraListener(this);
-            }
-
-            @Override
-            public void onCameraError(@NonNull CameraException exception) {
-                super.onCameraError(exception);
-                if (exception.getReason() == CameraException.REASON_VIDEO_FAILED) {
-                    setVideoMaxDuration(old);
-                    removeCameraListener(this);
-                }
-            }
-        });
-        setVideoMaxDuration(durationMillis);
-        takeVideoSnapshot(file);
-    }
-
-    // TODO: pauseVideo and resumeVideo? There is mediarecorder.pause(), but API 24...
-
-    /**
-     * Stops capturing video or video snapshots being recorded, if there was any.
-     * This will fire {@link CameraListener#onVideoTaken(VideoResult)}.
-     */
-    public void stopVideo() {
-        mCameraEngine.stopVideo();
-        mUiHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (getKeepScreenOn() != mKeepScreenOn) setKeepScreenOn(mKeepScreenOn);
-            }
-        });
-    }
-
-    /**
-     * Sets the max width for snapshots taken with {@link #takePictureSnapshot()} or
-     * {@link #takeVideoSnapshot(File)}. If the snapshot width exceeds this value, the snapshot
+     * Sets the max width for snapshots taken with {@link #takePictureSnapshot()}.
+     * If the snapshot width exceeds this value, the snapshot
      * will be scaled down to match this constraint.
      *
      * @param maxWidth max width for snapshots
@@ -1831,8 +1436,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     }
 
     /**
-     * Sets the max height for snapshots taken with {@link #takePictureSnapshot()} or
-     * {@link #takeVideoSnapshot(File)}. If the snapshot height exceeds this value, the snapshot
+     * Sets the max height for snapshots taken with {@link #takePictureSnapshot()}.
+     * If the snapshot height exceeds this value, the snapshot
      * will be scaled down to match this constraint.
      *
      * @param maxHeight max height for snapshots
@@ -1843,8 +1448,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * The max width for snapshots.
-     * @see #setSnapshotMaxWidth(int)
+     *
      * @return max width
+     * @see #setSnapshotMaxWidth(int)
      */
     public int getSnapshotMaxWidth() {
         return mCameraEngine.getSnapshotMaxWidth();
@@ -1852,8 +1458,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * The max height for snapshots.
-     * @see #setSnapshotMaxHeight(int)
+     *
      * @return max height
+     * @see #setSnapshotMaxHeight(int)
      */
     public int getSnapshotMaxHeight() {
         return mCameraEngine.getSnapshotMaxHeight();
@@ -1863,10 +1470,10 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Returns the size used for snapshots, or null if it hasn't been computed
      * (for example if the surface is not ready). This is the preview size, rotated to match
      * the output orientation, and cropped to the visible part.
-     *
+     * <p>
      * This also includes the {@link #setSnapshotMaxWidth(int)} and
      * {@link #setSnapshotMaxHeight(int)} constraints.
-     *
+     * <p>
      * This does NOT include any constraints specific to video encoding, which are
      * device specific and depend on the capabilities of the device codec.
      *
@@ -1894,7 +1501,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Returns the size used for pictures taken with {@link #takePicture()},
      * or null if it hasn't been computed (for example if the surface is not ready),
      * or null if we are in video mode.
-     *
+     * <p>
      * The size is rotated to match the output orientation.
      *
      * @return the size of pictures
@@ -1904,23 +1511,10 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         return mCameraEngine.getPictureSize(Reference.OUTPUT);
     }
 
-    /**
-     * Returns the size used for videos taken with {@link #takeVideo(File)},
-     * or null if it hasn't been computed (for example if the surface is not ready),
-     * or null if we are in picture mode.
-     *
-     * The size is rotated to match the output orientation.
-     *
-     * @return the size of videos
-     */
-    @Nullable
-    public Size getVideoSize() {
-        return mCameraEngine.getVideoSize(Reference.OUTPUT);
-    }
 
     // If we end up here, we're in M.
     @TargetApi(Build.VERSION_CODES.M)
-    private void requestPermissions(boolean requestCamera, boolean requestAudio) {
+    private void requestPermissions(boolean requestCamera) {
         Activity activity = null;
         Context context = getContext();
         while (context instanceof ContextWrapper) {
@@ -1932,43 +1526,12 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
         List<String> permissions = new ArrayList<>();
         if (requestCamera) permissions.add(Manifest.permission.CAMERA);
-        if (requestAudio) permissions.add(Manifest.permission.RECORD_AUDIO);
         if (activity != null) {
             activity.requestPermissions(permissions.toArray(new String[0]),
                     PERMISSION_REQUEST_CODE);
         }
     }
 
-    @SuppressLint("NewApi")
-    private void playSound(int soundType) {
-        if (mPlaySounds) {
-            if (mSound == null) mSound = new MediaActionSound();
-            mSound.play(soundType);
-        }
-    }
-
-    /**
-     * Controls whether CameraView should play sound effects on certain
-     * events (picture taken, focus complete). Note that:
-     * - On API level {@literal <} 16, this flag is always false
-     * - Camera1 will always play the shutter sound when taking pictures
-     *
-     * @param playSounds whether to play sound effects
-     */
-    public void setPlaySounds(boolean playSounds) {
-        mPlaySounds = playSounds && Build.VERSION.SDK_INT >= 16;
-        mCameraEngine.setPlaySounds(playSounds);
-    }
-
-    /**
-     * Gets the current sound effect behavior.
-     *
-     * @see #setPlaySounds(boolean)
-     * @return whether sound effects are supported
-     */
-    public boolean getPlaySounds() {
-        return mPlaySounds;
-    }
 
     /**
      * Controls whether picture and video output should consider the current device orientation.
@@ -1985,90 +1548,16 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Gets the current behavior for considering the device orientation when returning picture
      * or video outputs.
      *
-     * @see #setUseDeviceOrientation(boolean)
      * @return whether we are using the device orientation for outputs
+     * @see #setUseDeviceOrientation(boolean)
      */
     public boolean getUseDeviceOrientation() {
         return mUseDeviceOrientation;
     }
 
     /**
-     * Sets the encoder for video recordings.
-     * Defaults to {@link VideoCodec#DEVICE_DEFAULT}.
-     *
-     * @see VideoCodec#DEVICE_DEFAULT
-     * @see VideoCodec#H_263
-     * @see VideoCodec#H_264
-     *
-     * @param codec requested video codec
-     */
-    public void setVideoCodec(@NonNull VideoCodec codec) {
-        mCameraEngine.setVideoCodec(codec);
-    }
-
-    /**
-     * Gets the current encoder for video recordings.
-     * @return the current video codec
-     */
-    @NonNull
-    public VideoCodec getVideoCodec() {
-        return mCameraEngine.getVideoCodec();
-    }
-
-    /**
-     * Sets the maximum size in bytes for recorded video files.
-     * Once this size is reached, the recording will automatically stop.
-     * Defaults to unlimited size. Use 0 or negatives to disable.
-     *
-     * @param videoMaxSizeInBytes The maximum video size in bytes
-     */
-    public void setVideoMaxSize(long videoMaxSizeInBytes) {
-        mCameraEngine.setVideoMaxSize(videoMaxSizeInBytes);
-    }
-
-    /**
-     * Returns the maximum size in bytes for recorded video files, or 0
-     * if no size was set.
-     *
-     * @see #setVideoMaxSize(long)
-     * @return the maximum size in bytes
-     */
-    public long getVideoMaxSize() {
-        return mCameraEngine.getVideoMaxSize();
-    }
-
-    /**
-     * Sets the maximum duration in milliseconds for video recordings.
-     * Once this duration is reached, the recording will automatically stop.
-     * Defaults to unlimited duration. Use 0 or negatives to disable.
-     *
-     * @param videoMaxDurationMillis The maximum video duration in milliseconds
-     */
-    public void setVideoMaxDuration(int videoMaxDurationMillis) {
-        mCameraEngine.setVideoMaxDuration(videoMaxDurationMillis);
-    }
-
-    /**
-     * Returns the maximum duration in milliseconds for video recordings, or 0
-     * if no limit was set.
-     *
-     * @see #setVideoMaxDuration(int)
-     * @return the maximum duration in milliseconds
-     */
-    public int getVideoMaxDuration() {
-        return mCameraEngine.getVideoMaxDuration();
-    }
-
-    /**
-     * Returns true if the camera is currently recording a video
-     * @return boolean indicating if the camera is recording a video
-     */
-    public boolean isTakingVideo() {
-        return mCameraEngine.isTakingVideo();
-    }
-
-    /**
      * Returns true if the camera is currently capturing a picture
+     *
      * @return boolean indicating if the camera is capturing a picture
      */
     public boolean isTakingPicture() {
@@ -2154,12 +1643,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
             }
         }
 
-        @Override
-        public void onShutter(boolean shouldPlaySound) {
-            if (shouldPlaySound && mPlaySounds) {
-                playSound(MediaActionSound.SHUTTER_CLICK);
-            }
-        }
 
         @Override
         public void dispatchOnPictureTaken(@NonNull final PictureResult.Stub stub) {
@@ -2175,19 +1658,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
             });
         }
 
-        @Override
-        public void dispatchOnVideoTaken(@NonNull final VideoResult.Stub stub) {
-            LOG.i("dispatchOnVideoTaken", stub);
-            mUiHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    VideoResult result = new VideoResult(stub);
-                    for (CameraListener listener : mListeners) {
-                        listener.onVideoTaken(result);
-                    }
-                }
-            });
-        }
 
         @Override
         public void dispatchOnFocusStart(@Nullable final Gesture gesture,
@@ -2196,7 +1666,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
             mUiHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    mMarkerLayout.onEvent(MarkerLayout.TYPE_AUTOFOCUS, new PointF[]{ point });
+                    mMarkerLayout.onEvent(MarkerLayout.TYPE_AUTOFOCUS, new PointF[]{point});
                     if (mAutoFocusMarker != null) {
                         AutoFocusTrigger trigger = gesture != null ?
                                 AutoFocusTrigger.GESTURE : AutoFocusTrigger.METHOD;
@@ -2218,9 +1688,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
             mUiHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (success && mPlaySounds) {
-                        playSound(MediaActionSound.FOCUS_COMPLETE);
-                    }
 
                     if (mAutoFocusMarker != null) {
                         AutoFocusTrigger trigger = gesture != null ?
@@ -2340,31 +1807,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
             });
         }
 
-        @Override
-        public void dispatchOnVideoRecordingStart() {
-            LOG.i("dispatchOnVideoRecordingStart");
-            mUiHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    for (CameraListener listener : mListeners) {
-                        listener.onVideoRecordingStart();
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void dispatchOnVideoRecordingEnd() {
-            LOG.i("dispatchOnVideoRecordingEnd");
-            mUiHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    for (CameraListener listener : mListeners) {
-                        listener.onVideoRecordingEnd();
-                    }
-                }
-            });
-        }
     }
 
     //endregion
@@ -2436,8 +1878,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * The max width for frame processing frames.
-     * @see #setFrameProcessingMaxWidth(int)
+     *
      * @return max width
+     * @see #setFrameProcessingMaxWidth(int)
      */
     public int getFrameProcessingMaxWidth() {
         return mCameraEngine.getFrameProcessingMaxWidth();
@@ -2445,8 +1888,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * The max height for frame processing frames.
-     * @see #setFrameProcessingMaxHeight(int)
+     *
      * @return max height
+     * @see #setFrameProcessingMaxHeight(int)
      */
     public int getFrameProcessingMaxHeight() {
         return mCameraEngine.getFrameProcessingMaxHeight();
@@ -2464,8 +1908,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Returns the current frame processing format.
-     * @see #setFrameProcessingFormat(int)
+     *
      * @return image format
+     * @see #setFrameProcessingFormat(int)
      */
     public int getFrameProcessingFormat() {
         return mCameraEngine.getFrameProcessingFormat();
@@ -2475,13 +1920,14 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Sets the frame processing pool size. This is (roughly) the max number of
      * {@link Frame} instances that can exist at a given moment in the frame pipeline,
      * excluding frozen frames.
-     *
+     * <p>
      * Defaults to 2 - higher values will increase the memory usage with little benefit.
      * Can be higher than 2 if {@link #setFrameProcessingExecutors(int)} is used.
      * These values should be tuned together. We recommend setting a pool size that's equal to
      * the number of executors plus 1, so that there's always a free Frame for the camera engine.
-     *
+     * <p>
      * Changing this value after camera initialization will have no effect.
+     *
      * @param poolSize pool size
      */
     public void setFrameProcessingPoolSize(int poolSize) {
@@ -2490,8 +1936,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Returns the current frame processing pool size.
-     * @see #setFrameProcessingPoolSize(int)
+     *
      * @return pool size
+     * @see #setFrameProcessingPoolSize(int)
      */
     public int getFrameProcessingPoolSize() {
         return mCameraEngine.getFrameProcessingPoolSize();
@@ -2502,10 +1949,11 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * is slower than the preview rate, you can set this value to something bigger than 1
      * to avoid losing frames.
      * Defaults to 1 and this should be OK for most applications.
-     *
+     * <p>
      * Should be tuned depending on the task, the processor implementation, and along with
      * {@link #setFrameProcessingPoolSize(int)}. We recommend choosing a pool size that is
      * equal to the executors plus 1.
+     *
      * @param executors thread count
      */
     public void setFrameProcessingExecutors(int executors) {
@@ -2521,6 +1969,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
                 new LinkedBlockingQueue<Runnable>(),
                 new ThreadFactory() {
                     private final AtomicInteger mCount = new AtomicInteger(1);
+
                     @Override
                     public Thread newThread(@NonNull Runnable r) {
                         return new Thread(r, "FrameExecutor #" + mCount.getAndIncrement());
@@ -2533,8 +1982,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Returns the current executors count.
-     * @see #setFrameProcessingExecutors(int)
+     *
      * @return thread count
+     * @see #setFrameProcessingExecutors(int)
      */
     public int getFrameProcessingExecutors() {
         return mFrameProcessingExecutors;

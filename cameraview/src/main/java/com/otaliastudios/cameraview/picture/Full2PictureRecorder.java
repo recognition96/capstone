@@ -9,6 +9,10 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.exifinterface.media.ExifInterface;
+
 import com.otaliastudios.cameraview.PictureResult;
 import com.otaliastudios.cameraview.controls.PictureFormat;
 import com.otaliastudios.cameraview.engine.Camera2Engine;
@@ -23,10 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.exifinterface.media.ExifInterface;
 
 /**
  * A {@link PictureResult} that uses standard APIs.
@@ -77,7 +77,6 @@ public class Full2PictureRecorder extends FullPictureRecorder
                 super.onCaptureStarted(holder, request);
                 if (request.getTag() == (Integer) CameraDevice.TEMPLATE_STILL_CAPTURE) {
                     LOG.i("onCaptureStarted:", "Dispatching picture shutter.");
-                    dispatchOnShutter(false);
                     setState(STATE_COMPLETED);
                 }
             }

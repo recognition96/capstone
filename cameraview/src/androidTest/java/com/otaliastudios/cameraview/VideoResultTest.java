@@ -5,7 +5,6 @@ import android.location.Location;
 
 import com.otaliastudios.cameraview.controls.Audio;
 import com.otaliastudios.cameraview.controls.Facing;
-import com.otaliastudios.cameraview.controls.VideoCodec;
 import com.otaliastudios.cameraview.size.Size;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;

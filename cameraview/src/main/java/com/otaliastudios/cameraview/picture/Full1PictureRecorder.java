@@ -2,12 +2,12 @@ package com.otaliastudios.cameraview.picture;
 
 import android.hardware.Camera;
 
+import androidx.annotation.NonNull;
+import androidx.exifinterface.media.ExifInterface;
+
 import com.otaliastudios.cameraview.PictureResult;
 import com.otaliastudios.cameraview.engine.Camera1Engine;
 import com.otaliastudios.cameraview.internal.ExifHelper;
-
-import androidx.annotation.NonNull;
-import androidx.exifinterface.media.ExifInterface;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -45,7 +45,6 @@ public class Full1PictureRecorder extends FullPictureRecorder {
                     @Override
                     public void onShutter() {
                         LOG.i("take(): got onShutter callback.");
-                        dispatchOnShutter(true);
                     }
                 },
                 null,

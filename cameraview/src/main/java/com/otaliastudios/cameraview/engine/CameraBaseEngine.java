@@ -1,10 +1,7 @@
 package com.otaliastudios.cameraview.engine;
 
-import android.graphics.PointF;
-import android.graphics.RectF;
 import android.location.Location;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -14,20 +11,17 @@ import com.google.android.gms.tasks.Tasks;
 import com.otaliastudios.cameraview.CameraException;
 import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.PictureResult;
-import com.otaliastudios.cameraview.VideoResult;
 import com.otaliastudios.cameraview.controls.Audio;
 import com.otaliastudios.cameraview.controls.Facing;
 import com.otaliastudios.cameraview.controls.Flash;
 import com.otaliastudios.cameraview.controls.Hdr;
 import com.otaliastudios.cameraview.controls.Mode;
 import com.otaliastudios.cameraview.controls.PictureFormat;
-import com.otaliastudios.cameraview.controls.VideoCodec;
 import com.otaliastudios.cameraview.controls.WhiteBalance;
 import com.otaliastudios.cameraview.engine.offset.Angles;
 import com.otaliastudios.cameraview.engine.offset.Reference;
 import com.otaliastudios.cameraview.engine.orchestrator.CameraState;
 import com.otaliastudios.cameraview.frame.FrameManager;
-import com.otaliastudios.cameraview.gesture.Gesture;
 import com.otaliastudios.cameraview.overlay.Overlay;
 import com.otaliastudios.cameraview.picture.PictureRecorder;
 import com.otaliastudios.cameraview.preview.CameraPreview;
@@ -35,10 +29,7 @@ import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
 import com.otaliastudios.cameraview.size.SizeSelector;
 import com.otaliastudios.cameraview.size.SizeSelectors;
-import com.otaliastudios.cameraview.video.VideoRecorder;
 
-import java.io.File;
-import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -52,7 +43,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
     @SuppressWarnings("WeakerAccess") protected CameraPreview mPreview;
     @SuppressWarnings("WeakerAccess") protected CameraOptions mCameraOptions;
     @SuppressWarnings("WeakerAccess") protected PictureRecorder mPictureRecorder;
-    @SuppressWarnings("WeakerAccess") protected VideoRecorder mVideoRecorder;
     @SuppressWarnings("WeakerAccess") protected Size mCaptureSize;
     @SuppressWarnings("WeakerAccess") protected Size mPreviewStreamSize;
     @SuppressWarnings("WeakerAccess") protected Size mFrameProcessingSize;
@@ -60,13 +50,11 @@ public abstract class CameraBaseEngine extends CameraEngine {
     @SuppressWarnings("WeakerAccess") protected boolean mHasFrameProcessors;
     @SuppressWarnings("WeakerAccess") protected Flash mFlash;
     @SuppressWarnings("WeakerAccess") protected WhiteBalance mWhiteBalance;
-    @SuppressWarnings("WeakerAccess") protected VideoCodec mVideoCodec;
     @SuppressWarnings("WeakerAccess") protected Hdr mHdr;
     @SuppressWarnings("WeakerAccess") protected PictureFormat mPictureFormat;
     @SuppressWarnings("WeakerAccess") protected Location mLocation;
     @SuppressWarnings("WeakerAccess") protected float mZoomValue;
     @SuppressWarnings("WeakerAccess") protected float mExposureCorrectionValue;
-    @SuppressWarnings("WeakerAccess") protected boolean mPlaySounds;
     @SuppressWarnings("WeakerAccess") protected boolean mPictureMetering;
     @SuppressWarnings("WeakerAccess") protected boolean mPictureSnapshotMetering;
     @SuppressWarnings("WeakerAccess") protected float mPreviewFrameRate;
@@ -192,68 +180,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final void setVideoSizeSelector(@NonNull SizeSelector selector) {
-        mVideoSizeSelector = selector;
-    }
-
-    @NonNull
-    @Override
-    public final SizeSelector getVideoSizeSelector() {
-        return mVideoSizeSelector;
-    }
-
-    @Override
-    public final void setVideoMaxSize(long videoMaxSizeBytes) {
-        mVideoMaxSize = videoMaxSizeBytes;
-    }
-
-    @Override
-    public final long getVideoMaxSize() {
-        return mVideoMaxSize;
-    }
-
-    @Override
-    public final void setVideoMaxDuration(int videoMaxDurationMillis) {
-        mVideoMaxDuration = videoMaxDurationMillis;
-    }
-
-    @Override
-    public final int getVideoMaxDuration() {
-        return mVideoMaxDuration;
-    }
-
-    @Override
-    public final void setVideoCodec(@NonNull VideoCodec codec) {
-        mVideoCodec = codec;
-    }
-
-    @NonNull
-    @Override
-    public final VideoCodec getVideoCodec() {
-        return mVideoCodec;
-    }
-
-    @Override
-    public final void setVideoBitRate(int videoBitRate) {
-        mVideoBitRate = videoBitRate;
-    }
-
-    @Override
-    public final int getVideoBitRate() {
-        return mVideoBitRate;
-    }
-
-    @Override
-    public final void setAudioBitRate(int audioBitRate) {
-        mAudioBitRate = audioBitRate;
-    }
-
-    @Override
-    public final int getAudioBitRate() {
-        return mAudioBitRate;
-    }
-
-    @Override
     public final void setSnapshotMaxWidth(int maxWidth) {
         mSnapshotMaxWidth = maxWidth;
     }
@@ -357,26 +283,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
         return mFacing;
     }
 
-    /**
-     * Sets a new audio value that will be used for video recordings.
-     * @param audio desired audio
-     */
-    @Override
-    public final void setAudio(@NonNull Audio audio) {
-        if (mAudio != audio) {
-            if (isTakingVideo()) {
-                LOG.w("Audio setting was changed while recording. " +
-                        "Changes will take place starting from next video");
-            }
-            mAudio = audio;
-        }
-    }
-
-    @NonNull
-    @Override
-    public final Audio getAudio() {
-        return mAudio;
-    }
 
     /**
      * Sets the desired mode (either picture or video).
@@ -499,9 +405,7 @@ public abstract class CameraBaseEngine extends CameraEngine {
             public void run() {
                 LOG.i("takePicture:", "running. isTakingPicture:", isTakingPicture());
                 if (isTakingPicture()) return;
-                if (mMode == Mode.VIDEO) {
-                    throw new IllegalStateException("Can't take hq pictures while in VIDEO mode");
-                }
+
                 stub.isSnapshot = false;
                 stub.location = mLocation;
                 stub.facing = mFacing;
@@ -538,10 +442,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
         });
     }
 
-    @Override
-    public void onPictureShutter(boolean didPlaySound) {
-        getCallback().onShutter(!didPlaySound);
-    }
 
     @Override
     public void onPictureResult(@Nullable PictureResult.Stub result, @Nullable Exception error) {
@@ -555,117 +455,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
         }
     }
 
-    @Override
-    public final boolean isTakingVideo() {
-        return mVideoRecorder != null && mVideoRecorder.isRecording();
-    }
-
-    @Override
-    public final void takeVideo(final @NonNull VideoResult.Stub stub,
-                                final @Nullable File file,
-                                final @Nullable FileDescriptor fileDescriptor) {
-        getOrchestrator().scheduleStateful("take video", CameraState.BIND, new Runnable() {
-            @Override
-            public void run() {
-                LOG.i("takeVideo:", "running. isTakingVideo:", isTakingVideo());
-                if (isTakingVideo()) return;
-                if (mMode == Mode.PICTURE) {
-                    throw new IllegalStateException("Can't record video while in PICTURE mode");
-                }
-                if (file != null) {
-                    stub.file = file;
-                } else if (fileDescriptor != null) {
-                    stub.fileDescriptor = fileDescriptor;
-                } else {
-                    throw new IllegalStateException("file and fileDescriptor are both null.");
-                }
-                stub.isSnapshot = false;
-                stub.videoCodec = mVideoCodec;
-                stub.location = mLocation;
-                stub.facing = mFacing;
-                stub.audio = mAudio;
-                stub.maxSize = mVideoMaxSize;
-                stub.maxDuration = mVideoMaxDuration;
-                stub.videoBitRate = mVideoBitRate;
-                stub.audioBitRate = mAudioBitRate;
-                onTakeVideo(stub);
-            }
-        });
-    }
-
-    /**
-     * @param stub a video stub
-     * @param file the output file
-     */
-    @Override
-    public final void takeVideoSnapshot(@NonNull final VideoResult.Stub stub,
-                                        @NonNull final File file) {
-        getOrchestrator().scheduleStateful("take video snapshot", CameraState.BIND,
-                new Runnable() {
-            @Override
-            public void run() {
-                LOG.i("takeVideoSnapshot:", "running. isTakingVideo:", isTakingVideo());
-                stub.file = file;
-                stub.isSnapshot = true;
-                stub.videoCodec = mVideoCodec;
-                stub.location = mLocation;
-                stub.facing = mFacing;
-                stub.videoBitRate = mVideoBitRate;
-                stub.audioBitRate = mAudioBitRate;
-                stub.audio = mAudio;
-                stub.maxSize = mVideoMaxSize;
-                stub.maxDuration = mVideoMaxDuration;
-                //noinspection ConstantConditions
-                AspectRatio ratio = AspectRatio.of(getPreviewSurfaceSize(Reference.OUTPUT));
-                onTakeVideoSnapshot(stub, ratio);
-            }
-        });
-    }
-
-    @Override
-    public final void stopVideo() {
-        getOrchestrator().schedule("stop video", true, new Runnable() {
-            @Override
-            public void run() {
-                LOG.i("stopVideo", "running. isTakingVideo?", isTakingVideo());
-                onStopVideo();
-            }
-        });
-    }
-
-    @EngineThread
-    @SuppressWarnings("WeakerAccess")
-    protected void onStopVideo() {
-        if (mVideoRecorder != null) {
-            mVideoRecorder.stop(false);
-            // Do not null this, so we respond correctly to isTakingVideo(),
-            // which checks for recorder presence and recorder.isRecording().
-            // It will be nulled in onVideoResult.
-        }
-    }
-
-    @CallSuper
-    @Override
-    public void onVideoResult(@Nullable VideoResult.Stub result, @Nullable Exception exception) {
-        mVideoRecorder = null;
-        if (result != null) {
-            getCallback().dispatchOnVideoTaken(result);
-        } else {
-            LOG.e("onVideoResult", "result is null: something went wrong.", exception);
-            getCallback().dispatchError(new CameraException(exception,
-                    CameraException.REASON_VIDEO_FAILED));
-        }
-    }
-
-    @Override
-    public void onVideoRecordingStart() {
-        getCallback().dispatchOnVideoRecordingStart();
-    }
-
-    @Override
-    public void onVideoRecordingEnd() {
-        getCallback().dispatchOnVideoRecordingEnd();
-    }
 
     @EngineThread
     protected abstract void onTakePicture(@NonNull PictureResult.Stub stub, boolean doMetering);
@@ -674,13 +463,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
     protected abstract void onTakePictureSnapshot(@NonNull PictureResult.Stub stub,
                                                   @NonNull AspectRatio outputRatio,
                                                   boolean doMetering);
-
-    @EngineThread
-    protected abstract void onTakeVideoSnapshot(@NonNull VideoResult.Stub stub,
-                                                @NonNull AspectRatio outputRatio);
-
-    @EngineThread
-    protected abstract void onTakeVideo(@NonNull VideoResult.Stub stub);
 
     //endregion
 
@@ -721,17 +503,9 @@ public abstract class CameraBaseEngine extends CameraEngine {
     @Override
     public final Size getPictureSize(@SuppressWarnings("SameParameterValue") @NonNull Reference reference) {
         Size size = mCaptureSize;
-        if (size == null || mMode == Mode.VIDEO) return null;
         return getAngles().flip(Reference.SENSOR, reference) ? size.flip() : size;
     }
 
-    @Nullable
-    @Override
-    public final Size getVideoSize(@SuppressWarnings("SameParameterValue") @NonNull Reference reference) {
-        Size size = mCaptureSize;
-        if (size == null || mMode == Mode.PICTURE) return null;
-        return getAngles().flip(Reference.SENSOR, reference) ? size.flip() : size;
-    }
 
     @Nullable
     @Override

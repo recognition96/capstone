@@ -3,23 +3,21 @@ package com.otaliastudios.cameraview;
 
 import android.graphics.ImageFormat;
 
+import androidx.annotation.NonNull;
+
 import com.otaliastudios.cameraview.controls.Audio;
 import com.otaliastudios.cameraview.controls.Control;
 import com.otaliastudios.cameraview.controls.Engine;
 import com.otaliastudios.cameraview.controls.Facing;
 import com.otaliastudios.cameraview.controls.Flash;
-import com.otaliastudios.cameraview.controls.PictureFormat;
-import com.otaliastudios.cameraview.controls.Preview;
-import com.otaliastudios.cameraview.gesture.GestureAction;
-import com.otaliastudios.cameraview.controls.Grid;
 import com.otaliastudios.cameraview.controls.Hdr;
 import com.otaliastudios.cameraview.controls.Mode;
-import com.otaliastudios.cameraview.controls.VideoCodec;
+import com.otaliastudios.cameraview.controls.PictureFormat;
+import com.otaliastudios.cameraview.controls.Preview;
 import com.otaliastudios.cameraview.controls.WhiteBalance;
+import com.otaliastudios.cameraview.gesture.GestureAction;
 import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
-
-import androidx.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -97,14 +95,10 @@ public abstract class CameraOptions {
             return (Collection<T>) getSupportedFacing();
         } else if (controlClass.equals(Flash.class)) {
             return (Collection<T>) getSupportedFlash();
-        } else if (controlClass.equals(Grid.class)) {
-            return (Collection<T>) Arrays.asList(Grid.values());
         } else if (controlClass.equals(Hdr.class)) {
             return (Collection<T>) getSupportedHdr();
         } else if (controlClass.equals(Mode.class)) {
             return (Collection<T>) Arrays.asList(Mode.values());
-        } else if (controlClass.equals(VideoCodec.class)) {
-            return (Collection<T>) Arrays.asList(VideoCodec.values());
         } else if (controlClass.equals(WhiteBalance.class)) {
             return (Collection<T>) getSupportedWhiteBalance();
         } else if (controlClass.equals(Engine.class)) {

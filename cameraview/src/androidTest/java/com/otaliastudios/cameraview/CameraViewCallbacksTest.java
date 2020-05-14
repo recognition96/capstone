@@ -144,33 +144,7 @@ public class CameraViewCallbacksTest extends BaseTest {
         verify(listener, times(1)).onCameraClosed();
     }
 
-    @Test
-    public void testDispatchOnVideoRecordingStart() {
-        doEndOp(op, true).when(listener).onVideoRecordingStart();
-        camera.mCameraCallbacks.dispatchOnVideoRecordingStart();
 
-        assertNotNull(op.await(DELAY));
-        verify(listener, times(1)).onVideoRecordingStart();
-    }
-
-    @Test
-    public void testDispatchOnVideoRecordingEnd() {
-        doEndOp(op, true).when(listener).onVideoRecordingEnd();
-        camera.mCameraCallbacks.dispatchOnVideoRecordingEnd();
-
-        assertNotNull(op.await(DELAY));
-        verify(listener, times(1)).onVideoRecordingEnd();
-    }
-
-    @Test
-    public void testDispatchOnVideoTaken() {
-        VideoResult.Stub stub = new VideoResult.Stub();
-        doEndOp(op, true).when(listener).onVideoTaken(any(VideoResult.class));
-        camera.mCameraCallbacks.dispatchOnVideoTaken(stub);
-
-        assertNotNull(op.await(DELAY));
-        verify(listener, times(1)).onVideoTaken(any(VideoResult.class));
-    }
 
     @Test
     public void testDispatchOnPictureTaken() {

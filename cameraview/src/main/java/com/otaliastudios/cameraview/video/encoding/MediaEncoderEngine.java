@@ -5,12 +5,12 @@ import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.Build;
 
-import com.otaliastudios.cameraview.CameraLogger;
-import com.otaliastudios.cameraview.internal.WorkerHandler;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import com.otaliastudios.cameraview.CameraLogger;
+import com.otaliastudios.cameraview.internal.WorkerHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -115,23 +115,16 @@ public class MediaEncoderEngine {
      * and listener to receive events.
      *
      * @param file output file
-     * @param videoEncoder video encoder to use
-     * @param audioEncoder audio encoder to use
      * @param maxDuration max duration in millis
      * @param maxSize max size
      * @param listener a listener
      */
     public MediaEncoderEngine(@NonNull File file,
-                              @NonNull VideoMediaEncoder videoEncoder,
-                              @Nullable AudioMediaEncoder audioEncoder,
                               final int maxDuration,
                               final long maxSize,
                               @Nullable Listener listener) {
         mListener = listener;
-        mEncoders.add(videoEncoder);
-        if (audioEncoder != null) {
-            mEncoders.add(audioEncoder);
-        }
+
         try {
             mMediaMuxer = new MediaMuxer(file.toString(),
                     MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
@@ -244,28 +237,6 @@ public class MediaEncoderEngine {
         LOG.i("end:", "Completed.");
     }
 
-    /**
-     * Returns the current video encoder.
-     * @return the current video encoder
-     */
-    @NonNull
-    public VideoMediaEncoder getVideoEncoder() {
-        return (VideoMediaEncoder) mEncoders.get(0);
-    }
-
-    /**
-     * Returns the current audio encoder.
-     * @return the current audio encoder
-     */
-    @SuppressWarnings("unused")
-    @Nullable
-    public AudioMediaEncoder getAudioEncoder() {
-        if (mEncoders.size() > 1) {
-            return (AudioMediaEncoder) mEncoders.get(1);
-        } else {
-            return null;
-        }
-    }
 
     /**
      * A handle for {@link MediaEncoder}s to pass information to this engine.
