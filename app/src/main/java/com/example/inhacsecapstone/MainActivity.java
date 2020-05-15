@@ -14,8 +14,7 @@ import android.view.animation.AnimationUtils;
 import com.example.inhacsecapstone.calendars.Calendars;
 import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
-import com.example.inhacsecapstone.drugs.AllMedicineList;
-import com.example.inhacsecapstone.drugs.ViewModel;
+import com.example.inhacsecapstone.drugs.allDrug.AllMedicineList;
 import com.example.inhacsecapstone.initial.InformationSetting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -26,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
     private Boolean isFabOpen = false;
     private FloatingActionButton fab, fab1, fab2;
 
-    private ViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab1 = (FloatingActionButton) findViewById(R.id.chatbotbtn);
         fab2 = (FloatingActionButton) findViewById(R.id.userinfobtn);
+
 
         //
 

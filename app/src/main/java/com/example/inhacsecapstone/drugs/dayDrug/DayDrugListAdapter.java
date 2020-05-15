@@ -1,25 +1,23 @@
-package com.example.inhacsecapstone.drugs;
+package com.example.inhacsecapstone.drugs.dayDrug;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
-import android.media.Image;
+import android.content.Intent;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.inhacsecapstone.Entity.Medicine;
+import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -27,35 +25,34 @@ import java.util.List;
 
 public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.DayDrugListHolder> {
     class DayDrugListHolder extends RecyclerView.ViewHolder {
-        private String code;
-        private ArrayList<TakesEntity> takes;
+        private ArrayList<Takes> takes;
         private final ImageView imageView;
         private final TextView nameView;
         private final TextView amountView;
         private final View view;
+        private final ViewGroup layout;
         private DayDrugListHolder(View itemView) {
             super(itemView);
+            layout = itemView.findViewById(R.id.buttonLayout);
             view = itemView;
-            takes = new ArrayList<TakesEntity>();
+            takes = new ArrayList<Takes>();
             imageView = (ImageView) itemView.findViewById(R.id.drugImage) ;
             nameView = (TextView) itemView.findViewById(R.id.drugName) ;
             amountView = (TextView) itemView.findViewById(R.id.Amount) ;
         }
 
-        public ArrayList<TakesEntity> getTakes() {
+        public ArrayList<Takes> getTakes() {
             return takes;
-        }
-
-        public String getCode() {
-            return code;
         }
     }
     private Context context;
     private final LayoutInflater mInflater;
-    private List<MedicineEntity> mdrugs; // Cached copy of words
-    private List<TakesEntity> mtakes;
+    private ArrayList<Medicine> mdrugs; // Cached copy of words
+    private ArrayList<Takes> mtakes;
 
-    public DayDrugListAdapter(Context context) {
+    public DayDrugListAdapter(Context context, ArrayList<Medicine> mediList, ArrayList<Takes> takesList) {
+        mdrugs = mediList;
+        mtakes = takesList;
         mInflater = LayoutInflater.from(context);
         this.context = context;
     }
@@ -69,18 +66,18 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
     @Override
     public void onBindViewHolder(DayDrugListHolder holder, int position) {
         if (mdrugs != null) {
-            MedicineEntity curDrug = mdrugs.get(position);
-            //holder.takes.clear();
-            holder.code = curDrug.getCode();
-            for (TakesEntity elem : mtakes)
-                if(curDrug.getCode().equals(elem.getCode()))
+            Medicine curDrug = mdrugs.get(position);
+            for (Takes elem : mtakes)
+                if(curDrug.getCode() == elem.getCode())
                     holder.takes.add(elem);
 
             Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
-            holder.imageView.setOnClickListener(new View.OnClickListener() {
+            holder.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showImage(curDrug.getImage());
+                    Intent intent = new Intent(context, MedicineInfoActivity.class);
+                    intent.putExtra("medicine", curDrug);
+                    context.startActivity(intent);
                 }
             });
 
@@ -115,14 +112,6 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
             }
         } else {
         }
-    }
-    public void setDrugs(List<MedicineEntity> drugs){
-        mdrugs = drugs;
-        notifyDataSetChanged();
-    }
-    public void setTakes(List<TakesEntity> takes){
-        mtakes = takes;
-        notifyDataSetChanged();
     }
     @Override
     public int getItemCount() {

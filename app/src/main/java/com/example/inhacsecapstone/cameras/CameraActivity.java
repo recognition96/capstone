@@ -249,7 +249,6 @@ public class CameraActivity extends AppCompatActivity {
             Size largestPreviewSize = map.getOutputSizes(ImageFormat.JPEG)[0];
             Log.i("LargestSize", largestPreviewSize.getWidth() + " " + largestPreviewSize.getHeight());
 
-
             int imgsize = map.getOutputSizes(ImageFormat.JPEG).length;
             for (int i = 0; i < imgsize; i++){
                 System.out.println("resolution : " + map.getOutputSizes(ImageFormat.JPEG)[i]);
@@ -367,6 +366,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     public void takePicture() {
+
         try {
             // CaptureRequset : CameraDevice에 의해 Builder 로 생성하며
             // 단일 이미지 캡쳐를 위한 하드웨어(센서, 렌즈, 플래쉬) 설정 및 출력 버퍼 등의 정보
@@ -375,6 +375,9 @@ public class CameraActivity extends AppCompatActivity {
             captureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);   // auto-focus
             captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);        // auto-flash
             captureRequestBuilder.addTarget(mImageReader.getSurface());
+
+            captureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
 
             // 화면 회전 안되게 고정시켜 놓은 상태에서는 아래 로직으로 방향을 얻을 수 없어서
             // 센서를 사용하는 것으로 변경
@@ -397,7 +400,7 @@ public class CameraActivity extends AppCompatActivity {
         intent.putExtra("imageUri", uri);
         Log.d("TAG", "Success taking a photo.. Transfer this to PreviewActivity");
         startActivityForResult(intent, SENDING_IMAGE);
-        finish();
+        //finish();
     }
 
     public Bitmap getRotatedBitmap(Bitmap bitmap, int degrees) throws Exception {
@@ -499,7 +502,6 @@ public class CameraActivity extends AppCompatActivity {
             try {
                 bitmap = getRotatedBitmap(data[0], mDeviceRotation);
             } catch (Exception e) {
-
                 e.printStackTrace();
             }
             insertImage(getContentResolver(), bitmap, "" + System.currentTimeMillis(), "");
@@ -511,7 +513,6 @@ public class CameraActivity extends AppCompatActivity {
 
 
     // 출처 https://stackoverflow.com/a/43516672
-    // 가로 세로 비율 보정
     private void setAspectRatioTextureView(int ResolutionWidth, int ResolutionHeight) {
         if (ResolutionWidth > ResolutionHeight) {
             int newWidth = mDSI_width;
@@ -567,7 +568,7 @@ public class CameraActivity extends AppCompatActivity {
 
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
             if (grantResults.length > 0) {
-                boolean cameraPermissionAccepted = grantResults[0]
+                boolean cameraPermissionAccepted = grantResults[1]
                         == PackageManager.PERMISSION_GRANTED;
                 boolean diskPermissionAccepted = grantResults[1]
                         == PackageManager.PERMISSION_GRANTED;
