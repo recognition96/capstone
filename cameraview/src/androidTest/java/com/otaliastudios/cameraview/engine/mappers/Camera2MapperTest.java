@@ -1,7 +1,6 @@
 package com.otaliastudios.cameraview.engine.mappers;
 
 
-import android.hardware.Camera;
 import android.util.Pair;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -19,10 +18,25 @@ import org.junit.runner.RunWith;
 import java.util.List;
 import java.util.Set;
 
-import static android.hardware.camera2.CameraMetadata.*;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_EXTERNAL_FLASH;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AWB_MODE_AUTO;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AWB_MODE_DAYLIGHT;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AWB_MODE_FLUORESCENT;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AWB_MODE_INCANDESCENT;
+import static android.hardware.camera2.CameraMetadata.CONTROL_SCENE_MODE_DISABLED;
+import static android.hardware.camera2.CameraMetadata.CONTROL_SCENE_MODE_HDR;
+import static android.hardware.camera2.CameraMetadata.FLASH_MODE_OFF;
+import static android.hardware.camera2.CameraMetadata.FLASH_MODE_TORCH;
+import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
+import static android.hardware.camera2.CameraMetadata.LENS_FACING_FRONT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 
 
 @RunWith(AndroidJUnit4.class)

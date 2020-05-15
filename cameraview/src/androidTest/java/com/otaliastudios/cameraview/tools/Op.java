@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.otaliastudios.cameraview.controls.Control;
 
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -20,17 +19,103 @@ import java.util.concurrent.TimeUnit;
  */
 public class Op<T> {
 
+    private CountDownLatch mLatch;
+    private Controller mController = new Controller();
+    private T mResult;
+    /**
+     * Listeners should:
+     * - call {@link #listen()} to notify they are interested in the next action
+     * - call {@link #await()} to know when the action is performed.
+     * <p>
+     * Op owners should:
+     * - call {@link Controller#start()} when task started
+     * - call {@link Controller#end(Object)} when task ends
+     */
+    public Op() {
+        this(true);
+    }
+
+    public Op(boolean startListening) {
+        if (startListening) listen();
+    }
+
+    public Op(@NonNull Task<T> task) {
+        listen();
+        controller().from(task);
+    }
+
+    private boolean isListening() {
+        return mLatch != null;
+    }
+
+    /**
+     * Listener method: notifies we are interested in the next action.
+     */
+    public void listen() {
+        if (isListening()) throw new RuntimeException("Should not happen.");
+        mResult = null;
+        mLatch = new CountDownLatch(1);
+    }
+
+    /**
+     * Listener method: waits for next task action to end.
+     *
+     * @param millis milliseconds
+     * @return the action result
+     */
+    public T await(long millis) {
+        return await(millis, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Listener method: waits 1 minute for next task action to end.
+     *
+     * @return the action result
+     */
+    public T await() {
+        return await(1, TimeUnit.MINUTES);
+    }
+
+    /**
+     * Listener method: waits for next task action to end.
+     *
+     * @param time time
+     * @param unit the time unit
+     * @return the action result
+     */
+    private T await(long time, @NonNull TimeUnit unit) {
+        try {
+            mLatch.await(time, unit);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        T result = mResult;
+        mResult = null;
+        mLatch = null;
+        return result;
+    }
+
+    @NonNull
+    public Controller controller() {
+        return mController;
+    }
+
     public class Controller {
         private int mToBeIgnored;
 
-        private Controller() { }
+        private Controller() {
+        }
 
-        /** Op owner method: notifies the action started. */
+        /**
+         * Op owner method: notifies the action started.
+         */
         public void start() {
             if (!isListening()) mToBeIgnored++;
         }
 
-        /** Op owner method: notifies the action ended. */
+        /**
+         * Op owner method: notifies the action ended.
+         */
         public void end(T result) {
             if (mToBeIgnored > 0) {
                 mToBeIgnored--;
@@ -66,84 +151,5 @@ public class Op<T> {
                 }
             });
         }
-    }
-
-    private CountDownLatch mLatch;
-    private Controller mController = new Controller();
-    private T mResult;
-
-    /**
-     * Listeners should:
-     * - call {@link #listen()} to notify they are interested in the next action
-     * - call {@link #await()} to know when the action is performed.
-     *
-     * Op owners should:
-     * - call {@link Controller#start()} when task started
-     * - call {@link Controller#end(Object)} when task ends
-     */
-    public Op() {
-        this(true);
-    }
-
-    public Op(boolean startListening) {
-        if (startListening) listen();
-    }
-
-    public Op(@NonNull Task<T> task) {
-        listen();
-        controller().from(task);
-    }
-
-    private boolean isListening() {
-        return mLatch != null;
-    }
-
-    /**
-     * Listener method: notifies we are interested in the next action.
-     */
-    public void listen() {
-        if (isListening()) throw new RuntimeException("Should not happen.");
-        mResult = null;
-        mLatch = new CountDownLatch(1);
-    }
-
-    /**
-     * Listener method: waits for next task action to end.
-     * @param millis milliseconds
-     * @return the action result
-     */
-    public T await(long millis) {
-        return await(millis, TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * Listener method: waits 1 minute for next task action to end.
-     * @return the action result
-     */
-    public T await() {
-        return await(1, TimeUnit.MINUTES);
-    }
-
-    /**
-     * Listener method: waits for next task action to end.
-     * @param time time
-     * @param unit the time unit
-     * @return the action result
-     */
-    private T await(long time, @NonNull TimeUnit unit) {
-        try {
-            mLatch.await(time, unit);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        T result = mResult;
-        mResult = null;
-        mLatch = null;
-        return result;
-    }
-
-    @NonNull
-    public Controller controller() {
-        return mController;
     }
 }

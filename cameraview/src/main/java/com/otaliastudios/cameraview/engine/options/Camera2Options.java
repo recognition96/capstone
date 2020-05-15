@@ -90,7 +90,7 @@ public class Camera2Options extends CameraOptions {
 
         // Zoom
         Float maxZoom = cameraCharacteristics.get(SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
-        if(maxZoom != null) {
+        if (maxZoom != null) {
             zoomSupported = maxZoom > 1;
         }
 

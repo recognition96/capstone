@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,7 +25,8 @@ public class FrameTest {
     public void setUp() {
         manager = spy(new FrameManager<String>(1, String.class) {
             @Override
-            protected void onFrameDataReleased(@NonNull String data, boolean recycled) { }
+            protected void onFrameDataReleased(@NonNull String data, boolean recycled) {
+            }
 
             @NonNull
             @Override
@@ -62,11 +62,31 @@ public class FrameTest {
         frame.release();
         verify(manager, times(1)).onFrameReleased(frame, "foo");
 
-        assertThrows(new Runnable() { public void run() { frame.getTime(); }});
-        assertThrows(new Runnable() { public void run() { frame.getFormat(); }});
-        assertThrows(new Runnable() { public void run() { frame.getRotation(); }});
-        assertThrows(new Runnable() { public void run() { frame.getData(); }});
-        assertThrows(new Runnable() { public void run() { frame.getSize(); }});
+        assertThrows(new Runnable() {
+            public void run() {
+                frame.getTime();
+            }
+        });
+        assertThrows(new Runnable() {
+            public void run() {
+                frame.getFormat();
+            }
+        });
+        assertThrows(new Runnable() {
+            public void run() {
+                frame.getRotation();
+            }
+        });
+        assertThrows(new Runnable() {
+            public void run() {
+                frame.getData();
+            }
+        });
+        assertThrows(new Runnable() {
+            public void run() {
+                frame.getSize();
+            }
+        });
     }
 
     private void assertThrows(Runnable runnable) {

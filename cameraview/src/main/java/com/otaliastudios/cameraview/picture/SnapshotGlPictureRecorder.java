@@ -8,34 +8,33 @@ import android.opengl.EGL14;
 import android.opengl.EGLContext;
 import android.opengl.Matrix;
 import android.os.Build;
+import android.view.Surface;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import com.otaliastudios.cameraview.PictureResult;
-import com.otaliastudios.cameraview.internal.GlTextureDrawer;
-import com.otaliastudios.cameraview.overlay.Overlay;
 import com.otaliastudios.cameraview.engine.offset.Reference;
+import com.otaliastudios.cameraview.filter.Filter;
 import com.otaliastudios.cameraview.internal.CropHelper;
+import com.otaliastudios.cameraview.internal.GlTextureDrawer;
 import com.otaliastudios.cameraview.internal.WorkerHandler;
+import com.otaliastudios.cameraview.overlay.Overlay;
 import com.otaliastudios.cameraview.overlay.OverlayDrawer;
 import com.otaliastudios.cameraview.preview.RendererCameraPreview;
 import com.otaliastudios.cameraview.preview.RendererFrameCallback;
 import com.otaliastudios.cameraview.preview.RendererThread;
-import com.otaliastudios.cameraview.filter.Filter;
 import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
 import com.otaliastudios.opengl.core.EglCore;
 import com.otaliastudios.opengl.surface.EglSurface;
 import com.otaliastudios.opengl.surface.EglWindowSurface;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
-
-import android.view.Surface;
-
 /**
  * API 19.
  * Records a picture snapshots from the {@link RendererCameraPreview}. It works as follows:
- *
+ * <p>
  * - We register a one time {@link RendererFrameCallback} on the preview
  * - We get the textureId and the frame callback on the {@link RendererThread}
  * - [Optional: we construct another textureId for overlays]
@@ -44,12 +43,12 @@ import android.view.Surface;
  * - We make this new surface current, and re-draw the textureId on it
  * - [Optional: fill the overlayTextureId and draw it on the same surface]
  * - We use glReadPixels (through {@link EglSurface#toByteArray(Bitmap.CompressFormat)})
- *   and save to file.
- *
+ * and save to file.
+ * <p>
  * We create a new EGL surface and redraw the frame because:
  * 1. We want to go off the renderer thread as soon as possible
  * 2. We have overlays to be drawn - we don't want to draw them on the preview surface,
- *    not even for a frame.
+ * not even for a frame.
  */
 public class SnapshotGlPictureRecorder extends SnapshotPictureRecorder {
 
@@ -126,9 +125,9 @@ public class SnapshotGlPictureRecorder extends SnapshotPictureRecorder {
     @RendererThread
     @TargetApi(Build.VERSION_CODES.KITKAT)
     protected void onRendererFrame(@SuppressWarnings("unused") @NonNull final SurfaceTexture surfaceTexture,
-                                 final int rotation,
-                                 final float scaleX,
-                                 final float scaleY) {
+                                   final int rotation,
+                                   final float scaleX,
+                                   final float scaleY) {
         // Get egl context from the RendererThread, which is the one in which we have created
         // the textureId and the overlayTextureId, managed by the GlSurfaceView.
         // Next operations can then be performed on different threads using this handle.
@@ -144,20 +143,20 @@ public class SnapshotGlPictureRecorder extends SnapshotPictureRecorder {
 
     /**
      * The tricky part here is the EGL surface creation.
-     *
+     * <p>
      * We don't have a real output window for the EGL surface - we will use glReadPixels()
      * and never call swapBuffers(), so what we draw is never published.
-     *
+     * <p>
      * 1. One option is to use a pbuffer EGL surface. This works, we just have to pass
-     *    the correct width and height. However, it is significantly slower than the current
-     *    solution.
-     *
+     * the correct width and height. However, it is significantly slower than the current
+     * solution.
+     * <p>
      * 2. Another option is to create the EGL surface out of a ImageReader.getSurface()
-     *    and use the reader to create a JPEG. In this case, we would have to publish
-     *    the frame with swapBuffers(). However, currently ImageReader does not support
-     *    all formats, it's risky. This is an example error that we get:
-     *    "RGBA override BLOB format buffer should have height == width"
-     *
+     * and use the reader to create a JPEG. In this case, we would have to publish
+     * the frame with swapBuffers(). However, currently ImageReader does not support
+     * all formats, it's risky. This is an example error that we get:
+     * "RGBA override BLOB format buffer should have height == width"
+     * <p>
      * The third option, which we are using, is to create the EGL surface using whatever
      * {@link Surface} or {@link SurfaceTexture} we have at hand. Since we never call
      * swapBuffers(), the frame will not actually be rendered. This is the fastest.

@@ -28,10 +28,6 @@ public enum Preview implements Control {
         this.value = value;
     }
 
-    int value() {
-        return value;
-    }
-
     @NonNull
     static Preview fromValue(int value) {
         Preview[] list = Preview.values();
@@ -41,5 +37,9 @@ public enum Preview implements Control {
             }
         }
         return DEFAULT;
+    }
+
+    int value() {
+        return value;
     }
 }

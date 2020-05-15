@@ -2,10 +2,10 @@ package com.otaliastudios.cameraview.gesture;
 
 import android.content.Context;
 import android.graphics.PointF;
+import android.view.MotionEvent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-
-import android.view.MotionEvent;
 
 /**
  * Base class for gesture finders.
@@ -13,21 +13,14 @@ import android.view.MotionEvent;
  */
 public abstract class GestureFinder {
 
-    public interface Controller {
-        @NonNull Context getContext();
-        int getWidth();
-        int getHeight();
-    }
-
     // The number of possible values between minValue and maxValue, for the getValue method.
     // We could make this non-static (e.g. larger granularity for exposure correction).
     private final static int GRANULARITY = 50;
-
+    @VisibleForTesting
+    Gesture mType;
     private boolean mActive;
-    @VisibleForTesting Gesture mType;
     private PointF[] mPoints;
     private Controller mController;
-
     GestureFinder(@NonNull Controller controller, int points) {
         mController = controller;
         mPoints = new PointF[points];
@@ -37,20 +30,40 @@ public abstract class GestureFinder {
     }
 
     /**
-     * Makes this instance active, which means, listening to events.
-     * @param active whether this should be active or not
+     * Checks for newValue to be between minValue and maxValue,
+     * and checks that it is 'far enough' from the oldValue, in order
+     * to reduce useless updates.
      */
-    public void setActive(boolean active) {
-        mActive = active;
+    private static float capValue(float oldValue, float newValue, float minValue, float maxValue) {
+        if (newValue < minValue) newValue = minValue;
+        if (newValue > maxValue) newValue = maxValue;
+
+        float distance = (maxValue - minValue) / (float) GRANULARITY;
+        float half = distance / 2;
+        if (newValue >= oldValue - half && newValue <= oldValue + half) {
+            // Too close! Return the oldValue.
+            return oldValue;
+        }
+        return newValue;
     }
 
     /**
      * Whether this instance is active, which means, it is listening
      * to events and identifying new gestures.
+     *
      * @return true if active
      */
     public boolean isActive() {
         return mActive;
+    }
+
+    /**
+     * Makes this instance active, which means, listening to events.
+     *
+     * @param active whether this should be active or not
+     */
+    public void setActive(boolean active) {
+        mActive = active;
     }
 
     /**
@@ -90,9 +103,9 @@ public abstract class GestureFinder {
 
     /**
      * Sets the currently detected gesture.
-     * @see #getGesture()
      *
      * @param gesture the current gesture
+     * @see #getGesture()
      */
     protected final void setGesture(Gesture gesture) {
         mType = gesture;
@@ -129,8 +142,8 @@ public abstract class GestureFinder {
      * taking into account the minimum and maximum values.
      *
      * @param currValue the last value
-     * @param minValue the min possible value
-     * @param maxValue the max possible value
+     * @param minValue  the min possible value
+     * @param maxValue  the max possible value
      * @return the new continuous value
      */
     public final float computeValue(float currValue, float minValue, float maxValue) {
@@ -143,36 +156,28 @@ public abstract class GestureFinder {
      * taking into account the minimum and maximum values.
      *
      * @param currValue the last value
-     * @param minValue the min possible value
-     * @param maxValue the max possible value
+     * @param minValue  the min possible value
+     * @param maxValue  the max possible value
      * @return the new continuous value
      */
     protected abstract float getValue(float currValue, float minValue, float maxValue);
 
     /**
-     * Checks for newValue to be between minValue and maxValue,
-     * and checks that it is 'far enough' from the oldValue, in order
-     * to reduce useless updates.
-     */
-    private static float capValue(float oldValue, float newValue, float minValue, float maxValue) {
-        if (newValue < minValue) newValue = minValue;
-        if (newValue > maxValue) newValue = maxValue;
-
-        float distance = (maxValue - minValue) / (float) GRANULARITY;
-        float half = distance / 2;
-        if (newValue >= oldValue - half && newValue <= oldValue + half) {
-            // Too close! Return the oldValue.
-            return oldValue;
-        }
-        return newValue;
-    }
-
-    /**
      * Returns the controller for this finder.
+     *
      * @return the controller
      */
     @NonNull
     protected Controller getController() {
         return mController;
+    }
+
+    public interface Controller {
+        @NonNull
+        Context getContext();
+
+        int getWidth();
+
+        int getHeight();
     }
 }

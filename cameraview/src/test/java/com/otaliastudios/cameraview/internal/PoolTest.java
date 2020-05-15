@@ -1,8 +1,6 @@
 package com.otaliastudios.cameraview.internal;
 
 
-import com.otaliastudios.cameraview.internal.Pool;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,15 +11,12 @@ import java.util.List;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class PoolTest {
 
     private final static int MAX_SIZE = 20;
-
-    private class Item {}
-
     private Pool<Item> pool;
     private int instances = 0;
 
@@ -166,5 +161,8 @@ public class PoolTest {
         Item newItem = pool.get();
         assertEquals(item, newItem);
         assertEquals(1, instances);
+    }
+
+    private class Item {
     }
 }

@@ -1,8 +1,9 @@
 package com.otaliastudios.cameraview.gesture;
 
-import androidx.annotation.NonNull;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+
+import androidx.annotation.NonNull;
 
 import com.otaliastudios.cameraview.CameraLogger;
 
@@ -24,32 +25,32 @@ public class ScrollGestureFinder extends GestureFinder {
         mDetector = new GestureDetector(controller.getContext(),
                 new GestureDetector.SimpleOnGestureListener() {
 
-            @Override
-            public boolean onScroll(MotionEvent e1,
-                                    MotionEvent e2,
-                                    float distanceX,
-                                    float distanceY) {
-                boolean horizontal;
-                LOG.i("onScroll:", "distanceX="+distanceX, "distanceY="+distanceY);
-                if (e1 == null || e2 == null) return false; // Got some crashes about this.
-                if (e1.getX() != getPoint(0).x || e1.getY() != getPoint(0).y) {
-                    // First step. We choose now if it's a vertical or horizontal scroll, and
-                    // stick to it for the whole gesture.
-                    horizontal = Math.abs(distanceX) >= Math.abs(distanceY);
-                    setGesture(horizontal ? Gesture.SCROLL_HORIZONTAL : Gesture.SCROLL_VERTICAL);
-                    getPoint(0).set(e1.getX(), e1.getY());
-                } else {
-                    // Not the first step. We already defined the type.
-                    horizontal = getGesture() == Gesture.SCROLL_HORIZONTAL;
-                }
-                getPoint(1).set(e2.getX(), e2.getY());
-                mFactor = horizontal ? (distanceX / controller.getWidth())
-                        : (distanceY / controller.getHeight());
-                mFactor = horizontal ? -mFactor : mFactor; // When vertical, up = positive
-                mNotify = true;
-                return true;
-            }
-        });
+                    @Override
+                    public boolean onScroll(MotionEvent e1,
+                                            MotionEvent e2,
+                                            float distanceX,
+                                            float distanceY) {
+                        boolean horizontal;
+                        LOG.i("onScroll:", "distanceX=" + distanceX, "distanceY=" + distanceY);
+                        if (e1 == null || e2 == null) return false; // Got some crashes about this.
+                        if (e1.getX() != getPoint(0).x || e1.getY() != getPoint(0).y) {
+                            // First step. We choose now if it's a vertical or horizontal scroll, and
+                            // stick to it for the whole gesture.
+                            horizontal = Math.abs(distanceX) >= Math.abs(distanceY);
+                            setGesture(horizontal ? Gesture.SCROLL_HORIZONTAL : Gesture.SCROLL_VERTICAL);
+                            getPoint(0).set(e1.getX(), e1.getY());
+                        } else {
+                            // Not the first step. We already defined the type.
+                            horizontal = getGesture() == Gesture.SCROLL_HORIZONTAL;
+                        }
+                        getPoint(1).set(e2.getX(), e2.getY());
+                        mFactor = horizontal ? (distanceX / controller.getWidth())
+                                : (distanceY / controller.getHeight());
+                        mFactor = horizontal ? -mFactor : mFactor; // When vertical, up = positive
+                        mNotify = true;
+                        return true;
+                    }
+                });
 
         mDetector.setIsLongpressEnabled(false); // Looks important.
     }
@@ -83,7 +84,8 @@ public class ScrollGestureFinder extends GestureFinder {
         return currValue + delta;
     }
 
-    /* for tests */ protected float getFactor() {
+    /* for tests */
+    protected float getFactor() {
         return mFactor;
     }
 }

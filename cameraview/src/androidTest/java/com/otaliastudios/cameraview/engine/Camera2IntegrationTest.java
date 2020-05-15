@@ -1,23 +1,14 @@
 package com.otaliastudios.cameraview.engine;
 
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.TotalCaptureResult;
-import android.os.Handler;
-
-import com.otaliastudios.cameraview.controls.Engine;
-import com.otaliastudios.cameraview.engine.action.ActionHolder;
-import com.otaliastudios.cameraview.engine.action.BaseAction;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.RequiresDevice;
 
-import java.util.concurrent.CountDownLatch;
+import com.otaliastudios.cameraview.controls.Engine;
+
+import org.junit.runner.RunWith;
 
 /**
  * These tests work great on real devices, and are the only way to test actual CameraEngine
@@ -64,6 +55,7 @@ public class Camera2IntegrationTest extends CameraIntegrationTest<Camera2Engine>
     /**
      * setMaxDuration can crash on legacy devices (most emulator are), and I don't see
      * any way to fix this in code. They shouldn't use Camera2 at all.
+     *
      * @return true if possible.
      */
     @Override

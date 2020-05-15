@@ -110,9 +110,14 @@ public class Full2PictureRecorder extends FullPictureRecorder
         try {
             image = reader.acquireNextImage();
             switch (mResult.format) {
-                case JPEG: readJpegImage(image); break;
-                case DNG: readRawImage(image); break;
-                default: throw new IllegalStateException("Unknown format: " + mResult.format);
+                case JPEG:
+                    readJpegImage(image);
+                    break;
+                case DNG:
+                    readRawImage(image);
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown format: " + mResult.format);
             }
         } catch (Exception e) {
             mResult = null;
@@ -158,7 +163,10 @@ public class Full2PictureRecorder extends FullPictureRecorder
             mResult.data = array.toByteArray();
         } catch (IOException e) {
             mDngCreator.close();
-            try { stream.close(); } catch (IOException ignore) {}
+            try {
+                stream.close();
+            } catch (IOException ignore) {
+            }
             throw new RuntimeException(e);
         }
     }

@@ -1,6 +1,5 @@
 package com.otaliastudios.cameraview.engine.lock;
 
-import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;

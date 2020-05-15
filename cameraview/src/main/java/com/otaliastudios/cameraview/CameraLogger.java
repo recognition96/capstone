@@ -22,63 +22,46 @@ public final class CameraLogger {
     public final static int LEVEL_INFO = 1;
     public final static int LEVEL_WARNING = 2;
     public final static int LEVEL_ERROR = 3;
-
-    /**
-     * Interface of integers representing log levels.
-     * @see #LEVEL_VERBOSE
-     * @see #LEVEL_INFO
-     * @see #LEVEL_WARNING
-     * @see #LEVEL_ERROR
-     */
-    @IntDef({LEVEL_VERBOSE, LEVEL_INFO, LEVEL_WARNING, LEVEL_ERROR})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface LogLevel {}
-
-    /**
-     * A Logger can listen to internal log events
-     * and log them to different providers.
-     * The default logger will simply post to logcat.
-     */
-    public interface Logger {
-
-        /**
-         * Notifies that an internal log event was just triggered.
-         *
-         * @param level the log level
-         * @param tag the log tag
-         * @param message the log message
-         * @param throwable an optional throwable
-         */
-        void log(@LogLevel int level,
-                 @NonNull String tag,
-                 @NonNull String message,
-                 @Nullable Throwable throwable);
-    }
-
-    @VisibleForTesting static String lastMessage;
-    @VisibleForTesting static String lastTag;
-
-    private static int sLevel;
-    private static Set<Logger> sLoggers = new CopyOnWriteArraySet<>();
-
-    @VisibleForTesting static Logger sAndroidLogger = new Logger() {
+    @VisibleForTesting
+    static String lastMessage;
+    @VisibleForTesting
+    static String lastTag;
+    @VisibleForTesting
+    static Logger sAndroidLogger = new Logger() {
         @Override
         public void log(int level,
                         @NonNull String tag,
                         @NonNull String message,
                         @Nullable Throwable throwable) {
             switch (level) {
-                case LEVEL_VERBOSE: Log.v(tag, message, throwable); break;
-                case LEVEL_INFO: Log.i(tag, message, throwable); break;
-                case LEVEL_WARNING: Log.w(tag, message, throwable); break;
-                case LEVEL_ERROR: Log.e(tag, message, throwable); break;
+                case LEVEL_VERBOSE:
+                    Log.v(tag, message, throwable);
+                    break;
+                case LEVEL_INFO:
+                    Log.i(tag, message, throwable);
+                    break;
+                case LEVEL_WARNING:
+                    Log.w(tag, message, throwable);
+                    break;
+                case LEVEL_ERROR:
+                    Log.e(tag, message, throwable);
+                    break;
             }
         }
     };
+    private static int sLevel;
+    private static Set<Logger> sLoggers = new CopyOnWriteArraySet<>();
 
     static {
         setLogLevel(LEVEL_ERROR);
         sLoggers.add(sAndroidLogger);
+    }
+
+    @NonNull
+    private String mTag;
+
+    private CameraLogger(@NonNull String tag) {
+        mTag = tag;
     }
 
     /**
@@ -95,11 +78,11 @@ public final class CameraLogger {
     /**
      * Sets the log sLevel for logcat events.
      *
+     * @param logLevel the desired log sLevel
      * @see #LEVEL_VERBOSE
      * @see #LEVEL_INFO
      * @see #LEVEL_WARNING
      * @see #LEVEL_ERROR
-     * @param logLevel the desired log sLevel
      */
     public static void setLogLevel(@LogLevel int logLevel) {
         sLevel = logLevel;
@@ -127,19 +110,13 @@ public final class CameraLogger {
         sLoggers.remove(logger);
     }
 
-    @NonNull
-    private String mTag;
-
-    private CameraLogger(@NonNull String tag) {
-        mTag = tag;
-    }
-
     private boolean should(int messageLevel) {
         return sLevel <= messageLevel && sLoggers.size() > 0;
     }
 
     /**
      * Log to the verbose channel.
+     *
      * @param data log contents
      * @return the log message, if logged
      */
@@ -150,6 +127,7 @@ public final class CameraLogger {
 
     /**
      * Log to the info channel.
+     *
      * @param data log contents
      * @return the log message, if logged
      */
@@ -160,6 +138,7 @@ public final class CameraLogger {
 
     /**
      * Log to the warning channel.
+     *
      * @param data log contents
      * @return the log message, if logged
      */
@@ -170,6 +149,7 @@ public final class CameraLogger {
 
     /**
      * Log to the error channel.
+     *
      * @param data log contents
      * @return the log message, if logged
      */
@@ -198,6 +178,40 @@ public final class CameraLogger {
         lastMessage = string;
         lastTag = mTag;
         return string;
+    }
+
+    /**
+     * Interface of integers representing log levels.
+     *
+     * @see #LEVEL_VERBOSE
+     * @see #LEVEL_INFO
+     * @see #LEVEL_WARNING
+     * @see #LEVEL_ERROR
+     */
+    @IntDef({LEVEL_VERBOSE, LEVEL_INFO, LEVEL_WARNING, LEVEL_ERROR})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface LogLevel {
+    }
+
+    /**
+     * A Logger can listen to internal log events
+     * and log them to different providers.
+     * The default logger will simply post to logcat.
+     */
+    public interface Logger {
+
+        /**
+         * Notifies that an internal log event was just triggered.
+         *
+         * @param level     the log level
+         * @param tag       the log tag
+         * @param message   the log message
+         * @param throwable an optional throwable
+         */
+        void log(@LogLevel int level,
+                 @NonNull String tag,
+                 @NonNull String message,
+                 @Nullable Throwable throwable);
     }
 }
 

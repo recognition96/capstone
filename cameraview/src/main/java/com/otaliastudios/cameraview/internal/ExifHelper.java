@@ -16,21 +16,26 @@ public class ExifHelper {
         switch (exifOrientation) {
             case ExifInterface.ORIENTATION_NORMAL:
             case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                orientation = 0; break;
+                orientation = 0;
+                break;
 
             case ExifInterface.ORIENTATION_ROTATE_180:
             case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                orientation = 180; break;
+                orientation = 180;
+                break;
 
             case ExifInterface.ORIENTATION_ROTATE_90:
             case ExifInterface.ORIENTATION_TRANSPOSE:
-                orientation = 90; break;
+                orientation = 90;
+                break;
 
             case ExifInterface.ORIENTATION_ROTATE_270:
             case ExifInterface.ORIENTATION_TRANSVERSE:
-                orientation = 270; break;
+                orientation = 270;
+                break;
 
-            default: orientation = 0;
+            default:
+                orientation = 0;
         }
         return orientation;
     }
@@ -40,11 +45,16 @@ public class ExifHelper {
      */
     public static int getExifOrientation(int orientation) {
         switch ((orientation + 360) % 360) {
-            case 0: return ExifInterface.ORIENTATION_NORMAL;
-            case 90: return ExifInterface.ORIENTATION_ROTATE_90;
-            case 180: return ExifInterface.ORIENTATION_ROTATE_180;
-            case 270: return ExifInterface.ORIENTATION_ROTATE_270;
-            default: throw new IllegalArgumentException("Invalid orientation: " + orientation);
+            case 0:
+                return ExifInterface.ORIENTATION_NORMAL;
+            case 90:
+                return ExifInterface.ORIENTATION_ROTATE_90;
+            case 180:
+                return ExifInterface.ORIENTATION_ROTATE_180;
+            case 270:
+                return ExifInterface.ORIENTATION_ROTATE_270;
+            default:
+                throw new IllegalArgumentException("Invalid orientation: " + orientation);
         }
     }
 }

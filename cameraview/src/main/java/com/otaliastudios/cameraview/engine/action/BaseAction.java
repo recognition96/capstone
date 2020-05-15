@@ -16,12 +16,12 @@ import java.util.List;
 /**
  * The base implementation of {@link Action} that should always be subclassed,
  * instead of implementing the root interface itself.
- *
+ * <p>
  * It holds a list of callbacks and dispatches events to them, plus it cares about
  * its own lifecycle:
  * - when {@link #start(ActionHolder)} is called, we add ourselves to the holder list
  * - when {@link #STATE_COMPLETED} is reached, we remove ouverselves from the holder list
- *
+ * <p>
  * This is very important in all cases.
  */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -35,6 +35,25 @@ public abstract class BaseAction implements Action {
     @Override
     public final int getState() {
         return state;
+    }
+
+    /**
+     * Called by subclasses to notify of their state. If state is {@link #STATE_COMPLETED},
+     * this removes this action from the holder.
+     *
+     * @param newState new state
+     */
+    protected final void setState(int newState) {
+        if (newState != state) {
+            state = newState;
+            for (ActionCallback callback : callbacks) {
+                callback.onActionStateChanged(this, state);
+            }
+            if (state == STATE_COMPLETED) {
+                holder.removeAction(this);
+                onCompleted(holder);
+            }
+        }
     }
 
     @Override
@@ -61,6 +80,7 @@ public abstract class BaseAction implements Action {
     /**
      * Action was started and will soon receive events from the
      * holder stream.
+     *
      * @param holder holder
      */
     @CallSuper
@@ -74,6 +94,7 @@ public abstract class BaseAction implements Action {
     /**
      * Action was aborted and will not receive events from the
      * holder stream anymore. It will soon be marked as completed.
+     *
      * @param holder holder
      */
     @SuppressWarnings("unused")
@@ -105,25 +126,8 @@ public abstract class BaseAction implements Action {
     }
 
     /**
-     * Called by subclasses to notify of their state. If state is {@link #STATE_COMPLETED},
-     * this removes this action from the holder.
-     * @param newState new state
-     */
-    protected final void setState(int newState) {
-        if (newState != state) {
-            state = newState;
-            for (ActionCallback callback : callbacks) {
-                callback.onActionStateChanged(this, state);
-            }
-            if (state == STATE_COMPLETED) {
-                holder.removeAction(this);
-                onCompleted(holder);
-            }
-        }
-    }
-
-    /**
      * Whether this action has reached the completed state.
+     *
      * @return true if completed
      */
     public boolean isCompleted() {
@@ -132,6 +136,7 @@ public abstract class BaseAction implements Action {
 
     /**
      * Called when this action has completed (possibly aborted).
+     *
      * @param holder holder
      */
     protected void onCompleted(@NonNull ActionHolder holder) {
@@ -140,6 +145,7 @@ public abstract class BaseAction implements Action {
 
     /**
      * Returns the holder.
+     *
      * @return the holder
      */
     @NonNull
@@ -150,9 +156,10 @@ public abstract class BaseAction implements Action {
 
     /**
      * Reads a characteristic with a fallback.
-     * @param key key
+     *
+     * @param key      key
      * @param fallback fallback
-     * @param <T> key type
+     * @param <T>      key type
      * @return value or fallback
      */
     @NonNull

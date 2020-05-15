@@ -4,25 +4,25 @@ package com.otaliastudios.cameraview.engine;
 import android.graphics.PointF;
 import android.location.Location;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.PictureResult;
 import com.otaliastudios.cameraview.controls.Facing;
 import com.otaliastudios.cameraview.controls.Flash;
+import com.otaliastudios.cameraview.controls.Hdr;
 import com.otaliastudios.cameraview.controls.PictureFormat;
+import com.otaliastudios.cameraview.controls.WhiteBalance;
 import com.otaliastudios.cameraview.engine.orchestrator.CameraState;
 import com.otaliastudios.cameraview.frame.ByteBufferFrameManager;
 import com.otaliastudios.cameraview.frame.FrameManager;
 import com.otaliastudios.cameraview.gesture.Gesture;
-import com.otaliastudios.cameraview.controls.Hdr;
-import com.otaliastudios.cameraview.controls.WhiteBalance;
 import com.otaliastudios.cameraview.metering.MeteringRegions;
 import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,14 +88,15 @@ public class MockCameraEngine extends CameraBaseEngine {
                 state,
                 false,
                 new Callable<Task<Void>>() {
-            @Override
-            public Task<Void> call() {
-                return Tasks.forResult(null);
-            }
-        });
+                    @Override
+                    public Task<Void> call() {
+                        return Tasks.forResult(null);
+                    }
+                });
         try {
             Tasks.await(change);
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
     }
 
     @Override
@@ -200,14 +201,16 @@ public class MockCameraEngine extends CameraBaseEngine {
     }
 
     @Override
-    public void setPlaySounds(boolean playSounds) { }
+    public void setPlaySounds(boolean playSounds) {
+    }
 
     @Override
     protected boolean collectCameraInfo(@NonNull Facing facing) {
         return true;
     }
 
-    @Override public void setPreviewFrameRate(float previewFrameRate) {
+    @Override
+    public void setPreviewFrameRate(float previewFrameRate) {
         mPreviewFrameRate = previewFrameRate;
     }
 }

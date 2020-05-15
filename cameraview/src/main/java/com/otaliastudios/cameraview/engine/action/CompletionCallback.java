@@ -21,6 +21,7 @@ public abstract class CompletionCallback implements ActionCallback {
 
     /**
      * The given action has just reached the completed state.
+     *
      * @param action action
      */
     protected abstract void onActionCompleted(@NonNull Action action);

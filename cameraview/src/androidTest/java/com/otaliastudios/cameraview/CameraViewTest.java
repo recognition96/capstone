@@ -7,23 +7,27 @@ import android.graphics.ImageFormat;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
-import androidx.annotation.NonNull;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
-
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
+
 import com.otaliastudios.cameraview.controls.ControlParser;
 import com.otaliastudios.cameraview.controls.Engine;
 import com.otaliastudios.cameraview.controls.Facing;
 import com.otaliastudios.cameraview.controls.Flash;
+import com.otaliastudios.cameraview.controls.Hdr;
+import com.otaliastudios.cameraview.controls.Mode;
 import com.otaliastudios.cameraview.controls.PictureFormat;
 import com.otaliastudios.cameraview.controls.Preview;
+import com.otaliastudios.cameraview.controls.WhiteBalance;
 import com.otaliastudios.cameraview.engine.CameraEngine;
+import com.otaliastudios.cameraview.engine.MockCameraEngine;
 import com.otaliastudios.cameraview.engine.orchestrator.CameraState;
 import com.otaliastudios.cameraview.filter.Filter;
 import com.otaliastudios.cameraview.filter.Filters;
@@ -32,36 +36,45 @@ import com.otaliastudios.cameraview.frame.Frame;
 import com.otaliastudios.cameraview.frame.FrameProcessor;
 import com.otaliastudios.cameraview.gesture.Gesture;
 import com.otaliastudios.cameraview.gesture.GestureAction;
-import com.otaliastudios.cameraview.controls.Hdr;
-import com.otaliastudios.cameraview.controls.Mode;
-import com.otaliastudios.cameraview.controls.WhiteBalance;
 import com.otaliastudios.cameraview.gesture.GestureParser;
 import com.otaliastudios.cameraview.gesture.PinchGestureFinder;
 import com.otaliastudios.cameraview.gesture.ScrollGestureFinder;
 import com.otaliastudios.cameraview.gesture.TapGestureFinder;
-import com.otaliastudios.cameraview.engine.MockCameraEngine;
-import com.otaliastudios.cameraview.tools.Op;
 import com.otaliastudios.cameraview.markers.AutoFocusMarker;
 import com.otaliastudios.cameraview.markers.DefaultAutoFocusMarker;
 import com.otaliastudios.cameraview.markers.MarkerLayout;
 import com.otaliastudios.cameraview.overlay.OverlayLayout;
-import com.otaliastudios.cameraview.preview.MockCameraPreview;
 import com.otaliastudios.cameraview.preview.CameraPreview;
+import com.otaliastudios.cameraview.preview.MockCameraPreview;
 import com.otaliastudios.cameraview.size.Size;
 import com.otaliastudios.cameraview.size.SizeSelector;
 import com.otaliastudios.cameraview.size.SizeSelectors;
+import com.otaliastudios.cameraview.tools.Op;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
-
-import static org.mockito.Mockito.*;
-
-import static android.view.View.MeasureSpec.*;
-import static android.view.ViewGroup.LayoutParams.*;
+import static android.view.View.MeasureSpec.AT_MOST;
+import static android.view.View.MeasureSpec.EXACTLY;
+import static android.view.View.MeasureSpec.UNSPECIFIED;
+import static android.view.View.MeasureSpec.makeMeasureSpec;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyFloat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -286,8 +299,6 @@ public class CameraViewTest extends BaseTest {
         assertTrue(mockController.mFocusStarted);
     }
 
-    private class FactorHolder { float value; }
-
     @Test
     public void testGestureAction_zoom() {
         CameraOptions o = mock(CameraOptions.class);
@@ -329,7 +340,8 @@ public class CameraViewTest extends BaseTest {
 
     @Test
     public void testGestureAction_exposureCorrection() {
-        CameraOptions o = new CameraOptions() {};
+        CameraOptions o = new CameraOptions() {
+        };
         o.exposureCorrectionMaxValue = 10F;
         o.exposureCorrectionMinValue = -10F;
         mockController.setMockCameraOptions(o);
@@ -451,14 +463,14 @@ public class CameraViewTest extends BaseTest {
         verify(filter, times(1)).setParameter2(anyFloat());
     }
 
-    //endregion
-
-    //region testMeasure
-
     private void mockPreviewStreamSize() {
         Size size = new Size(900, 1600);
         mockController.setMockPreviewStreamSize(size);
     }
+
+    //endregion
+
+    //region testMeasure
 
     @Test
     public void testMeasure_early() {
@@ -554,10 +566,6 @@ public class CameraViewTest extends BaseTest {
         assertEquals(cameraView.getMeasuredHeight(), 1600);
     }
 
-    //endregion
-
-    //region Zoom, ExposureCorrection
-
     @Test
     public void testZoom() {
         cameraView.setZoom(0.5f);
@@ -568,10 +576,15 @@ public class CameraViewTest extends BaseTest {
         assertEquals(cameraView.getZoom(), 1f, 0f);
     }
 
+    //endregion
+
+    //region Zoom, ExposureCorrection
+
     @Test
     public void testExposureCorrection() {
         // This needs a valid CameraOptions value.
-        CameraOptions o = new CameraOptions() {};
+        CameraOptions o = new CameraOptions() {
+        };
         o.exposureCorrectionMaxValue = 10F;
         o.exposureCorrectionMinValue = -10F;
         mockController.setMockCameraOptions(o);
@@ -583,10 +596,6 @@ public class CameraViewTest extends BaseTest {
         cameraView.setExposureCorrection(100f);
         assertEquals(cameraView.getExposureCorrection(), 10f, 0f);
     }
-
-    //endregion
-
-    //region testLocation
 
     @SuppressWarnings("ConstantConditions")
     @Test
@@ -614,12 +623,16 @@ public class CameraViewTest extends BaseTest {
 
     //endregion
 
-    //region test autofocus
+    //region testLocation
 
     @Test(expected = IllegalArgumentException.class)
     public void testStartAutoFocus_illegal() {
         cameraView.startAutoFocus(-1, -1);
     }
+
+    //endregion
+
+    //region test autofocus
 
     @Test(expected = IllegalArgumentException.class)
     public void testStartAutoFocus_illegal2() {
@@ -664,10 +677,6 @@ public class CameraViewTest extends BaseTest {
         assertTrue(mockController.mFocusStarted);
     }
 
-    //endregion
-
-    //region test setParameters
-
     @Test
     public void testSetPlaySounds() {
         cameraView.setPlaySounds(true);
@@ -675,6 +684,10 @@ public class CameraViewTest extends BaseTest {
         cameraView.setPlaySounds(false);
         assertFalse(cameraView.getPlaySounds());
     }
+
+    //endregion
+
+    //region test setParameters
 
     @Test
     public void testSetUseDeviceOrientation() {
@@ -883,15 +896,12 @@ public class CameraViewTest extends BaseTest {
         cameraView.setFrameProcessingExecutors(0);
     }
 
-    //endregion
-
-    //region Lists of listeners and processors
-
     @Test
     public void testCameraListenerList() {
         assertTrue(cameraView.mListeners.isEmpty());
 
-        CameraListener listener = new CameraListener() {};
+        CameraListener listener = new CameraListener() {
+        };
         cameraView.addCameraListener(listener);
         assertEquals(cameraView.mListeners.size(), 1);
 
@@ -906,20 +916,28 @@ public class CameraViewTest extends BaseTest {
         assertTrue(cameraView.mListeners.isEmpty());
 
         // Ensure this does not throw a ConcurrentModificationException
-        cameraView.addCameraListener(new CameraListener() {});
-        cameraView.addCameraListener(new CameraListener() {});
-        cameraView.addCameraListener(new CameraListener() {});
+        cameraView.addCameraListener(new CameraListener() {
+        });
+        cameraView.addCameraListener(new CameraListener() {
+        });
+        cameraView.addCameraListener(new CameraListener() {
+        });
         for (CameraListener test : cameraView.mListeners) {
             cameraView.mListeners.remove(test);
         }
     }
+
+    //endregion
+
+    //region Lists of listeners and processors
 
     @Test
     public void testFrameProcessorsList() {
         assertTrue(cameraView.mFrameProcessors.isEmpty());
 
         FrameProcessor processor = new FrameProcessor() {
-            public void process(@NonNull Frame frame) {}
+            public void process(@NonNull Frame frame) {
+            }
         };
         cameraView.addFrameProcessor(processor);
         assertEquals(cameraView.mFrameProcessors.size(), 1);
@@ -935,17 +953,22 @@ public class CameraViewTest extends BaseTest {
         assertTrue(cameraView.mFrameProcessors.isEmpty());
 
         // Ensure this does not throw a ConcurrentModificationException
-        cameraView.addFrameProcessor(new FrameProcessor() { public void process(@NonNull Frame f) {} });
-        cameraView.addFrameProcessor(new FrameProcessor() { public void process(@NonNull Frame f) {} });
-        cameraView.addFrameProcessor(new FrameProcessor() { public void process(@NonNull Frame f) {} });
+        cameraView.addFrameProcessor(new FrameProcessor() {
+            public void process(@NonNull Frame f) {
+            }
+        });
+        cameraView.addFrameProcessor(new FrameProcessor() {
+            public void process(@NonNull Frame f) {
+            }
+        });
+        cameraView.addFrameProcessor(new FrameProcessor() {
+            public void process(@NonNull Frame f) {
+            }
+        });
         for (FrameProcessor test : cameraView.mFrameProcessors) {
             cameraView.mFrameProcessors.remove(test);
         }
     }
-
-    //endregion
-
-    //region Snapshots
 
     @Test
     public void testSetSnapshotMaxSize() {
@@ -957,7 +980,7 @@ public class CameraViewTest extends BaseTest {
 
     //endregion
 
-    //region MarkerLayout
+    //region Snapshots
 
     @Test
     public void testMarkerLayout_forAutoFocus_onMarker() {
@@ -968,21 +991,21 @@ public class CameraViewTest extends BaseTest {
         verify(markerLayout, times(1)).onMarker(MarkerLayout.TYPE_AUTOFOCUS, marker);
     }
 
+    //endregion
+
+    //region MarkerLayout
+
     @Test
     public void testMarkerLayout_forAutoFocus_onEvent() {
         MarkerLayout markerLayout = spy(cameraView.mMarkerLayout);
         cameraView.mMarkerLayout = markerLayout;
         final PointF point = new PointF(0, 0);
-        final PointF[] points = new PointF[]{ point };
+        final PointF[] points = new PointF[]{point};
         final Op<Boolean> op = new Op<>();
         doEndOp(op, true).when(markerLayout).onEvent(MarkerLayout.TYPE_AUTOFOCUS, points);
         cameraView.mCameraCallbacks.dispatchOnFocusStart(Gesture.TAP, point);
         assertNotNull(op.await(100));
     }
-
-    //endregion
-
-    //region Overlays
 
     @Test
     public void testOverlays_generateLayoutParams() {
@@ -994,6 +1017,10 @@ public class CameraViewTest extends BaseTest {
         verify(cameraView.mOverlayLayout, times(1)).generateLayoutParams(any(AttributeSet.class));
 
     }
+
+    //endregion
+
+    //region Overlays
 
     @Test
     public void testOverlays_dontGenerateLayoutParams() {
@@ -1056,10 +1083,6 @@ public class CameraViewTest extends BaseTest {
         verify(cameraView.mOverlayLayout, never()).removeView(notOverlay);
     }
 
-    //endregion
-
-    //region Filter
-
     @Test
     public void testSetFilter() {
         Filter filter = Filters.AUTO_FIX.newInstance();
@@ -1068,6 +1091,14 @@ public class CameraViewTest extends BaseTest {
         assertEquals(filter, cameraView.getFilter());
         //noinspection ResultOfMethodCallIgnored
         verify(mockPreview, times(1)).getCurrentFilter();
+    }
+
+    //endregion
+
+    //region Filter
+
+    private class FactorHolder {
+        float value;
     }
 
     //endregion

@@ -52,30 +52,30 @@ import java.util.concurrent.TimeUnit;
  * 1. Setting up the Surface. Done by {@link CameraPreview}.
  * 2. Starting the camera. Done by us. See {@link #startEngine()}, {@link #onStartEngine()}.
  * 3. Binding the camera to the surface. Done by us. See {@link #startBind()},
- *    {@link #onStartBind()}
+ * {@link #onStartBind()}
  * 4. Streaming the camera preview. Done by us. See {@link #startPreview()},
- *    {@link #onStartPreview()}
- *
+ * {@link #onStartPreview()}
+ * <p>
  * The first two steps can actually happen at the same time, anyway
  * the order is not guaranteed, we just get a callback from the Preview when 1 happens.
  * So at the end of both step 1 and 2, the engine should check if both have
  * been performed and trigger the steps 3 and 4.
- *
+ * <p>
  * STATE
  * We only expose generic {@link #start()} and {@link #stop(boolean)} calls to the outside.
  * The external users of this class are most likely interested in whether we have completed step 2
  * or not, since that tells us if we can act on the camera or not, rather than knowing about
  * steps 3 and 4.
- *
+ * <p>
  * So in the {@link CameraEngine} notation,
  * - {@link #start()}: ASYNC - starts the engine (S2). When possible, at a later time,
- *                     S3 and S4 are also performed.
+ * S3 and S4 are also performed.
  * - {@link #stop(boolean)}: ASYNC - stops everything: undoes S4, then S3, then S2.
  * - {@link #restart()}: ASYNC - completes a stop then a start.
  * - {@link #destroy(boolean)}: SYNC - performs a {@link #stop(boolean)} that will go on no matter
- *                              what, without throwing. Makes the engine unusable and clears
- *                              resources.
- *
+ * what, without throwing. Makes the engine unusable and clears
+ * resources.
+ * <p>
  * THREADING
  * Subclasses should always execute code on the thread given by {@link #mHandler}.
  * For convenience, all the setup and tear down methods are called on this engine thread:
@@ -83,16 +83,16 @@ import java.util.concurrent.TimeUnit;
  * {@link #onStopEngine()}, {@link #onStopBind()}, {@link #onStopPreview()} to tear down.
  * However, these methods are not forced to be synchronous and then can simply return a Google's
  * {@link Task}.
- *
+ * <p>
  * Other setters are executed on the callers thread so subclasses should make sure they post
  * to the engine handler before acting on themselves.
- *
- *
+ * <p>
+ * <p>
  * ERROR HANDLING
  * THe {@link #mHandler} thread has a special {@link Thread.UncaughtExceptionHandler} that handles
  * exceptions and dispatches error to the callback (instead of crashing the app).
  * This lets subclasses run code safely and directly throw {@link CameraException}s when needed.
- *
+ * <p>
  * For convenience, the two main method {@link #onStartEngine()} and {@link #onStopEngine()}
  * are already called on the engine thread, but they can still be asynchronous by returning a
  * Google's {@link com.google.android.gms.tasks.Task}.
@@ -101,29 +101,14 @@ public abstract class CameraEngine implements
         CameraPreview.SurfaceCallback,
         PictureRecorder.PictureResultListener {
 
-    public interface Callback {
-        @NonNull Context getContext();
-        void dispatchOnCameraOpened(@NonNull CameraOptions options);
-        void dispatchOnCameraClosed();
-        void onCameraPreviewStreamSizeChanged();
-        void dispatchOnPictureTaken(@NonNull PictureResult.Stub stub);
-        void dispatchOnFocusStart(@Nullable Gesture trigger, @NonNull PointF where);
-        void dispatchOnFocusEnd(@Nullable Gesture trigger, boolean success, @NonNull PointF where);
-        void dispatchOnZoomChanged(final float newValue, @Nullable final PointF[] fingers);
-        void dispatchOnExposureCorrectionChanged(float newValue, @NonNull float[] bounds,
-                                                 @Nullable PointF[] fingers);
-        void dispatchFrame(@NonNull Frame frame);
-        void dispatchError(CameraException exception);
-    }
-
     protected static final String TAG = CameraEngine.class.getSimpleName();
     protected static final CameraLogger LOG = CameraLogger.create(TAG);
     // If this is 2, this means we'll try to run destroy() twice.
     private static final int DESTROY_RETRIES = 2;
-
-    private WorkerHandler mHandler;
-    @VisibleForTesting Handler mCrashHandler;
     private final Callback mCallback;
+    @VisibleForTesting
+    Handler mCrashHandler;
+    private WorkerHandler mHandler;
     private final CameraStateOrchestrator mOrchestrator
             = new CameraStateOrchestrator(new CameraOrchestrator.Callback() {
         @Override
@@ -137,7 +122,6 @@ public abstract class CameraEngine implements
             handleException(exception, false);
         }
     });
-
     protected CameraEngine(@NonNull Callback callback) {
         mCallback = callback;
         mCrashHandler = new Handler(Looper.getMainLooper());
@@ -154,41 +138,16 @@ public abstract class CameraEngine implements
         return mOrchestrator;
     }
 
-    //region Error handling
-
-    /**
-     * The base exception handler, which inspects the exception and
-     * decides what to do.
-     */
-    private class CrashExceptionHandler implements Thread.UncaughtExceptionHandler {
-        @Override
-        public void uncaughtException(@NonNull Thread thread, @NonNull Throwable throwable) {
-            handleException(throwable, true);
-        }
-    }
-
-    /**
-     * A static exception handler used during destruction to avoid leaks,
-     * since the default handler is not static and the thread might survive the engine.
-     */
-    private static class NoOpExceptionHandler implements Thread.UncaughtExceptionHandler {
-        @Override
-        public void uncaughtException(@NonNull Thread thread, @NonNull Throwable throwable) {
-            LOG.w("EXCEPTION:", "In the NoOpExceptionHandler, probably while destroying.",
-                    "Thread:", thread, "Error:", throwable);
-        }
-    }
-
     /**
      * Handles exceptions coming from either runtime errors on the {@link #mHandler} code that is
      * not caught (using the {@link CrashExceptionHandler}), as might happen during standard
      * mHandler.post() operations that subclasses might do, OR for errors caught by tasks and
      * continuations that we launch here.
-     *
+     * <p>
      * In the first case, the thread is about to be terminated. In the second case,
      * we can actually keep using it.
      *
-     * @param throwable the throwable
+     * @param throwable  the throwable
      * @param isUncaught true if coming from exception handler
      */
     private void handleException(@NonNull final Throwable throwable,
@@ -230,10 +189,13 @@ public abstract class CameraEngine implements
         });
     }
 
+    //region Error handling
+
     /**
      * Recreates the handler, to ensure we use a fresh one from now on.
      * If we suspect that handler is currently stuck, the orchestrator should be reset
      * because it hosts a chain of tasks and the last one will never complete.
+     *
      * @param resetOrchestrator true to reset
      */
     private void recreateHandler(boolean resetOrchestrator) {
@@ -242,10 +204,6 @@ public abstract class CameraEngine implements
         mHandler.getThread().setUncaughtExceptionHandler(new CrashExceptionHandler());
         if (resetOrchestrator) mOrchestrator.reset();
     }
-
-    //endregion
-
-    //region State management
 
     @NonNull
     public final CameraState getState() {
@@ -261,13 +219,17 @@ public abstract class CameraEngine implements
         return mOrchestrator.hasPendingStateChange();
     }
 
+    //endregion
+
+    //region State management
+
     /**
      * Calls {@link #stop(boolean)} and waits for it.
      * Not final due to mockito requirements.
-     *
+     * <p>
      * If unrecoverably is true, this also releases resources and the engine will not be in a
      * functional state after. If forever is false, this really is just a synchronous stop.
-     *
+     * <p>
      * NOTE: Should not be called on the orchestrator thread! This would cause deadlocks due to us
      * awaiting for {@link #stop(boolean)} to return.
      */
@@ -313,7 +275,8 @@ public abstract class CameraEngine implements
                     LOG.w("DESTROY: Giving up because DESTROY_RETRIES was reached.");
                 }
             }
-        } catch (InterruptedException ignore) {}
+        } catch (InterruptedException ignore) {
+        }
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -358,25 +321,21 @@ public abstract class CameraEngine implements
         return startPreview();
     }
 
-    //endregion
-
-    //region Start & Stop the engine
-
     @NonNull
     @EngineThread
     private Task<Void> startEngine() {
         return mOrchestrator.scheduleStateChange(CameraState.OFF, CameraState.ENGINE,
                 true,
                 new Callable<Task<CameraOptions>>() {
-            @Override
-            public Task<CameraOptions> call() {
-                if (!collectCameraInfo(getFacing())) {
-                    LOG.e("onStartEngine:", "No camera available for facing", getFacing());
-                    throw new CameraException(CameraException.REASON_NO_CAMERA);
-                }
-                return onStartEngine();
-            }
-        }).onSuccessTask(new SuccessContinuation<CameraOptions, Void>() {
+                    @Override
+                    public Task<CameraOptions> call() {
+                        if (!collectCameraInfo(getFacing())) {
+                            LOG.e("onStartEngine:", "No camera available for facing", getFacing());
+                            throw new CameraException(CameraException.REASON_NO_CAMERA);
+                        }
+                        return onStartEngine();
+                    }
+                }).onSuccessTask(new SuccessContinuation<CameraOptions, Void>() {
             @NonNull
             @Override
             public Task<Void> then(@Nullable CameraOptions cameraOptions) {
@@ -395,11 +354,11 @@ public abstract class CameraEngine implements
         return mOrchestrator.scheduleStateChange(CameraState.ENGINE, CameraState.OFF,
                 !swallowExceptions,
                 new Callable<Task<Void>>() {
-            @Override
-            public Task<Void> call() {
-                return onStopEngine();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public Task<Void> call() {
+                        return onStopEngine();
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 // Put this on the outer task so we're sure it's called after getState() is OFF.
@@ -412,7 +371,7 @@ public abstract class CameraEngine implements
     /**
      * Camera is about to be opened. Implementors should look into available cameras
      * and see if anyone matches the given {@link Facing value}.
-     *
+     * <p>
      * If so, implementors should set {@link Angles#setSensorOffset(Facing, int)}
      * and any other information (like camera ID) needed to start the engine.
      *
@@ -422,8 +381,13 @@ public abstract class CameraEngine implements
     @EngineThread
     protected abstract boolean collectCameraInfo(@NonNull Facing facing);
 
+    //endregion
+
+    //region Start & Stop the engine
+
     /**
      * Starts the engine.
+     *
      * @return a task
      */
     @NonNull
@@ -434,15 +398,12 @@ public abstract class CameraEngine implements
      * Stops the engine.
      * Stop events should generally not throw exceptions. We
      * want to release resources either way.
+     *
      * @return a task
      */
     @NonNull
     @EngineThread
     protected abstract Task<Void> onStopEngine();
-
-    //endregion
-
-    //region Start & Stop binding
 
     @NonNull
     @EngineThread
@@ -450,15 +411,15 @@ public abstract class CameraEngine implements
         return mOrchestrator.scheduleStateChange(CameraState.ENGINE, CameraState.BIND,
                 true,
                 new Callable<Task<Void>>() {
-            @Override
-            public Task<Void> call() {
-                if (getPreview() != null && getPreview().hasSurface()) {
-                    return onStartBind();
-                } else {
-                    return Tasks.forCanceled();
-                }
-            }
-        });
+                    @Override
+                    public Task<Void> call() {
+                        if (getPreview() != null && getPreview().hasSurface()) {
+                            return onStartBind();
+                        } else {
+                            return Tasks.forCanceled();
+                        }
+                    }
+                });
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -468,34 +429,36 @@ public abstract class CameraEngine implements
         return mOrchestrator.scheduleStateChange(CameraState.BIND, CameraState.ENGINE,
                 !swallowExceptions,
                 new Callable<Task<Void>>() {
-            @Override
-            public Task<Void> call() {
-                return onStopBind();
-            }
-        });
+                    @Override
+                    public Task<Void> call() {
+                        return onStopBind();
+                    }
+                });
     }
 
     /**
      * Starts the binding process.
+     *
      * @return a task
      */
     @NonNull
     @EngineThread
     protected abstract Task<Void> onStartBind();
 
+    //endregion
+
+    //region Start & Stop binding
+
     /**
      * Stops the binding process.
      * Stop events should generally not throw exceptions. We
      * want to release resources either way.
+     *
      * @return a task
      */
     @NonNull
     @EngineThread
     protected abstract Task<Void> onStopBind();
-
-    //endregion
-
-    //region Start & Stop preview
 
     @NonNull
     @EngineThread
@@ -503,11 +466,11 @@ public abstract class CameraEngine implements
         return mOrchestrator.scheduleStateChange(CameraState.BIND, CameraState.PREVIEW,
                 true,
                 new Callable<Task<Void>>() {
-            @Override
-            public Task<Void> call() {
-                return onStartPreview();
-            }
-        });
+                    @Override
+                    public Task<Void> call() {
+                        return onStartPreview();
+                    }
+                });
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -517,34 +480,36 @@ public abstract class CameraEngine implements
         return mOrchestrator.scheduleStateChange(CameraState.PREVIEW, CameraState.BIND,
                 !swallowExceptions,
                 new Callable<Task<Void>>() {
-            @Override
-            public Task<Void> call() {
-                return onStopPreview();
-            }
-        });
+                    @Override
+                    public Task<Void> call() {
+                        return onStopPreview();
+                    }
+                });
     }
 
     /**
      * Starts the preview streaming.
+     *
      * @return a task
      */
     @NonNull
     @EngineThread
     protected abstract Task<Void> onStartPreview();
 
+    //endregion
+
+    //region Start & Stop preview
+
     /**
      * Stops the preview streaming.
      * Stop events should generally not throw exceptions. We
      * want to release resources either way.
+     *
      * @return a task
      */
     @NonNull
     @EngineThread
     protected abstract Task<Void> onStopPreview();
-
-    //endregion
-
-    //region Surface callbacks
 
     /**
      * The surface is now available, which means that step 1 has completed.
@@ -565,18 +530,22 @@ public abstract class CameraEngine implements
         stopBind(false);
     }
 
-    //endregion
-
-    //region Abstract getters
-
     @NonNull
     public abstract Angles getAngles();
+
+    //endregion
+
+    //region Surface callbacks
 
     @NonNull
     public abstract FrameManager getFrameManager();
 
     @Nullable
     public abstract CameraOptions getCameraOptions();
+
+    //endregion
+
+    //region Abstract getters
 
     @Nullable
     public abstract Size getPictureSize(@NonNull Reference reference);
@@ -587,90 +556,174 @@ public abstract class CameraEngine implements
     @Nullable
     public abstract Size getUncroppedSnapshotSize(@NonNull Reference reference);
 
+    @Nullable
+    public abstract CameraPreview getPreview();
+
+    public abstract void setPreview(@NonNull CameraPreview cameraPreview);
+
+    @Nullable
+    public abstract Overlay getOverlay();
+
     //endregion
 
     //region Abstract APIs
 
-    public abstract void setPreview(@NonNull CameraPreview cameraPreview);
-    @Nullable public abstract CameraPreview getPreview();
-
     public abstract void setOverlay(@Nullable Overlay overlay);
-    @Nullable public abstract Overlay getOverlay();
+
+    @Nullable
+    public abstract SizeSelector getPreviewStreamSizeSelector();
 
     public abstract void setPreviewStreamSizeSelector(@Nullable SizeSelector selector);
-    @Nullable public abstract SizeSelector getPreviewStreamSizeSelector();
+
+    @NonNull
+    public abstract SizeSelector getPictureSizeSelector();
 
     public abstract void setPictureSizeSelector(@NonNull SizeSelector selector);
-    @NonNull public abstract SizeSelector getPictureSizeSelector();
 
-    public abstract void setSnapshotMaxWidth(int maxWidth);
     public abstract int getSnapshotMaxWidth();
 
-    public abstract void setSnapshotMaxHeight(int maxHeight);
+    public abstract void setSnapshotMaxWidth(int maxWidth);
+
     public abstract int getSnapshotMaxHeight();
 
-    public abstract void setFrameProcessingMaxWidth(int maxWidth);
+    public abstract void setSnapshotMaxHeight(int maxHeight);
+
     public abstract int getFrameProcessingMaxWidth();
 
-    public abstract void setFrameProcessingMaxHeight(int maxHeight);
+    public abstract void setFrameProcessingMaxWidth(int maxWidth);
+
     public abstract int getFrameProcessingMaxHeight();
 
-    public abstract void setFrameProcessingFormat(int format);
+    public abstract void setFrameProcessingMaxHeight(int maxHeight);
+
     public abstract int getFrameProcessingFormat();
 
-    public abstract void setFrameProcessingPoolSize(int poolSize);
+    public abstract void setFrameProcessingFormat(int format);
+
     public abstract int getFrameProcessingPoolSize();
 
-    public abstract void setAutoFocusResetDelay(long delayMillis);
+    public abstract void setFrameProcessingPoolSize(int poolSize);
+
     public abstract long getAutoFocusResetDelay();
 
-    public abstract void setFacing(final @NonNull Facing facing);
-    @NonNull public abstract Facing getFacing();
+    public abstract void setAutoFocusResetDelay(long delayMillis);
 
+    @NonNull
+    public abstract Facing getFacing();
+
+    public abstract void setFacing(final @NonNull Facing facing);
+
+    @NonNull
+    public abstract Mode getMode();
 
     public abstract void setMode(@NonNull Mode mode);
-    @NonNull public abstract Mode getMode();
 
     public abstract void setZoom(float zoom, @Nullable PointF[] points, boolean notify);
+
     public abstract float getZoomValue();
 
     public abstract void setExposureCorrection(float EVvalue, @NonNull float[] bounds,
                                                @Nullable PointF[] points, boolean notify);
+
     public abstract float getExposureCorrectionValue();
 
+    @NonNull
+    public abstract Flash getFlash();
+
     public abstract void setFlash(@NonNull Flash flash);
-    @NonNull public abstract Flash getFlash();
+
+    @NonNull
+    public abstract WhiteBalance getWhiteBalance();
 
     public abstract void setWhiteBalance(@NonNull WhiteBalance whiteBalance);
-    @NonNull public abstract WhiteBalance getWhiteBalance();
+
+    @NonNull
+    public abstract Hdr getHdr();
 
     public abstract void setHdr(@NonNull Hdr hdr);
-    @NonNull public abstract Hdr getHdr();
+
+    @Nullable
+    public abstract Location getLocation();
 
     public abstract void setLocation(@Nullable Location location);
-    @Nullable public abstract Location getLocation();
+
+    @NonNull
+    public abstract PictureFormat getPictureFormat();
 
     public abstract void setPictureFormat(@NonNull PictureFormat pictureFormat);
-    @NonNull public abstract PictureFormat getPictureFormat();
 
-    public abstract void setPreviewFrameRateExact(boolean previewFrameRateExact);
     public abstract boolean getPreviewFrameRateExact();
 
+    public abstract void setPreviewFrameRateExact(boolean previewFrameRateExact);
+
     public abstract void setHasFrameProcessors(boolean hasFrameProcessors);
+
     public abstract boolean hasFrameProcessors();
 
-    public abstract void setPictureMetering(boolean enable);
     public abstract boolean getPictureMetering();
 
-    public abstract void setPictureSnapshotMetering(boolean enable);
+    public abstract void setPictureMetering(boolean enable);
+
     public abstract boolean getPictureSnapshotMetering();
+
+    public abstract void setPictureSnapshotMetering(boolean enable);
 
     public abstract void startAutoFocus(@Nullable Gesture gesture,
                                         @NonNull MeteringRegions regions,
                                         @NonNull PointF legacyPoint);
 
     public abstract boolean isTakingPicture();
+
     public abstract void takePictureSnapshot(final @NonNull PictureResult.Stub stub);
+
+    public interface Callback {
+        @NonNull
+        Context getContext();
+
+        void dispatchOnCameraOpened(@NonNull CameraOptions options);
+
+        void dispatchOnCameraClosed();
+
+        void onCameraPreviewStreamSizeChanged();
+
+        void dispatchOnPictureTaken(@NonNull PictureResult.Stub stub);
+
+        void dispatchOnFocusStart(@Nullable Gesture trigger, @NonNull PointF where);
+
+        void dispatchOnFocusEnd(@Nullable Gesture trigger, boolean success, @NonNull PointF where);
+
+        void dispatchOnZoomChanged(final float newValue, @Nullable final PointF[] fingers);
+
+        void dispatchOnExposureCorrectionChanged(float newValue, @NonNull float[] bounds,
+                                                 @Nullable PointF[] fingers);
+
+        void dispatchFrame(@NonNull Frame frame);
+
+        void dispatchError(CameraException exception);
+    }
+
+    /**
+     * A static exception handler used during destruction to avoid leaks,
+     * since the default handler is not static and the thread might survive the engine.
+     */
+    private static class NoOpExceptionHandler implements Thread.UncaughtExceptionHandler {
+        @Override
+        public void uncaughtException(@NonNull Thread thread, @NonNull Throwable throwable) {
+            LOG.w("EXCEPTION:", "In the NoOpExceptionHandler, probably while destroying.",
+                    "Thread:", thread, "Error:", throwable);
+        }
+    }
+
+    /**
+     * The base exception handler, which inspects the exception and
+     * decides what to do.
+     */
+    private class CrashExceptionHandler implements Thread.UncaughtExceptionHandler {
+        @Override
+        public void uncaughtException(@NonNull Thread thread, @NonNull Throwable throwable) {
+            handleException(throwable, true);
+        }
+    }
 
 
     //endregion

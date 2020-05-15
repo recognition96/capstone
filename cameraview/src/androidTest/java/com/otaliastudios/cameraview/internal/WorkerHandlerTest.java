@@ -1,15 +1,14 @@
 package com.otaliastudios.cameraview.internal;
 
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.otaliastudios.cameraview.BaseTest;
-import com.otaliastudios.cameraview.internal.WorkerHandler;
-import com.otaliastudios.cameraview.tools.Op;
-
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.otaliastudios.cameraview.BaseTest;
+import com.otaliastudios.cameraview.tools.Op;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +17,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -103,7 +106,10 @@ public class WorkerHandlerTest extends BaseTest {
     public void testPostCallable_throws() {
         WorkerHandler handler = WorkerHandler.get("handler");
         Task<Void> task = handler.post(getThrowCallable());
-        try { Tasks.await(task); } catch (ExecutionException | InterruptedException ignore) {}
+        try {
+            Tasks.await(task);
+        } catch (ExecutionException | InterruptedException ignore) {
+        }
         assertTrue(task.isComplete());
         assertFalse(task.isSuccessful());
     }
@@ -225,7 +231,10 @@ public class WorkerHandlerTest extends BaseTest {
         assertNotSame(handler, newHandler);
         assertTrue(newHandler.getThread().isAlive());
         // Ensure old thread dies at some point.
-        try { handler.getThread().join(500); } catch (InterruptedException ignore) {}
+        try {
+            handler.getThread().join(500);
+        } catch (InterruptedException ignore) {
+        }
         assertFalse(handler.getThread().isAlive());
     }
 

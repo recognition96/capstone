@@ -1,7 +1,5 @@
 package com.otaliastudios.cameraview.tools;
 
-import android.os.Build;
-
 import com.otaliastudios.cameraview.CameraLogger;
 
 import org.junit.rules.TestRule;

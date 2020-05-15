@@ -12,8 +12,6 @@ import androidx.annotation.RequiresApi;
 import com.otaliastudios.cameraview.engine.action.ActionHolder;
 import com.otaliastudios.cameraview.engine.action.BaseAction;
 
-import java.util.List;
-
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public abstract class BaseReset extends BaseAction {
 

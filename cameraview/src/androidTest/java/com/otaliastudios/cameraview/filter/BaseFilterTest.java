@@ -28,38 +28,6 @@ import static org.mockito.Mockito.verify;
 @SmallTest
 public class BaseFilterTest extends BaseEglTest {
 
-    public static class TestFilter extends BaseFilter implements TwoParameterFilter {
-
-        private float param1;
-        private float param2;
-
-        @NonNull
-        @Override
-        public String getFragmentShader() {
-            return createDefaultFragmentShader();
-        }
-
-        @Override
-        public void setParameter1(float value) {
-            param1 = value;
-        }
-
-        @Override
-        public void setParameter2(float value) {
-            param2 = value;
-        }
-
-        @Override
-        public float getParameter1() {
-            return param1;
-        }
-
-        @Override
-        public float getParameter2() {
-            return param2;
-        }
-    }
-
     private TestFilter filter;
 
     @Test
@@ -168,5 +136,37 @@ public class BaseFilterTest extends BaseEglTest {
         filter.setParameter2(0.5F);
         TestFilter other = (TestFilter) filter.copy();
         assertEquals(filter.getParameter2(), other.getParameter2(), 0.001F);
+    }
+
+    public static class TestFilter extends BaseFilter implements TwoParameterFilter {
+
+        private float param1;
+        private float param2;
+
+        @NonNull
+        @Override
+        public String getFragmentShader() {
+            return createDefaultFragmentShader();
+        }
+
+        @Override
+        public float getParameter1() {
+            return param1;
+        }
+
+        @Override
+        public void setParameter1(float value) {
+            param1 = value;
+        }
+
+        @Override
+        public float getParameter2() {
+            return param2;
+        }
+
+        @Override
+        public void setParameter2(float value) {
+            param2 = value;
+        }
     }
 }

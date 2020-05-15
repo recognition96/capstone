@@ -4,14 +4,14 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.otaliastudios.cameraview.controls.Facing;
 import com.otaliastudios.cameraview.controls.PictureFormat;
 import com.otaliastudios.cameraview.size.Size;
 
 import java.io.File;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * Wraps the picture captured by {@link CameraView#takePicture()} or
@@ -20,22 +20,6 @@ import androidx.annotation.Nullable;
 @SuppressWarnings("unused")
 public class PictureResult {
 
-    /**
-     * A result stub, for internal use only.
-     */
-    public static class Stub {
-
-        Stub() {}
-
-        public boolean isSnapshot;
-        public Location location;
-        public int rotation;
-        public Size size;
-        public Facing facing;
-        public byte[] data;
-        public PictureFormat format;
-    }
-
     private final boolean isSnapshot;
     private final Location location;
     private final int rotation;
@@ -43,7 +27,6 @@ public class PictureResult {
     private final Facing facing;
     private final byte[] data;
     private final PictureFormat format;
-
     PictureResult(@NonNull Stub builder) {
         isSnapshot = builder.isSnapshot;
         location = builder.location;
@@ -131,9 +114,9 @@ public class PictureResult {
      * Decodes this picture on a background thread and posts the result in the UI thread using
      * the given callback.
      *
-     * @param maxWidth the max. width of final bitmap
+     * @param maxWidth  the max. width of final bitmap
      * @param maxHeight the max. height of final bitmap
-     * @param callback a callback to be notified of image decoding
+     * @param callback  a callback to be notified of image decoding
      */
     public void toBitmap(int maxWidth, int maxHeight, @NonNull BitmapCallback callback) {
         if (format == PictureFormat.JPEG) {
@@ -166,10 +149,26 @@ public class PictureResult {
      * This writes this picture to file on a background thread and posts the result in the UI
      * thread using the given callback.
      *
-     * @param file the file to write into
+     * @param file     the file to write into
      * @param callback a callback
      */
     public void toFile(@NonNull File file, @NonNull FileCallback callback) {
         CameraUtils.writeToFile(getData(), file, callback);
+    }
+
+    /**
+     * A result stub, for internal use only.
+     */
+    public static class Stub {
+
+        public boolean isSnapshot;
+        public Location location;
+        public int rotation;
+        public Size size;
+        public Facing facing;
+        public byte[] data;
+        public PictureFormat format;
+        Stub() {
+        }
     }
 }

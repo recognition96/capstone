@@ -13,10 +13,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class MeteringRegions {
-    private final static float POINT_AREA = 0.05F;
-
     @VisibleForTesting
     final static float BLUR_FACTOR_WEIGHT = 0.1F;
+    private final static float POINT_AREA = 0.05F;
     private final static float BLUR_FACTOR_SIZE = 1.5F;
 
     @VisibleForTesting
@@ -24,26 +23,6 @@ public class MeteringRegions {
 
     private MeteringRegions(@NonNull List<MeteringRegion> regions) {
         mRegions = regions;
-    }
-
-    @NonNull
-    public MeteringRegions transform(@NonNull MeteringTransform transform) {
-        List<MeteringRegion> regions = new ArrayList<>();
-        for (MeteringRegion region : mRegions) {
-            regions.add(region.transform(transform));
-        }
-        return new MeteringRegions(regions);
-    }
-
-    @NonNull
-    public <T> List<T> get(int atMost, @NonNull MeteringTransform<T> transform) {
-        List<T> result = new ArrayList<>();
-        Collections.sort(mRegions);
-        for (MeteringRegion region : mRegions) {
-            result.add(transform.transformMeteringRegion(region.mRegion, region.mWeight));
-        }
-        atMost = Math.min(atMost, result.size());
-        return result.subList(0, atMost);
     }
 
     @NonNull
@@ -107,6 +86,26 @@ public class MeteringRegions {
                 center.x + width / 2F,
                 center.y + height / 2F
         );
+    }
+
+    @NonNull
+    public MeteringRegions transform(@NonNull MeteringTransform transform) {
+        List<MeteringRegion> regions = new ArrayList<>();
+        for (MeteringRegion region : mRegions) {
+            regions.add(region.transform(transform));
+        }
+        return new MeteringRegions(regions);
+    }
+
+    @NonNull
+    public <T> List<T> get(int atMost, @NonNull MeteringTransform<T> transform) {
+        List<T> result = new ArrayList<>();
+        Collections.sort(mRegions);
+        for (MeteringRegion region : mRegions) {
+            result.add(transform.transformMeteringRegion(region.mRegion, region.mWeight));
+        }
+        atMost = Math.min(atMost, result.size());
+        return result.subList(0, atMost);
     }
 
 }

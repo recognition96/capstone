@@ -7,10 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import java.util.HashMap;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.util.HashMap;
 
 /**
  * Manages markers and provides an hierarchy / Canvas for them.
@@ -29,7 +29,8 @@ public class MarkerLayout extends FrameLayout {
 
     /**
      * Notifies that a new marker was added, possibly replacing another one.
-     * @param type the marker type
+     *
+     * @param type   the marker type
      * @param marker the marker
      */
     public void onMarker(int type, @Nullable Marker marker) {
@@ -50,7 +51,8 @@ public class MarkerLayout extends FrameLayout {
      * The event that should trigger the drawing is about to be dispatched to
      * markers. If we have a valid View, cancel any animations on it and reposition
      * it.
-     * @param type the event type
+     *
+     * @param type   the event type
      * @param points the position
      */
     public void onEvent(int type, @NonNull PointF[] points) {

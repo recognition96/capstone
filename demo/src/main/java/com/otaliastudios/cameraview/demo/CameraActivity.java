@@ -175,6 +175,20 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         camera.takePictureSnapshot();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        boolean valid = true;
+        for (int grantResult : grantResults) {
+            valid = valid && grantResult == PackageManager.PERMISSION_GRANTED;
+        }
+        if (valid && !camera.isOpened()) {
+            camera.open();
+        }
+    }
+
+
+    //region Permissions
 
     // Listener
     private class Listener extends CameraListener {
@@ -217,21 +231,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         public void onZoomChanged(float newValue, @NonNull float[] bounds, @Nullable PointF[] fingers) {
             super.onZoomChanged(newValue, bounds, fingers);
             message("Zoom:" + newValue, false);
-        }
-    }
-
-
-    //region Permissions
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        boolean valid = true;
-        for (int grantResult : grantResults) {
-            valid = valid && grantResult == PackageManager.PERMISSION_GRANTED;
-        }
-        if (valid && !camera.isOpened()) {
-            camera.open();
         }
     }
 

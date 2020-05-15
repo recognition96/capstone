@@ -1,9 +1,10 @@
 package com.otaliastudios.cameraview.gesture;
 
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+
+import androidx.annotation.NonNull;
 
 /**
  * A {@link GestureFinder} that detects {@link Gesture#PINCH} gestures.
@@ -21,13 +22,13 @@ public class PinchGestureFinder extends GestureFinder {
         setGesture(Gesture.PINCH);
         mDetector = new ScaleGestureDetector(controller.getContext(),
                 new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            @Override
-            public boolean onScale(ScaleGestureDetector detector) {
-                mNotify = true;
-                mFactor = ((detector.getScaleFactor() - 1) * ADD_SENSITIVITY);
-                return true;
-            }
-        });
+                    @Override
+                    public boolean onScale(ScaleGestureDetector detector) {
+                        mNotify = true;
+                        mFactor = ((detector.getScaleFactor() - 1) * ADD_SENSITIVITY);
+                        return true;
+                    }
+                });
 
         if (Build.VERSION.SDK_INT >= 19) {
             mDetector.setQuickScaleEnabled(false);
@@ -77,7 +78,8 @@ public class PinchGestureFinder extends GestureFinder {
     }
 
 
-    /* for tests */ protected float getFactor() {
+    /* for tests */
+    protected float getFactor() {
         return mFactor;
     }
 }

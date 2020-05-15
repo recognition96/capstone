@@ -3,11 +3,11 @@ package com.otaliastudios.cameraview.controls;
 
 import android.content.Context;
 
-import com.otaliastudios.cameraview.CameraUtils;
-import com.otaliastudios.cameraview.CameraView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.otaliastudios.cameraview.CameraUtils;
+import com.otaliastudios.cameraview.CameraView;
 
 /**
  * Facing value indicates which camera sensor should be used for the current session.
@@ -26,6 +26,12 @@ public enum Facing implements Control {
      */
     FRONT(1);
 
+    private int value;
+
+    Facing(int value) {
+        this.value = value;
+    }
+
     @NonNull
     static Facing DEFAULT(@Nullable Context context) {
         if (context == null) {
@@ -41,16 +47,6 @@ public enum Facing implements Control {
         }
     }
 
-    private int value;
-
-    Facing(int value) {
-        this.value = value;
-    }
-
-    int value() {
-        return value;
-    }
-
     @Nullable
     static Facing fromValue(int value) {
         Facing[] list = Facing.values();
@@ -60,5 +56,9 @@ public enum Facing implements Control {
             }
         }
         return null;
+    }
+
+    int value() {
+        return value;
     }
 }

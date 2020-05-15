@@ -6,12 +6,12 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
-import com.otaliastudios.cameraview.tools.Op;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+
+import com.otaliastudios.cameraview.tools.Op;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +22,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -136,9 +140,9 @@ public class CameraUtilsTest extends BaseTest {
         assertEquals(100, w);
         assertEquals(200, h);
         assertEquals(color, other.getPixel(0, 0));
-        assertEquals(0, other.getPixel(0, h-1));
-        assertEquals(0, other.getPixel(w-1, 0));
-        assertEquals(0, other.getPixel(w-1, h-1));
+        assertEquals(0, other.getPixel(0, h - 1));
+        assertEquals(0, other.getPixel(w - 1, 0));
+        assertEquals(0, other.getPixel(w - 1, h - 1));
     }
 
     @Test
@@ -153,9 +157,9 @@ public class CameraUtilsTest extends BaseTest {
         assertEquals(100, w);
         assertEquals(200, h);
         assertEquals(color, other.getPixel(0, 0));
-        assertEquals(0, other.getPixel(0, h-1));
-        assertEquals(0, other.getPixel(w-1, 0));
-        assertEquals(0, other.getPixel(w-1, h-1));
+        assertEquals(0, other.getPixel(0, h - 1));
+        assertEquals(0, other.getPixel(w - 1, 0));
+        assertEquals(0, other.getPixel(w - 1, h - 1));
     }
 
 

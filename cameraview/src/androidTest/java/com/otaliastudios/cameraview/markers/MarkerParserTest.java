@@ -9,31 +9,18 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StyleableRes;
-import androidx.arch.core.util.Function;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.otaliastudios.cameraview.BaseTest;
 import com.otaliastudios.cameraview.R;
-import com.otaliastudios.cameraview.size.Size;
-import com.otaliastudios.cameraview.size.SizeSelectorParser;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,6 +37,7 @@ public class MarkerParserTest extends BaseTest {
         MarkerParser parser = new MarkerParser(array);
         assertNull(parser.getAutoFocusMarker());
     }
+
     @Test
     public void testConstructor() {
         TypedArray array = mock(TypedArray.class);
@@ -62,7 +50,8 @@ public class MarkerParserTest extends BaseTest {
 
     public static class Marker implements AutoFocusMarker {
 
-        public Marker() { }
+        public Marker() {
+        }
 
         @Nullable
         @Override
@@ -71,9 +60,11 @@ public class MarkerParserTest extends BaseTest {
         }
 
         @Override
-        public void onAutoFocusStart(@NonNull AutoFocusTrigger trigger, @NonNull PointF point) { }
+        public void onAutoFocusStart(@NonNull AutoFocusTrigger trigger, @NonNull PointF point) {
+        }
 
         @Override
-        public void onAutoFocusEnd(@NonNull AutoFocusTrigger trigger, boolean successful, @NonNull PointF point) { }
+        public void onAutoFocusEnd(@NonNull AutoFocusTrigger trigger, boolean successful, @NonNull PointF point) {
+        }
     }
 }

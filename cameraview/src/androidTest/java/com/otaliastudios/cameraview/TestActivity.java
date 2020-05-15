@@ -4,17 +4,17 @@ package com.otaliastudios.cameraview;
 import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import androidx.annotation.Nullable;
+
 import com.otaliastudios.cameraview.size.Size;
 
-import static android.view.ViewGroup.LayoutParams.*;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class TestActivity extends Activity {
 

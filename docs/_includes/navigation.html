@@ -1,4 +1,4 @@
-<ul id="navigation" class="py-4">
+<ul class="py-4" id="navigation">
     <li><a href="{{ site.baseurl }}/home">Home</a></li>
     {% for collection in site.collections %}
     {% if collection.label != "posts" %}
@@ -24,4 +24,5 @@
             link.parentElement.classList.add('active')
         }
     });
+
 </script>

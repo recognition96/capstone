@@ -2,14 +2,15 @@ package com.otaliastudios.cameraview.preview;
 
 
 import android.content.Context;
-import androidx.test.rule.ActivityTestRule;
 import android.view.ViewGroup;
+
+import androidx.test.rule.ActivityTestRule;
 
 import com.otaliastudios.cameraview.BaseTest;
 import com.otaliastudios.cameraview.TestActivity;
-import com.otaliastudios.cameraview.tools.Op;
 import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
+import com.otaliastudios.cameraview.tools.Op;
 
 import org.junit.After;
 import org.junit.Before;
@@ -18,27 +19,29 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-
-import static org.junit.Assert.*;
-
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public abstract class CameraPreviewTest<T extends CameraPreview> extends BaseTest {
 
     private final static long DELAY = 4000;
-
-    protected abstract T createPreview(Context context, ViewGroup parent);
-
     @Rule
     public ActivityTestRule<TestActivity> rule = new ActivityTestRule<>(TestActivity.class);
-
     protected T preview;
     @SuppressWarnings("WeakerAccess")
     protected Size surfaceSize;
     private CameraPreview.SurfaceCallback callback;
-
     private Op<Boolean> available;
     private Op<Boolean> destroyed;
+
+    protected abstract T createPreview(Context context, ViewGroup parent);
 
     @Before
     public void setUp() {

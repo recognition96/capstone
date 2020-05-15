@@ -4,13 +4,15 @@ import androidx.annotation.NonNull;
 
 /**
  * Contains commonly used {@link Filter}s.
- *
+ * <p>
  * You can use {@link #newInstance()} to create a new instance and
  * pass it to {@link com.otaliastudios.cameraview.CameraView#setFilter(Filter)}.
  */
 public enum Filters {
 
-    /** @see NoFilter */
+    /**
+     * @see NoFilter
+     */
     NONE(NoFilter.class);
 
     private Class<? extends Filter> filterClass;
@@ -21,6 +23,7 @@ public enum Filters {
 
     /**
      * Returns a new instance of the given filter.
+     *
      * @return a new instance
      */
     @NonNull

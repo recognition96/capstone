@@ -21,7 +21,7 @@ import java.util.concurrent.CancellationException;
 /**
  * Schedules {@link com.otaliastudios.cameraview.engine.CameraEngine} actions,
  * so that they always run on the same thread.
- *
+ * <p>
  * We need to be extra careful (not as easy as posting on a Handler) because the engine
  * has different states, and some actions will modify the engine state - turn it on or
  * tear it down. Other actions might need a specific state to be executed.
@@ -33,36 +33,28 @@ public class CameraOrchestrator {
 
     protected static final String TAG = CameraOrchestrator.class.getSimpleName();
     protected static final CameraLogger LOG = CameraLogger.create(TAG);
-
-    public interface Callback {
-        @NonNull
-        WorkerHandler getJobWorker(@NonNull String job);
-        void handleJobException(@NonNull String job, @NonNull Exception exception);
-    }
-
-    protected static class Token {
-        public final String name;
-        public final Task<?> task;
-
-        private Token(@NonNull String name, @NonNull Task<?> task) {
-            this.name = name;
-            this.task = task;
-        }
-
-        @Override
-        public boolean equals(@Nullable Object obj) {
-            return obj instanceof Token && ((Token) obj).name.equals(name);
-        }
-    }
-
     protected final Callback mCallback;
     protected final ArrayDeque<Token> mJobs = new ArrayDeque<>();
     protected final Object mLock = new Object();
     private final Map<String, Runnable> mDelayedJobs = new HashMap<>();
-
     public CameraOrchestrator(@NonNull Callback callback) {
         mCallback = callback;
         ensureToken();
+    }
+
+    private static <T> void applyCompletionListener(@NonNull final Task<T> task,
+                                                    @NonNull WorkerHandler handler,
+                                                    @NonNull final OnCompleteListener<T> listener) {
+        if (task.isComplete()) {
+            handler.run(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onComplete(task);
+                }
+            });
+        } else {
+            task.addOnCompleteListener(handler.getExecutor(), listener);
+        }
     }
 
     @NonNull
@@ -89,41 +81,41 @@ public class CameraOrchestrator {
         synchronized (mLock) {
             applyCompletionListener(mJobs.getLast().task, handler,
                     new OnCompleteListener() {
-                @Override
-                public void onComplete(@NonNull Task task) {
-                    synchronized (mLock) {
-                        mJobs.removeFirst();
-                        ensureToken();
-                    }
-                    try {
-                        LOG.i(name.toUpperCase(), "- Executing.");
-                        Task<T> inner = job.call();
-                        applyCompletionListener(inner, handler, new OnCompleteListener<T>() {
-                            @Override
-                            public void onComplete(@NonNull Task<T> task) {
-                                Exception e = task.getException();
-                                if (e != null) {
-                                    LOG.w(name.toUpperCase(), "- Finished with ERROR.", e);
-                                    if (dispatchExceptions) {
-                                        mCallback.handleJobException(name, e);
-                                    }
-                                    source.trySetException(e);
-                                } else if (task.isCanceled()) {
-                                    LOG.i(name.toUpperCase(), "- Finished because ABORTED.");
-                                    source.trySetException(new CancellationException());
-                                } else {
-                                    LOG.i(name.toUpperCase(), "- Finished.");
-                                    source.trySetResult(task.getResult());
-                                }
+                        @Override
+                        public void onComplete(@NonNull Task task) {
+                            synchronized (mLock) {
+                                mJobs.removeFirst();
+                                ensureToken();
                             }
-                        });
-                    } catch (Exception e) {
-                        LOG.i(name.toUpperCase(), "- Finished.", e);
-                        if (dispatchExceptions) mCallback.handleJobException(name, e);
-                        source.trySetException(e);
-                    }
-                }
-            });
+                            try {
+                                LOG.i(name.toUpperCase(), "- Executing.");
+                                Task<T> inner = job.call();
+                                applyCompletionListener(inner, handler, new OnCompleteListener<T>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<T> task) {
+                                        Exception e = task.getException();
+                                        if (e != null) {
+                                            LOG.w(name.toUpperCase(), "- Finished with ERROR.", e);
+                                            if (dispatchExceptions) {
+                                                mCallback.handleJobException(name, e);
+                                            }
+                                            source.trySetException(e);
+                                        } else if (task.isCanceled()) {
+                                            LOG.i(name.toUpperCase(), "- Finished because ABORTED.");
+                                            source.trySetException(new CancellationException());
+                                        } else {
+                                            LOG.i(name.toUpperCase(), "- Finished.");
+                                            source.trySetResult(task.getResult());
+                                        }
+                                    }
+                                });
+                            } catch (Exception e) {
+                                LOG.i(name.toUpperCase(), "- Finished.", e);
+                                if (dispatchExceptions) mCallback.handleJobException(name, e);
+                                source.trySetException(e);
+                            }
+                        }
+                    });
             mJobs.addLast(new Token(name, source.getTask()));
         }
         return source.getTask();
@@ -185,18 +177,25 @@ public class CameraOrchestrator {
         }
     }
 
-    private static <T> void applyCompletionListener(@NonNull final Task<T> task,
-                                                    @NonNull WorkerHandler handler,
-                                                    @NonNull final OnCompleteListener<T> listener) {
-        if (task.isComplete()) {
-            handler.run(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onComplete(task);
-                }
-            });
-        } else {
-            task.addOnCompleteListener(handler.getExecutor(), listener);
+    public interface Callback {
+        @NonNull
+        WorkerHandler getJobWorker(@NonNull String job);
+
+        void handleJobException(@NonNull String job, @NonNull Exception exception);
+    }
+
+    protected static class Token {
+        public final String name;
+        public final Task<?> task;
+
+        private Token(@NonNull String name, @NonNull Task<?> task) {
+            this.name = name;
+            this.task = task;
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            return obj instanceof Token && ((Token) obj).name.equals(name);
         }
     }
 }

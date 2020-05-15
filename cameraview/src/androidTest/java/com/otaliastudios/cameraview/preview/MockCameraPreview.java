@@ -2,22 +2,20 @@ package com.otaliastudios.cameraview.preview;
 
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+
 import com.otaliastudios.cameraview.filter.Filter;
-import com.otaliastudios.cameraview.preview.CameraPreview;
 
 public class MockCameraPreview extends CameraPreview<View, Void> implements FilterCameraPreview {
 
+    private View rootView;
+    private Filter filter;
     public MockCameraPreview(Context context, ViewGroup parent) {
         super(context, parent);
     }
-
-    private View rootView;
-    private Filter filter;
 
     @Override
     public boolean supportsCropping() {

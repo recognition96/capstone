@@ -24,13 +24,14 @@ public class OverlayLayout extends FrameLayout implements Overlay {
     private static final String TAG = OverlayLayout.class.getSimpleName();
     private static final CameraLogger LOG = CameraLogger.create(TAG);
 
-    @VisibleForTesting Target currentTarget = Target.PREVIEW;
+    @VisibleForTesting
+    Target currentTarget = Target.PREVIEW;
 
     /**
      * We set {@link #setWillNotDraw(boolean)} to false even if we don't draw anything.
      * This ensures that the View system will call {@link #draw(Canvas)} on us instead
      * of short-circuiting to {@link #dispatchDraw(Canvas)}.
-     *
+     * <p>
      * That would be a problem for us since we use {@link #draw(Canvas)} to understand if
      * we are currently drawing on the preview or not.
      *
@@ -43,6 +44,7 @@ public class OverlayLayout extends FrameLayout implements Overlay {
 
     /**
      * Returns true if this {@link AttributeSet} belongs to an overlay.
+     *
      * @param set an attribute set
      * @return true if overlay
      */
@@ -51,14 +53,15 @@ public class OverlayLayout extends FrameLayout implements Overlay {
         TypedArray a = getContext().obtainStyledAttributes(set, R.styleable.CameraView_Layout);
         boolean isOverlay =
                 a.hasValue(R.styleable.CameraView_Layout_layout_drawOnPreview)
-                || a.hasValue(R.styleable.CameraView_Layout_layout_drawOnPictureSnapshot)
-                || a.hasValue(R.styleable.CameraView_Layout_layout_drawOnVideoSnapshot);
+                        || a.hasValue(R.styleable.CameraView_Layout_layout_drawOnPictureSnapshot)
+                        || a.hasValue(R.styleable.CameraView_Layout_layout_drawOnVideoSnapshot);
         a.recycle();
         return isOverlay;
     }
 
     /**
      * Returns true if this {@link ViewGroup.LayoutParams} belongs to an overlay.
+     *
      * @param params a layout params
      * @return true if overlay
      */
@@ -68,6 +71,7 @@ public class OverlayLayout extends FrameLayout implements Overlay {
 
     /**
      * Generates our own overlay layout params.
+     *
      * @param attrs input attrs
      * @return our params
      */
@@ -79,6 +83,7 @@ public class OverlayLayout extends FrameLayout implements Overlay {
     /**
      * This is called by the View hierarchy, so at this point we are
      * likely drawing on the preview.
+     *
      * @param canvas View canvas
      */
     @SuppressLint("MissingSuperCall")
@@ -102,7 +107,7 @@ public class OverlayLayout extends FrameLayout implements Overlay {
     /**
      * For {@link Target#PREVIEW}, this method is called by the View hierarchy. We will
      * just forward the call to super.
-     *
+     * <p>
      * For {@link Target#PICTURE_SNAPSHOT}
      * this method is called by the overlay drawer. We call {@link #dispatchDraw(Canvas)}
      * to draw our children only.

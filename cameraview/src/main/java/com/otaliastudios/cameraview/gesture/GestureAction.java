@@ -1,17 +1,17 @@
 package com.otaliastudios.cameraview.gesture;
 
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.filter.Filter;
 import com.otaliastudios.cameraview.markers.AutoFocusMarker;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 /**
  * Gestures actions are actions over camera controls that can be mapped to certain gestures over
  * the screen, using XML attributes or {@link CameraView#mapGesture(Gesture, GestureAction)}.
- *
+ * <p>
  * Not every gesture can control a certain action. For example, pinch gestures can only control
  * continuous values, such as zoom or AE correction. Single point gestures, on the other hand,
  * can only control point actions such as focusing or capturing a picture.
@@ -26,10 +26,10 @@ public enum GestureAction {
     /**
      * Touch metering control, typically assigned to the tap gesture.
      * This action can be mapped to one shot gestures:
-     *
+     * <p>
      * - {@link Gesture#TAP}
      * - {@link Gesture#LONG_TAP}
-     *
+     * <p>
      * To control marker drawing, please see {@link CameraView#setAutoFocusMarker(AutoFocusMarker)}
      */
     AUTO_FOCUS(1, GestureType.ONE_SHOT),
@@ -37,7 +37,7 @@ public enum GestureAction {
     /**
      * When triggered, this action will fire a picture shoot.
      * This action can be mapped to one shot gestures:
-     *
+     * <p>
      * - {@link Gesture#TAP}
      * - {@link Gesture#LONG_TAP}
      */
@@ -46,7 +46,7 @@ public enum GestureAction {
     /**
      * Zoom control, typically assigned to the pinch gesture.
      * This action can be mapped to continuous gestures:
-     *
+     * <p>
      * - {@link Gesture#PINCH}
      * - {@link Gesture#SCROLL_HORIZONTAL}
      * - {@link Gesture#SCROLL_VERTICAL}
@@ -56,7 +56,7 @@ public enum GestureAction {
     /**
      * Exposure correction control.
      * This action can be mapped to continuous gestures:
-     *
+     * <p>
      * - {@link Gesture#PINCH}
      * - {@link Gesture#SCROLL_HORIZONTAL}
      * - {@link Gesture#SCROLL_VERTICAL}
@@ -66,7 +66,7 @@ public enum GestureAction {
     /**
      * Controls the first parameter of a real-time {@link Filter},
      * if it accepts one. This action can be mapped to continuous gestures:
-     *
+     * <p>
      * - {@link Gesture#PINCH}
      * - {@link Gesture#SCROLL_HORIZONTAL}
      * - {@link Gesture#SCROLL_VERTICAL}
@@ -76,7 +76,7 @@ public enum GestureAction {
     /**
      * Controls the second parameter of a real-time {@link Filter},
      * if it accepts one. This action can be mapped to continuous gestures:
-     *
+     * <p>
      * - {@link Gesture#PINCH}
      * - {@link Gesture#SCROLL_HORIZONTAL}
      * - {@link Gesture#SCROLL_VERTICAL}
@@ -97,15 +97,6 @@ public enum GestureAction {
         this.type = type;
     }
 
-    int value() {
-        return value;
-    }
-
-    @NonNull
-    GestureType type() {
-        return type;
-    }
-
     @Nullable
     static GestureAction fromValue(int value) {
         GestureAction[] list = GestureAction.values();
@@ -115,5 +106,14 @@ public enum GestureAction {
             }
         }
         return null;
+    }
+
+    int value() {
+        return value;
+    }
+
+    @NonNull
+    GestureType type() {
+        return type;
     }
 }

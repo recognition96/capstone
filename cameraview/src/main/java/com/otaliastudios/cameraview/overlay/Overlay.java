@@ -9,10 +9,6 @@ import androidx.annotation.NonNull;
  */
 public interface Overlay {
 
-    enum Target {
-        PREVIEW, PICTURE_SNAPSHOT
-    }
-
     /**
      * Called for this overlay to draw itself on the specified target and canvas.
      *
@@ -30,4 +26,8 @@ public interface Overlay {
      * @return true to draw on it
      */
     boolean drawsOn(@NonNull Target target);
+
+    enum Target {
+        PREVIEW, PICTURE_SNAPSHOT
+    }
 }

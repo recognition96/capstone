@@ -1,11 +1,10 @@
 package com.otaliastudios.cameraview.controls;
 
 
+import androidx.annotation.NonNull;
+
 import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.CameraView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * White balance values control the white balance settings.
@@ -62,10 +61,6 @@ public enum WhiteBalance implements Control {
         this.value = value;
     }
 
-    int value() {
-        return value;
-    }
-
     @NonNull
     static WhiteBalance fromValue(int value) {
         WhiteBalance[] list = WhiteBalance.values();
@@ -75,5 +70,9 @@ public enum WhiteBalance implements Control {
             }
         }
         return DEFAULT;
+    }
+
+    int value() {
+        return value;
     }
 }

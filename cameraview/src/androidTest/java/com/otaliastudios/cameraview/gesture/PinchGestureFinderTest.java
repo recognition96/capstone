@@ -47,9 +47,6 @@ public class PinchGestureFinderTest extends GestureFinderTest<PinchGestureFinder
     // Too lazy to do this now, but it's possible.
     // https://stackoverflow.com/questions/11523423/how-to-generate-zoom-pinch-gesture-for-testing-for-android
 
-    public abstract class PinchViewAction implements ViewAction {
-    }
-
     private void testPinch(ViewAction action, boolean increasing) {
         touchOp.listen();
         touchOp.controller().start();
@@ -67,5 +64,8 @@ public class PinchGestureFinderTest extends GestureFinderTest<PinchGestureFinder
             assertTrue(newValue < curr);
             assertTrue(newValue >= min);
         }
+    }
+
+    public abstract class PinchViewAction implements ViewAction {
     }
 }

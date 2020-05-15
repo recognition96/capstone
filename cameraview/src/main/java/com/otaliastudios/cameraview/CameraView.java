@@ -185,8 +185,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         long autoFocusResetDelay = (long) a.getInteger(
                 R.styleable.CameraView_cameraAutoFocusResetDelay,
                 (int) DEFAULT_AUTOFOCUS_RESET_DELAY_MILLIS);
-        boolean pictureMetering = a.getBoolean(R.styleable.CameraView_cameraPictureMetering,
-                DEFAULT_PICTURE_METERING);
         boolean pictureSnapshotMetering = a.getBoolean(
                 R.styleable.CameraView_cameraPictureSnapshotMetering,
                 DEFAULT_PICTURE_SNAPSHOT_METERING);
@@ -613,10 +611,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         //noinspection ConstantConditions
         switch (action) {
 
-//            case TAKE_PICTURE:
-//                takePicture();
-//                break;
-
             case AUTO_FOCUS:
                 Size size = new Size(getWidth(), getHeight());
                 MeteringRegions regions = MeteringRegions.fromPoint(size, points[0]);
@@ -753,7 +747,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Shorthand for the appropriate set* method.
-     * For example, if control is a {@link Grid}, this calls {@link #setGrid(Grid)}.
+     * For example, if control is a {@link Mode}, this calls {@link #setMode(Mode)}.
      *
      * @param control desired value
      */
@@ -779,7 +773,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     /**
      * Shorthand for the appropriate get* method.
-     * For example, if control class is a {@link Grid}, this calls {@link #getGrid()}.
+     * For example, if control class is a {@link Mode}, this calls {@link #getMode()}.
      *
      * @param controlClass desired value class
      * @param <T>          the class type
@@ -848,7 +842,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * Otherwise, it has no effect.
      *
      * @param engine desired engine
-     * @see Engine#CAMERA1
      * @see Engine#CAMERA2
      */
     public void setEngine(@NonNull Engine engine) {
@@ -868,7 +861,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         setPictureSize(oldEngine.getPictureSizeSelector());
         setPictureFormat(oldEngine.getPictureFormat());
         setAutoFocusResetDelay(oldEngine.getAutoFocusResetDelay());
-        setPreviewFrameRateExact(oldEngine.getPreviewFrameRateExact());
         setSnapshotMaxWidth(oldEngine.getSnapshotMaxWidth());
         setSnapshotMaxHeight(oldEngine.getSnapshotMaxHeight());
         setFrameProcessingMaxWidth(oldEngine.getFrameProcessingMaxWidth());
@@ -1227,9 +1219,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         mCameraEngine.setPictureSizeSelector(selector);
     }
 
-    public boolean getPictureMetering() {
-        return mCameraEngine.getPictureMetering();
-    }
+
 
     /**
      * Whether the engine should perform a metering sequence before taking pictures requested
@@ -1242,7 +1232,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * This is a CAMERA2 only API. On CAMERA1, picture snapshot metering is always disabled.
      *
      * @param enable true to enable
-     * @see #setPictureMetering(boolean)
      */
     public void setPictureSnapshotMetering(boolean enable) {
         mCameraEngine.setPictureSnapshotMetering(enable);
@@ -1260,7 +1249,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     }
 
     /**
-     * Sets the format for pictures taken with {@link #takePicture()}. This format does not apply
+     * Sets the format for pictures taken with {@link takePicture()}. This format does not apply
      * to picture snapshots taken with {@link #takePictureSnapshot()}.
      * The {@link PictureFormat#JPEG} is always supported - for other values, please check
      * the {@link CameraOptions#getSupportedPictureFormats()} value.
@@ -1281,39 +1270,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     public PictureFormat getPictureFormat() {
         return mCameraEngine.getPictureFormat();
     }
-
-
-    /**
-     * A flag to control the behavior when calling {@link #setPreviewFrameRate(float)}.
-     * <p>
-     * If the value is set to true, {@link #setPreviewFrameRate(float)} will choose the preview
-     * frame range as close to the desired new frame rate as possible. Which mean it may choose a
-     * narrow range around the desired frame rate. Note: This option will give you as exact fps as
-     * you want but the sensor will have less freedom when adapting the exposure to the environment,
-     * which may lead to dark preview.
-     * <p>
-     * If the value is set to false, {@link #setPreviewFrameRate(float)} will choose as broad range
-     * as it can.
-     *
-     * @param videoFrameRateExact whether want a more exact preview frame range
-     * @see #setPreviewFrameRate(float)
-     */
-    public void setPreviewFrameRateExact(boolean videoFrameRateExact) {
-        mCameraEngine.setPreviewFrameRateExact(videoFrameRateExact);
-    }
-
-    /**
-     * Returns whether we want to set preview fps as exact as we set through
-     * {@link #setPreviewFrameRate(float)}.
-     *
-     * @return current option
-     * @see #setPreviewFrameRateExact(boolean)
-     * @see #setPreviewFrameRate(float)
-     */
-    public boolean getPreviewFrameRateExact() {
-        return mCameraEngine.getPreviewFrameRateExact();
-    }
-
 
 
     /**
@@ -1354,7 +1310,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * The difference with {@link #takePicture()} is that this capture is faster, so it might be
      * better on slower cameras, though the result can be generally blurry or low quality.
      *
-     * @see #takePicture()
      */
     public void takePictureSnapshot() {
         PictureResult.Stub stub = new PictureResult.Stub();

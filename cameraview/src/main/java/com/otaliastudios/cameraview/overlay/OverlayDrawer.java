@@ -21,30 +21,30 @@ import java.nio.Buffer;
 
 /**
  * Draws overlays through {@link Overlay}.
- *
+ * <p>
  * - Provides a {@link Canvas} to be passed to the Overlay
  * - Lets the overlay draw there: {@link #draw(Overlay.Target)}
  * - Renders this into the current EGL window: {@link #render(long)}
  * - Applies the {@link Issue514Workaround} the correct way
- *
+ * <p>
  * In the future we might want to use a different approach than {@link GlTextureDrawer},
  * {@link SurfaceTexture} and {@link GLES11Ext#GL_TEXTURE_EXTERNAL_OES},
  * for example by using a regular {@link GLES20#GL_TEXTURE_2D} that might
  * be filled through {@link GLES20#glTexImage2D(int, int, int, int, int, int, int, int, Buffer)}.
- *
+ * <p>
  * The current approach has some issues, for example see {@link Issue514Workaround}.
  */
 public class OverlayDrawer {
 
     private static final String TAG = OverlayDrawer.class.getSimpleName();
     private static final CameraLogger LOG = CameraLogger.create(TAG);
-
+    private final Object mIssue514WorkaroundLock = new Object();
+    @VisibleForTesting
+    GlTextureDrawer mTextureDrawer;
     private Overlay mOverlay;
     private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
-    @VisibleForTesting GlTextureDrawer mTextureDrawer;
     private Issue514Workaround mIssue514Workaround;
-    private final Object mIssue514WorkaroundLock = new Object();
 
     public OverlayDrawer(@NonNull Overlay overlay, @NonNull Size size) {
         mOverlay = overlay;
@@ -59,6 +59,7 @@ public class OverlayDrawer {
      * Should be called to draw the {@link Overlay} on the given {@link Overlay.Target}.
      * This will provide a working {@link Canvas} to the overlay and also update the
      * drawn contents to a GLES texture.
+     *
      * @param target the target
      */
     public void draw(@NonNull Overlay.Target target) {
@@ -80,6 +81,7 @@ public class OverlayDrawer {
     /**
      * Returns the transform that should be used to render the drawn content.
      * This should be called after {@link #draw(Overlay.Target)} and can be modified.
+     *
      * @return the transform matrix
      */
     public float[] getTransform() {

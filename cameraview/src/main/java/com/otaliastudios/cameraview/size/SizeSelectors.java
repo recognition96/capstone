@@ -12,14 +12,6 @@ import java.util.List;
 public class SizeSelectors {
 
     /**
-     * A size constraint to easily filter out
-     * sizes in a list.
-     */
-    public interface Filter {
-        boolean accepts(@NonNull Size size);
-    }
-
-    /**
      * Returns a new {@link SizeSelector} with the given {@link Filter}.
      * This kind of selector will respect the order in the source array.
      *
@@ -202,7 +194,7 @@ public class SizeSelectors {
      * Joins all the given selectors to create a new one that returns
      * the intersection of all the inputs. Basically, all constraints are
      * respected.
-     *
+     * <p>
      * Keep in mind there is good chance that the final list will be empty.
      *
      * @param selectors input selectors
@@ -224,6 +216,14 @@ public class SizeSelectors {
     @NonNull
     public static SizeSelector or(SizeSelector... selectors) {
         return new OrSelector(selectors);
+    }
+
+    /**
+     * A size constraint to easily filter out
+     * sizes in a list.
+     */
+    public interface Filter {
+        boolean accepts(@NonNull Size size);
     }
 
 

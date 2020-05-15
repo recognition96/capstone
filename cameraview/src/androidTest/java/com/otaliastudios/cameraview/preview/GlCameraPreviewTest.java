@@ -2,10 +2,10 @@ package com.otaliastudios.cameraview.preview;
 
 
 import android.content.Context;
+import android.view.ViewGroup;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import android.view.ViewGroup;
 
 import com.otaliastudios.cameraview.filter.Filter;
 import com.otaliastudios.cameraview.filter.Filters;

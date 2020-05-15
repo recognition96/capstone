@@ -1,10 +1,9 @@
 package com.otaliastudios.cameraview.controls;
 
 
-import com.otaliastudios.cameraview.CameraView;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
+import com.otaliastudios.cameraview.CameraView;
 
 /**
  * Hdr values indicate whether to use high dynamic range techniques when capturing pictures.
@@ -31,10 +30,6 @@ public enum Hdr implements Control {
         this.value = value;
     }
 
-    int value() {
-        return value;
-    }
-
     @NonNull
     static Hdr fromValue(int value) {
         Hdr[] list = Hdr.values();
@@ -44,5 +39,9 @@ public enum Hdr implements Control {
             }
         }
         return DEFAULT;
+    }
+
+    int value() {
+        return value;
     }
 }

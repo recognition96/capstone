@@ -12,12 +12,12 @@ import com.otaliastudios.opengl.program.GlTextureProgram;
 /**
  * A base implementation of {@link Filter} that just leaves the fragment shader to subclasses.
  * See {@link NoFilter} for a non-abstract implementation.
- *
+ * <p>
  * This class offers a default vertex shader implementation which in most cases is not required
  * to be changed. Most effects can be rendered by simply changing the fragment shader, thus
  * by overriding {@link #getFragmentShader()}.
- *
- *
+ * <p>
+ * <p>
  * NOTE - This class expects variable to have a certain name:
  * - {@link #vertexPositionName}
  * - {@link #vertexTransformMatrixName}
@@ -26,68 +26,26 @@ import com.otaliastudios.opengl.program.GlTextureProgram;
  * - {@link #fragmentTextureCoordinateName}
  * You can either change these variables, for example in your constructor, or change your
  * vertex and fragment shader code to use them.
- *
+ * <p>
  * NOTE - the {@link android.graphics.SurfaceTexture} restrictions apply:
  * We only support the {@link android.opengl.GLES11Ext#GL_TEXTURE_EXTERNAL_OES} texture target
  * and it must be specified in the fragment shader as a samplerExternalOES texture.
  * You also have to explicitly require the extension: see
  * {@link #createDefaultFragmentShader(String)}.
- *
  */
 public abstract class BaseFilter implements Filter {
 
-    private final static String TAG = BaseFilter.class.getSimpleName();
-    private final static CameraLogger LOG = CameraLogger.create(TAG);
-
     @SuppressWarnings("WeakerAccess")
     protected final static String DEFAULT_VERTEX_POSITION_NAME = "aPosition";
-
     @SuppressWarnings("WeakerAccess")
     protected final static String DEFAULT_VERTEX_TEXTURE_COORDINATE_NAME = "aTextureCoord";
-
     @SuppressWarnings("WeakerAccess")
     protected final static String DEFAULT_VERTEX_MVP_MATRIX_NAME = "uMVPMatrix";
-
     @SuppressWarnings("WeakerAccess")
     protected final static String DEFAULT_VERTEX_TRANSFORM_MATRIX_NAME = "uTexMatrix";
     protected final static String DEFAULT_FRAGMENT_TEXTURE_COORDINATE_NAME = "vTextureCoord";
-
-    @NonNull
-    private static String createDefaultVertexShader(
-            @NonNull String vertexPositionName,
-            @NonNull String vertexTextureCoordinateName,
-            @NonNull String vertexModelViewProjectionMatrixName,
-            @NonNull String vertexTransformMatrixName,
-            @NonNull String fragmentTextureCoordinateName) {
-        return "uniform mat4 "+vertexModelViewProjectionMatrixName+";\n"
-                + "uniform mat4 "+vertexTransformMatrixName+";\n"
-                + "attribute vec4 "+vertexPositionName+";\n"
-                + "attribute vec4 "+vertexTextureCoordinateName+";\n"
-                + "varying vec2 "+fragmentTextureCoordinateName+";\n"
-                + "void main() {\n"
-                + "    gl_Position = " +vertexModelViewProjectionMatrixName+" * "
-                + vertexPositionName+";\n"
-                + "    "+fragmentTextureCoordinateName+" = ("+vertexTransformMatrixName+" * "
-                + vertexTextureCoordinateName+").xy;\n"
-                + "}\n";
-    }
-
-    @NonNull
-    private static String createDefaultFragmentShader(
-            @NonNull String fragmentTextureCoordinateName) {
-        return "#extension GL_OES_EGL_image_external : require\n"
-                + "precision mediump float;\n"
-                + "varying vec2 "+fragmentTextureCoordinateName+";\n"
-                + "uniform samplerExternalOES sTexture;\n"
-                + "void main() {\n"
-                + "  gl_FragColor = texture2D(sTexture, "+fragmentTextureCoordinateName+");\n"
-                + "}\n";
-    }
-
-    @VisibleForTesting GlTextureProgram program = null;
-    private GlDrawable programDrawable = null;
-    @VisibleForTesting Size size;
-
+    private final static String TAG = BaseFilter.class.getSimpleName();
+    private final static CameraLogger LOG = CameraLogger.create(TAG);
     @SuppressWarnings("WeakerAccess")
     protected String vertexPositionName = DEFAULT_VERTEX_POSITION_NAME;
     @SuppressWarnings("WeakerAccess")
@@ -98,6 +56,43 @@ public abstract class BaseFilter implements Filter {
     protected String vertexTransformMatrixName = DEFAULT_VERTEX_TRANSFORM_MATRIX_NAME;
     @SuppressWarnings({"unused", "WeakerAccess"})
     protected String fragmentTextureCoordinateName = DEFAULT_FRAGMENT_TEXTURE_COORDINATE_NAME;
+    @VisibleForTesting
+    GlTextureProgram program = null;
+    @VisibleForTesting
+    Size size;
+    private GlDrawable programDrawable = null;
+
+    @NonNull
+    private static String createDefaultVertexShader(
+            @NonNull String vertexPositionName,
+            @NonNull String vertexTextureCoordinateName,
+            @NonNull String vertexModelViewProjectionMatrixName,
+            @NonNull String vertexTransformMatrixName,
+            @NonNull String fragmentTextureCoordinateName) {
+        return "uniform mat4 " + vertexModelViewProjectionMatrixName + ";\n"
+                + "uniform mat4 " + vertexTransformMatrixName + ";\n"
+                + "attribute vec4 " + vertexPositionName + ";\n"
+                + "attribute vec4 " + vertexTextureCoordinateName + ";\n"
+                + "varying vec2 " + fragmentTextureCoordinateName + ";\n"
+                + "void main() {\n"
+                + "    gl_Position = " + vertexModelViewProjectionMatrixName + " * "
+                + vertexPositionName + ";\n"
+                + "    " + fragmentTextureCoordinateName + " = (" + vertexTransformMatrixName + " * "
+                + vertexTextureCoordinateName + ").xy;\n"
+                + "}\n";
+    }
+
+    @NonNull
+    private static String createDefaultFragmentShader(
+            @NonNull String fragmentTextureCoordinateName) {
+        return "#extension GL_OES_EGL_image_external : require\n"
+                + "precision mediump float;\n"
+                + "varying vec2 " + fragmentTextureCoordinateName + ";\n"
+                + "uniform samplerExternalOES sTexture;\n"
+                + "void main() {\n"
+                + "  gl_FragColor = texture2D(sTexture, " + fragmentTextureCoordinateName + ");\n"
+                + "}\n";
+    }
 
     @SuppressWarnings("WeakerAccess")
     @NonNull

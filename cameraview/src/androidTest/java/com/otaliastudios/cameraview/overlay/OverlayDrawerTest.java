@@ -15,9 +15,7 @@ import org.hamcrest.Description;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -46,7 +44,9 @@ public class OverlayDrawerTest extends BaseEglTest {
         OverlayDrawer drawer = new OverlayDrawer(mock(Overlay.class), new Size(WIDTH, HEIGHT));
         drawer.draw(Overlay.Target.PICTURE_SNAPSHOT);
         assertThat(drawer.getTransform(), new BaseMatcher<float[]>() {
-            public void describeTo(Description description) { }
+            public void describeTo(Description description) {
+            }
+
             public boolean matches(Object item) {
                 float[] array = (float[]) item;
                 for (float value : array) {

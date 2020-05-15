@@ -12,20 +12,19 @@
 
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="false"/>
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.camera.autofocus"
-        android:required="false"/>
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.camera.front"
-        android:required="false"/>
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.microphone"
-        android:required="false"/>
+        android:required="false" />
 
     <uses-sdk tools:overrideLibrary="com.otaliastudios.opengl" />
 
-    <application
-        android:usesCleartextTraffic="true" />
+    <application android:usesCleartextTraffic="true" />
 
 </manifest>

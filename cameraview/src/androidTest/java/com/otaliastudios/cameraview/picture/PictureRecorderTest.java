@@ -1,11 +1,11 @@
 package com.otaliastudios.cameraview.picture;
 
 
-import com.otaliastudios.cameraview.BaseTest;
-import com.otaliastudios.cameraview.PictureResult;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+
+import com.otaliastudios.cameraview.BaseTest;
+import com.otaliastudios.cameraview.PictureResult;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

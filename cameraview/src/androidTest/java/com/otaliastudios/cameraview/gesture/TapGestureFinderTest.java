@@ -1,6 +1,9 @@
 package com.otaliastudios.cameraview.gesture;
 
 
+import android.view.InputDevice;
+import android.view.MotionEvent;
+
 import androidx.annotation.NonNull;
 import androidx.test.espresso.action.GeneralClickAction;
 import androidx.test.espresso.action.GeneralLocation;
@@ -8,17 +11,16 @@ import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Tap;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import android.view.InputDevice;
-import android.view.MotionEvent;
 
-import com.otaliastudios.cameraview.tools.SdkExclude;
 import com.otaliastudios.cameraview.size.Size;
+import com.otaliastudios.cameraview.tools.SdkExclude;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static androidx.test.espresso.action.ViewActions.*;
-import static org.junit.Assert.*;
+import static androidx.test.espresso.action.ViewActions.click;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * On API 26 these tests fail during Espresso's inRoot() - the window never gains focus.

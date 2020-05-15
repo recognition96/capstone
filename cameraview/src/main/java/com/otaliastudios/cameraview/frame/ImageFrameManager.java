@@ -17,7 +17,8 @@ public class ImageFrameManager extends FrameManager<Image> {
     protected void onFrameDataReleased(@NonNull Image data, boolean recycled) {
         try {
             data.close();
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
     }
 
     @NonNull

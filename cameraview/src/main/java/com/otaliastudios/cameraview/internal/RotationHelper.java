@@ -1,8 +1,8 @@
 package com.otaliastudios.cameraview.internal;
 
-import com.otaliastudios.cameraview.size.Size;
-
 import androidx.annotation.NonNull;
+
+import com.otaliastudios.cameraview.size.Size;
 
 /**
  * This will only be used on low APIs or when GL surface is not available.
@@ -14,8 +14,9 @@ public class RotationHelper {
 
     /**
      * Rotates the given yuv image into another yuv array, by the given angle.
-     * @param yuv image
-     * @param size image size
+     *
+     * @param yuv      image
+     * @param size     image size
      * @param rotation desired angle
      * @return a new yuv array
      */

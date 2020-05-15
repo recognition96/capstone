@@ -11,11 +11,20 @@ import java.util.HashMap;
  */
 public class AspectRatio implements Comparable<AspectRatio> {
 
-    @VisibleForTesting final static HashMap<String, AspectRatio> sCache
+    @VisibleForTesting
+    final static HashMap<String, AspectRatio> sCache
             = new HashMap<>(16);
+    private final int mX;
+    private final int mY;
+
+    private AspectRatio(int x, int y) {
+        mX = x;
+        mY = y;
+    }
 
     /**
      * Creates an aspect ratio for the given size.
+     *
      * @param size the size
      * @return a (possibly cached) aspect ratio
      */
@@ -26,6 +35,7 @@ public class AspectRatio implements Comparable<AspectRatio> {
 
     /**
      * Creates an aspect ratio with the given values.
+     *
      * @param x the width
      * @param y the height
      * @return a (possibly cached) aspect ratio
@@ -63,12 +73,13 @@ public class AspectRatio implements Comparable<AspectRatio> {
         return of(x, y);
     }
 
-    private final int mX;
-    private final int mY;
-
-    private AspectRatio(int x, int y) {
-        mX = x;
-        mY = y;
+    private static int gcd(int a, int b) {
+        while (b != 0) {
+            int c = b;
+            b = a % b;
+            a = c;
+        }
+        return a;
     }
 
     public int getX() {
@@ -132,20 +143,12 @@ public class AspectRatio implements Comparable<AspectRatio> {
 
     /**
      * Returns a flipped aspect ratio, which means inverting its dimensions.
+     *
      * @return a flipped aspect ratio
      */
     @SuppressWarnings("SuspiciousNameCombination")
     @NonNull
     public AspectRatio flip() {
         return AspectRatio.of(mY, mX);
-    }
-
-    private static int gcd(int a, int b) {
-        while (b != 0) {
-            int c = b;
-            b = a % b;
-            a = c;
-        }
-        return a;
     }
 }

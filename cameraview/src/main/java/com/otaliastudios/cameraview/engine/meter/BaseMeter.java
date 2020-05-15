@@ -51,12 +51,12 @@ public abstract class BaseMeter extends BaseAction {
     protected abstract boolean checkIsSupported(@NonNull ActionHolder holder);
 
     @SuppressWarnings("WeakerAccess")
-    protected void setSuccessful(boolean successful) {
-        isSuccessful = successful;
+    public boolean isSuccessful() {
+        return isSuccessful;
     }
 
     @SuppressWarnings("WeakerAccess")
-    public boolean isSuccessful() {
-        return isSuccessful;
+    protected void setSuccessful(boolean successful) {
+        isSuccessful = successful;
     }
 }

@@ -79,35 +79,64 @@ public class Camera2Engine extends CameraBaseEngine implements
         ImageReader.OnImageAvailableListener,
         ActionHolder {
 
+    @VisibleForTesting
+    static final long METER_TIMEOUT = 5000;
     private static final int FRAME_PROCESSING_FORMAT = ImageFormat.YUV_420_888;
-    @VisibleForTesting static final long METER_TIMEOUT = 5000;
     private static final long METER_TIMEOUT_SHORT = 2500;
 
     private final CameraManager mManager;
+    private final Camera2Mapper mMapper = Camera2Mapper.get();
+    private final boolean mPictureCaptureStopsPreview = false; // can be configurable at some point
+    // Actions
+    // Use COW to properly synchronize the list. We'll iterate much more than mutate
+    private final List<Action> mActions = new CopyOnWriteArrayList<>();
     private String mCameraId;
     private CameraDevice mCamera;
     private CameraCharacteristics mCameraCharacteristics;
     private CameraCaptureSession mSession;
     private CaptureRequest.Builder mRepeatingRequestBuilder;
     private TotalCaptureResult mLastRepeatingResult;
-    private final Camera2Mapper mMapper = Camera2Mapper.get();
+    private final CameraCaptureSession.CaptureCallback mRepeatingRequestCallback
+            = new CameraCaptureSession.CaptureCallback() {
+        @Override
+        public void onCaptureStarted(@NonNull CameraCaptureSession session,
+                                     @NonNull CaptureRequest request,
+                                     long timestamp,
+                                     long frameNumber) {
+            for (Action action : mActions) {
+                action.onCaptureStarted(Camera2Engine.this, request);
+            }
+        }
 
+        @Override
+        public void onCaptureProgressed(@NonNull CameraCaptureSession session,
+                                        @NonNull CaptureRequest request,
+                                        @NonNull CaptureResult partialResult) {
+            for (Action action : mActions) {
+                action.onCaptureProgressed(Camera2Engine.this, request, partialResult);
+            }
+        }
+
+        @Override
+        public void onCaptureCompleted(@NonNull CameraCaptureSession session,
+                                       @NonNull CaptureRequest request,
+                                       @NonNull TotalCaptureResult result) {
+            mLastRepeatingResult = result;
+            for (Action action : mActions) {
+                action.onCaptureCompleted(Camera2Engine.this, request, result);
+            }
+        }
+    };
     // Frame processing
     private ImageReader mFrameProcessingReader; // need this or the reader surface is collected
     private Surface mFrameProcessingSurface;
-
     // Preview
     private Surface mPreviewStreamSurface;
-
-
     // Picture capturing
     private ImageReader mPictureReader;
-    private final boolean mPictureCaptureStopsPreview = false; // can be configurable at some point
-
-    // Actions
-    // Use COW to properly synchronize the list. We'll iterate much more than mutate
-    private final List<Action> mActions = new CopyOnWriteArrayList<>();
     private MeterAction mMeterAction;
+
+    //region Utilities
 
     public Camera2Engine(Callback callback) {
         super(callback);
@@ -115,8 +144,6 @@ public class Camera2Engine extends CameraBaseEngine implements
                 .getSystemService(Context.CAMERA_SERVICE);
         new LogAction().start(this);
     }
-
-    //region Utilities
 
     @VisibleForTesting
     @NonNull
@@ -127,8 +154,8 @@ public class Camera2Engine extends CameraBaseEngine implements
 
     @NonNull
     private <T> T readCharacteristic(@NonNull CameraCharacteristics characteristics,
-                             @NonNull CameraCharacteristics.Key<T> key,
-                             @NonNull T fallback) {
+                                     @NonNull CameraCharacteristics.Key<T> key,
+                                     @NonNull T fallback) {
         T value = characteristics.get(key);
         return value == null ? fallback : value;
     }
@@ -224,7 +251,7 @@ public class Camera2Engine extends CameraBaseEngine implements
     /**
      * Applies the repeating request builder to the preview, assuming we actually have a preview
      * running. Can be called after changing parameters to the builder.
-     *
+     * <p>
      * To apply a new builder (for example switch between TEMPLATE_PREVIEW and TEMPLATE_RECORD)
      * it should be set before calling this method, for example by calling
      * {@link #createRepeatingRequestBuilder(int)}.
@@ -256,38 +283,6 @@ public class Camera2Engine extends CameraBaseEngine implements
             }
         }
     }
-
-    private final CameraCaptureSession.CaptureCallback mRepeatingRequestCallback
-            = new CameraCaptureSession.CaptureCallback() {
-        @Override
-        public void onCaptureStarted(@NonNull CameraCaptureSession session,
-                                     @NonNull CaptureRequest request,
-                                     long timestamp,
-                                     long frameNumber) {
-            for (Action action : mActions) {
-                action.onCaptureStarted(Camera2Engine.this, request);
-            }
-        }
-
-        @Override
-        public void onCaptureProgressed(@NonNull CameraCaptureSession session,
-                                        @NonNull CaptureRequest request,
-                                        @NonNull CaptureResult partialResult) {
-            for (Action action : mActions) {
-                action.onCaptureProgressed(Camera2Engine.this, request, partialResult);
-            }
-        }
-
-        @Override
-        public void onCaptureCompleted(@NonNull CameraCaptureSession session,
-                                       @NonNull CaptureRequest request,
-                                       @NonNull TotalCaptureResult result) {
-            mLastRepeatingResult = result;
-            for (Action action : mActions) {
-                action.onCaptureCompleted(Camera2Engine.this, request, result);
-            }
-        }
-    };
 
     //endregion
 
@@ -406,10 +401,15 @@ public class Camera2Engine extends CameraBaseEngine implements
                         boolean flip = getAngles().flip(Reference.SENSOR, Reference.VIEW);
                         int format;
                         switch (mPictureFormat) {
-                            case JPEG: format = ImageFormat.JPEG; break;
-                            case DNG: format = ImageFormat.RAW_SENSOR; break;
-                            default: throw new IllegalArgumentException("Unknown format:"
-                                    + mPictureFormat);
+                            case JPEG:
+                                format = ImageFormat.JPEG;
+                                break;
+                            case DNG:
+                                format = ImageFormat.RAW_SENSOR;
+                                break;
+                            default:
+                                throw new IllegalArgumentException("Unknown format:"
+                                        + mPictureFormat);
                         }
                         mCameraOptions = new Camera2Options(mManager, mCameraId, flip, format);
                         createRepeatingRequestBuilder(CameraDevice.TEMPLATE_PREVIEW);
@@ -511,9 +511,14 @@ public class Camera2Engine extends CameraBaseEngine implements
         if (getMode() == Mode.PICTURE) {
             int format;
             switch (mPictureFormat) {
-                case JPEG: format = ImageFormat.JPEG; break;
-                case DNG: format = ImageFormat.RAW_SENSOR; break;
-                default: throw new IllegalArgumentException("Unknown format:" + mPictureFormat);
+                case JPEG:
+                    format = ImageFormat.JPEG;
+                    break;
+                case DNG:
+                    format = ImageFormat.RAW_SENSOR;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown format:" + mPictureFormat);
             }
             mPictureReader = ImageReader.newInstance(
                     mCaptureSize.getWidth(),
@@ -777,11 +782,11 @@ public class Camera2Engine extends CameraBaseEngine implements
             getOrchestrator().scheduleStateful("reset metering after picture",
                     CameraState.PREVIEW,
                     new Runnable() {
-                @Override
-                public void run() {
-                    unlockAndResetMetering();
-                }
-            });
+                        @Override
+                        public void run() {
+                            unlockAndResetMetering();
+                        }
+                    });
         }
     }
 
@@ -800,7 +805,6 @@ public class Camera2Engine extends CameraBaseEngine implements
         applyHdr(builder, Hdr.OFF);
         applyZoom(builder, 0F);
         applyExposureCorrection(builder, 0F);
-        applyPreviewFrameRate(builder, 0F);
 
         if (oldBuilder != null) {
             // We might be in a metering operation, or the old builder might have some special
@@ -823,7 +827,9 @@ public class Camera2Engine extends CameraBaseEngine implements
         int[] modesArray = readCharacteristic(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES,
                 new int[]{});
         List<Integer> modes = new ArrayList<>();
-        for (int mode : modesArray) { modes.add(mode); }
+        for (int mode : modesArray) {
+            modes.add(mode);
+        }
 
 
         if (modes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)) {
@@ -858,7 +864,9 @@ public class Camera2Engine extends CameraBaseEngine implements
         int[] modesArray = readCharacteristic(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES,
                 new int[]{});
         List<Integer> modes = new ArrayList<>();
-        for (int mode : modesArray) { modes.add(mode); }
+        for (int mode : modesArray) {
+            modes.add(mode);
+        }
         if (modes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO)) {
             builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
             return;
@@ -879,31 +887,31 @@ public class Camera2Engine extends CameraBaseEngine implements
         mFlashTask = getOrchestrator().scheduleStateful("flash (" + flash + ")",
                 CameraState.ENGINE,
                 new Runnable() {
-            @Override
-            public void run() {
-                boolean shouldApply = applyFlash(mRepeatingRequestBuilder, old);
-                boolean needsWorkaround = getState() == CameraState.PREVIEW;
-                if (needsWorkaround) {
-                    // Runtime changes to the flash value are not correctly handled by the
-                    // driver. See https://stackoverflow.com/q/53003383/4288782 for example.
-                    // For this reason, we go back to OFF, capture once, then go to the new one.
-                    mFlash = Flash.OFF;
-                    applyFlash(mRepeatingRequestBuilder, old);
-                    try {
-                        mSession.capture(mRepeatingRequestBuilder.build(), null,
-                                null);
-                    } catch (CameraAccessException e) {
-                        throw createCameraException(e);
-                    }
-                    mFlash = flash;
-                    applyFlash(mRepeatingRequestBuilder, old);
-                    applyRepeatingRequestBuilder();
+                    @Override
+                    public void run() {
+                        boolean shouldApply = applyFlash(mRepeatingRequestBuilder, old);
+                        boolean needsWorkaround = getState() == CameraState.PREVIEW;
+                        if (needsWorkaround) {
+                            // Runtime changes to the flash value are not correctly handled by the
+                            // driver. See https://stackoverflow.com/q/53003383/4288782 for example.
+                            // For this reason, we go back to OFF, capture once, then go to the new one.
+                            mFlash = Flash.OFF;
+                            applyFlash(mRepeatingRequestBuilder, old);
+                            try {
+                                mSession.capture(mRepeatingRequestBuilder.build(), null,
+                                        null);
+                            } catch (CameraAccessException e) {
+                                throw createCameraException(e);
+                            }
+                            mFlash = flash;
+                            applyFlash(mRepeatingRequestBuilder, old);
+                            applyRepeatingRequestBuilder();
 
-                } else if (shouldApply) {
-                    applyRepeatingRequestBuilder();
-                }
-            }
-        });
+                        } else if (shouldApply) {
+                            applyRepeatingRequestBuilder();
+                        }
+                    }
+                });
     }
 
     /**
@@ -911,14 +919,14 @@ public class Camera2Engine extends CameraBaseEngine implements
      * - {@link CaptureRequest#CONTROL_AE_MODE_ON}
      * - {@link CaptureRequest#CONTROL_AE_MODE_ON_AUTO_FLASH}
      * - {@link CaptureRequest#CONTROL_AE_MODE_ON_ALWAYS_FLASH}
-     *
+     * <p>
      * The API offers a high level control through {@link CaptureRequest#CONTROL_AE_MODE},
      * which is what the mapper looks at. It will trigger (if specified) flash only for
      * still captures which is exactly what we want.
-     *
+     * <p>
      * However, we set CONTROL_AE_MODE to ON/OFF (depending
      * on which is available) with both {@link Flash#OFF} and {@link Flash#TORCH}.
-     *
+     * <p>
      * When CONTROL_AE_MODE is ON or OFF, the low level control, called
      * {@link CaptureRequest#FLASH_MODE}, becomes effective, and that's where we can actually
      * distinguish between a turned off flash and a torch flash.
@@ -930,7 +938,9 @@ public class Camera2Engine extends CameraBaseEngine implements
             int[] availableAeModesArray = readCharacteristic(
                     CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES, new int[]{});
             List<Integer> availableAeModes = new ArrayList<>();
-            for (int mode : availableAeModesArray) { availableAeModes.add(mode); }
+            for (int mode : availableAeModesArray) {
+                availableAeModes.add(mode);
+            }
 
             List<Pair<Integer, Integer>> pairs = mMapper.mapFlash(mFlash);
             for (Pair<Integer, Integer> pair : pairs) {
@@ -954,13 +964,13 @@ public class Camera2Engine extends CameraBaseEngine implements
         mLocationTask = getOrchestrator().scheduleStateful("location",
                 CameraState.ENGINE,
                 new Runnable() {
-            @Override
-            public void run() {
-                if (applyLocation(mRepeatingRequestBuilder, old)) {
-                    applyRepeatingRequestBuilder();
-                }
-            }
-        });
+                    @Override
+                    public void run() {
+                        if (applyLocation(mRepeatingRequestBuilder, old)) {
+                            applyRepeatingRequestBuilder();
+                        }
+                    }
+                });
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -980,13 +990,13 @@ public class Camera2Engine extends CameraBaseEngine implements
                 "white balance (" + whiteBalance + ")",
                 CameraState.ENGINE,
                 new Runnable() {
-            @Override
-            public void run() {
-                if (applyWhiteBalance(mRepeatingRequestBuilder, old)) {
-                    applyRepeatingRequestBuilder();
-                }
-            }
-        });
+                    @Override
+                    public void run() {
+                        if (applyWhiteBalance(mRepeatingRequestBuilder, old)) {
+                            applyRepeatingRequestBuilder();
+                        }
+                    }
+                });
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -1008,13 +1018,13 @@ public class Camera2Engine extends CameraBaseEngine implements
         mHdrTask = getOrchestrator().scheduleStateful("hdr (" + hdr + ")",
                 CameraState.ENGINE,
                 new Runnable() {
-            @Override
-            public void run() {
-                if (applyHdr(mRepeatingRequestBuilder, old)) {
-                    applyRepeatingRequestBuilder();
-                }
-            }
-        });
+                    @Override
+                    public void run() {
+                        if (applyHdr(mRepeatingRequestBuilder, old)) {
+                            applyRepeatingRequestBuilder();
+                        }
+                    }
+                });
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -1036,16 +1046,16 @@ public class Camera2Engine extends CameraBaseEngine implements
                 "zoom (" + zoom + ")",
                 CameraState.ENGINE,
                 new Runnable() {
-            @Override
-            public void run() {
-                if (applyZoom(mRepeatingRequestBuilder, old)) {
-                    applyRepeatingRequestBuilder();
-                    if (notify) {
-                        getCallback().dispatchOnZoomChanged(zoom, points);
+                    @Override
+                    public void run() {
+                        if (applyZoom(mRepeatingRequestBuilder, old)) {
+                            applyRepeatingRequestBuilder();
+                            if (notify) {
+                                getCallback().dispatchOnZoomChanged(zoom, points);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -1092,16 +1102,16 @@ public class Camera2Engine extends CameraBaseEngine implements
                 "exposure correction (" + EVvalue + ")",
                 CameraState.ENGINE,
                 new Runnable() {
-            @Override
-            public void run() {
-                if (applyExposureCorrection(mRepeatingRequestBuilder, old)) {
-                    applyRepeatingRequestBuilder();
-                    if (notify) {
-                        getCallback().dispatchOnExposureCorrectionChanged(EVvalue, bounds, points);
+                    @Override
+                    public void run() {
+                        if (applyExposureCorrection(mRepeatingRequestBuilder, old)) {
+                            applyRepeatingRequestBuilder();
+                            if (notify) {
+                                getCallback().dispatchOnExposureCorrectionChanged(EVvalue, bounds, points);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -1120,40 +1130,6 @@ public class Camera2Engine extends CameraBaseEngine implements
         return false;
     }
 
-
-    @SuppressWarnings("WeakerAccess")
-    protected boolean applyPreviewFrameRate(@NonNull CaptureRequest.Builder builder,
-                                            float oldPreviewFrameRate) {
-        //noinspection unchecked
-        Range<Integer>[] fallback = new Range[]{};
-        Range<Integer>[] fpsRanges = readCharacteristic(
-                CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
-                fallback);
-        sortRanges(fpsRanges);
-        if (mPreviewFrameRate == 0F) {
-            // 0F is a special value. Fallback to a reasonable default.
-            for (Range<Integer> fpsRange : fpsRanges) {
-                if (fpsRange.contains(30) || fpsRange.contains(24)) {
-                    builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange);
-                    return true;
-                }
-            }
-        } else {
-            // If out of boundaries, adjust it.
-            mPreviewFrameRate = Math.min(mPreviewFrameRate,
-                    mCameraOptions.getPreviewFrameRateMaxValue());
-            mPreviewFrameRate = Math.max(mPreviewFrameRate,
-                    mCameraOptions.getPreviewFrameRateMinValue());
-            for (Range<Integer> fpsRange : fpsRanges) {
-                if (fpsRange.contains(Math.round(mPreviewFrameRate))) {
-                    builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange);
-                    return true;
-                }
-            }
-        }
-        mPreviewFrameRate = oldPreviewFrameRate;
-        return false;
-    }
 
     private void sortRanges(Range<Integer>[] fpsRanges) {
         if (getPreviewFrameRateExact() && mPreviewFrameRate != 0) { // sort by range width in ascending order
@@ -1182,11 +1158,11 @@ public class Camera2Engine extends CameraBaseEngine implements
             getOrchestrator().scheduleStateful("picture format (" + pictureFormat + ")",
                     CameraState.ENGINE,
                     new Runnable() {
-                @Override
-                public void run() {
-                    restart();
-                }
-            });
+                        @Override
+                        public void run() {
+                            restart();
+                        }
+                    });
         }
     }
 
@@ -1207,7 +1183,8 @@ public class Camera2Engine extends CameraBaseEngine implements
         Image image = null;
         try {
             image = reader.acquireLatestImage();
-        } catch (Exception ignore) { }
+        } catch (Exception ignore) {
+        }
         if (image == null) {
             LOG.w("onImageAvailable:", "failed to acquire Image!");
         } else if (getState() == CameraState.PREVIEW && !isChangingState()) {
@@ -1233,21 +1210,21 @@ public class Camera2Engine extends CameraBaseEngine implements
         // the preview. If the value is changed between the two, the preview step can crash.
         getOrchestrator().schedule("has frame processors (" + hasFrameProcessors + ")",
                 true, new Runnable() {
-            @Override
-            public void run() {
-                if (getState().isAtLeast(CameraState.BIND) && isChangingState()) {
-                    // Extremely rare case in which this was called in between startBind and
-                    // startPreview. This can cause issues. Try later.
-                    setHasFrameProcessors(hasFrameProcessors);
-                    return;
-                }
-                // Apply and restart.
-                mHasFrameProcessors = hasFrameProcessors;
-                if (getState().isAtLeast(CameraState.BIND)) {
-                    restartBind();
-                }
-            }
-        });
+                    @Override
+                    public void run() {
+                        if (getState().isAtLeast(CameraState.BIND) && isChangingState()) {
+                            // Extremely rare case in which this was called in between startBind and
+                            // startPreview. This can cause issues. Try later.
+                            setHasFrameProcessors(hasFrameProcessors);
+                            return;
+                        }
+                        // Apply and restart.
+                        mHasFrameProcessors = hasFrameProcessors;
+                        if (getState().isAtLeast(CameraState.BIND)) {
+                            restartBind();
+                        }
+                    }
+                });
     }
 
     @Override
@@ -1258,20 +1235,20 @@ public class Camera2Engine extends CameraBaseEngine implements
         // If the value is changed between the two, the preview step can crash.
         getOrchestrator().schedule("frame processing format (" + format + ")",
                 true, new Runnable() {
-            @Override
-            public void run() {
-                if (getState().isAtLeast(CameraState.BIND) && isChangingState()) {
-                    // Extremely rare case in which this was called in between startBind and
-                    // startPreview. This can cause issues. Try later.
-                    setFrameProcessingFormat(format);
-                    return;
-                }
-                mFrameProcessingFormat = format > 0 ? format : FRAME_PROCESSING_FORMAT;
-                if (getState().isAtLeast(CameraState.BIND)) {
-                    restartBind();
-                }
-            }
-        });
+                    @Override
+                    public void run() {
+                        if (getState().isAtLeast(CameraState.BIND) && isChangingState()) {
+                            // Extremely rare case in which this was called in between startBind and
+                            // startPreview. This can cause issues. Try later.
+                            setFrameProcessingFormat(format);
+                            return;
+                        }
+                        mFrameProcessingFormat = format > 0 ? format : FRAME_PROCESSING_FORMAT;
+                        if (getState().isAtLeast(CameraState.BIND)) {
+                            restartBind();
+                        }
+                    }
+                });
     }
 
     //endregion
@@ -1288,38 +1265,38 @@ public class Camera2Engine extends CameraBaseEngine implements
         getOrchestrator().scheduleStateful("autofocus (" + gesture + ")",
                 CameraState.PREVIEW,
                 new Runnable() {
-            @Override
-            public void run() {
-                // The camera options API still has the auto focus API but it really
-                // refers to "3A metering to a specific point". Since we have a point, check.
-                if (!mCameraOptions.isAutoFocusSupported()) return;
-
-                // Create the meter and start.
-                getCallback().dispatchOnFocusStart(gesture, legacyPoint);
-                final MeterAction action = createMeterAction(regions);
-                Action wrapper = Actions.timeout(METER_TIMEOUT, action);
-                wrapper.start(Camera2Engine.this);
-                wrapper.addCallback(new CompletionCallback() {
                     @Override
-                    protected void onActionCompleted(@NonNull Action a) {
-                        getCallback().dispatchOnFocusEnd(gesture,
-                                action.isSuccessful(), legacyPoint);
-                        getOrchestrator().remove("reset metering");
-                        if (shouldResetAutoFocus()) {
-                            getOrchestrator().scheduleStatefulDelayed("reset metering",
-                                    CameraState.PREVIEW,
-                                    getAutoFocusResetDelay(),
-                                    new Runnable() {
-                                @Override
-                                public void run() {
-                                    unlockAndResetMetering();
+                    public void run() {
+                        // The camera options API still has the auto focus API but it really
+                        // refers to "3A metering to a specific point". Since we have a point, check.
+                        if (!mCameraOptions.isAutoFocusSupported()) return;
+
+                        // Create the meter and start.
+                        getCallback().dispatchOnFocusStart(gesture, legacyPoint);
+                        final MeterAction action = createMeterAction(regions);
+                        Action wrapper = Actions.timeout(METER_TIMEOUT, action);
+                        wrapper.start(Camera2Engine.this);
+                        wrapper.addCallback(new CompletionCallback() {
+                            @Override
+                            protected void onActionCompleted(@NonNull Action a) {
+                                getCallback().dispatchOnFocusEnd(gesture,
+                                        action.isSuccessful(), legacyPoint);
+                                getOrchestrator().remove("reset metering");
+                                if (shouldResetAutoFocus()) {
+                                    getOrchestrator().scheduleStatefulDelayed("reset metering",
+                                            CameraState.PREVIEW,
+                                            getAutoFocusResetDelay(),
+                                            new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    unlockAndResetMetering();
+                                                }
+                                            });
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                 });
-            }
-        });
     }
 
     @NonNull

@@ -4,10 +4,10 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.otaliastudios.cameraview.CameraView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.otaliastudios.cameraview.CameraView;
 
 /**
  * A marker is an overlay over the {@link CameraView} preview, which should be drawn
@@ -22,7 +22,7 @@ public interface Marker {
      * to match the event place on screen, for example the point where autofocus was started
      * by the user finger.
      *
-     * @param context a context
+     * @param context   a context
      * @param container a container
      * @return a view or null
      */

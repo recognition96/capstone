@@ -8,11 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.otaliastudios.cameraview.R;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+
+import com.otaliastudios.cameraview.R;
 
 /**
  * A default implementation of {@link AutoFocusMarker}.
@@ -21,8 +21,22 @@ import androidx.annotation.VisibleForTesting;
  */
 public class DefaultAutoFocusMarker implements AutoFocusMarker {
 
-    @VisibleForTesting View mContainer;
-    @VisibleForTesting View mFill;
+    @VisibleForTesting
+    View mContainer;
+    @VisibleForTesting
+    View mFill;
+
+    private static void animate(@NonNull View view, float scale, float alpha, long duration,
+                                long delay, @Nullable Animator.AnimatorListener listener) {
+        view.animate()
+                .scaleX(scale)
+                .scaleY(scale)
+                .alpha(alpha)
+                .setDuration(duration)
+                .setStartDelay(delay)
+                .setListener(listener)
+                .start();
+    }
 
     @Nullable
     @Override
@@ -61,25 +75,13 @@ public class DefaultAutoFocusMarker implements AutoFocusMarker {
             animate(mFill, 0, 0, 500, 0, null);
             animate(mContainer, 1.36f, 1, 500, 0,
                     new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    animate(mContainer, 1.36f, 0, 200, 1000,
-                            null);
-                }
-            });
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            animate(mContainer, 1.36f, 0, 200, 1000,
+                                    null);
+                        }
+                    });
         }
-    }
-
-    private static void animate(@NonNull View view, float scale, float alpha, long duration,
-                                long delay, @Nullable Animator.AnimatorListener listener) {
-        view.animate()
-                .scaleX(scale)
-                .scaleY(scale)
-                .alpha(alpha)
-                .setDuration(duration)
-                .setStartDelay(delay)
-                .setListener(listener)
-                .start();
     }
 }

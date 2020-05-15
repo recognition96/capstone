@@ -63,18 +63,16 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
         final PictureResult result = picture;
         final ImageView imageView = findViewById(R.id.image);
         if (result == null && uri == null) {
-                finish();
-                return;
-        }
-        else if (result == null && uri != null){
-                imageView.setImageURI(uri);
+            finish();
+            return;
+        } else if (result == null && uri != null) {
+            imageView.setImageURI(uri);
             try {
                 mbitmap = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-        else if (result != null && uri == null) {
+        } else if (result != null && uri == null) {
             try {
                 result.toBitmap(1000, 1000, new BitmapCallback() {
                     @Override
@@ -100,8 +98,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
             } else {
                 Log.e("PicturePreview", "The picture full size is " + result.getSize().getWidth() + "x" + result.getSize().getHeight());
             }
-        }
-        else{
+        } else {
             Log.d("plz", "PictureResult == Null && UriFromGallery == Null");
         }
 
@@ -122,10 +119,18 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.send_button: sendToServer(); break;
-            case R.id.cancel_button: cancel(); break;
-            case R.id.send_button2: sendToServer(); break;
-            case R.id.cancel_button2: cancel(); break;
+            case R.id.send_button:
+                sendToServer();
+                break;
+            case R.id.cancel_button:
+                cancel();
+                break;
+            case R.id.send_button2:
+                sendToServer();
+                break;
+            case R.id.cancel_button2:
+                cancel();
+                break;
         }
     }
 
@@ -196,9 +201,10 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
         });
     }
 
-    public void sendToServer(){
+    public void sendToServer() {
         connectServer(mbitmap);
     }
+
     public void cancel() {
 //        setResult(Activity.RESULT_CANCELED);
         finish();

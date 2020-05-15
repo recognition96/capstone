@@ -1,8 +1,8 @@
 package com.otaliastudios.cameraview.filter;
 
-import com.otaliastudios.cameraview.CameraView;
-
 import androidx.annotation.NonNull;
+
+import com.otaliastudios.cameraview.CameraView;
 
 import java.io.File;
 
@@ -11,18 +11,18 @@ import java.io.File;
  * A Filter is a real time filter that operates onto the camera preview, plus any
  * snapshot media taken with {@link CameraView#takePictureSnapshot()} and
  * {@link CameraView#takeVideoSnapshot(File)}.
- *
+ * <p>
  * You can apply filters to the camera engine using {@link CameraView#setFilter(Filter)}.
  * The default filter is called {@link NoFilter} and can be used to restore the normal preview.
  * A lof of other filters are collected in the {@link Filters} class.
- *
+ * <p>
  * Advanced users can create custom filters using GLES.
  * It is recommended to extend {@link BaseFilter} instead of this class.
- *
+ * <p>
  * All {@link Filter}s should have a no-arguments public constructor.
  * This ensures that you can pass the filter class to XML attribute {@code app:cameraFilter},
  * and also helps {@link BaseFilter} automatically make a copy of the filter.
- *
+ * <p>
  * Parameterized filters can implement {@link OneParameterFilter} and {@link TwoParameterFilter}
  * to receive parameters in the 0F-1F range. This helps in making filter copies and also let us
  * map the filter parameter to gestures.
@@ -59,7 +59,6 @@ public interface Filter {
 
     /**
      * The filter program is about to be destroyed.
-     *
      */
     void onDestroy();
 
@@ -67,7 +66,7 @@ public interface Filter {
      * Called to render the actual texture. The given transformation matrix
      * should be applied.
      *
-     * @param timestampUs timestamp in microseconds
+     * @param timestampUs     timestamp in microseconds
      * @param transformMatrix matrix
      */
     void draw(long timestampUs, @NonNull float[] transformMatrix);
@@ -75,7 +74,7 @@ public interface Filter {
     /**
      * Called anytime the output size changes.
      *
-     * @param width width
+     * @param width  width
      * @param height height
      */
     void setSize(int width, int height);

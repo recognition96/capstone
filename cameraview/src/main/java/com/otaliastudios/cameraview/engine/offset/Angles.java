@@ -8,27 +8,29 @@ import com.otaliastudios.cameraview.controls.Facing;
 
 /**
  * Manages offsets between different {@link Reference} systems.
- *
+ * <p>
  * These offsets are computed based on the {@link #setSensorOffset(Facing, int)},
  * {@link #setDisplayOffset(int)} and {@link #setDeviceOrientation(int)} values that are coming
  * from outside.
- *
+ * <p>
  * When communicating with the sensor, {@link Axis#RELATIVE_TO_SENSOR} should probably be used.
  * This means inverting the offset when using the front camera.
  * This is often the case when calling offset(SENSOR, OUTPUT), for example when passing a JPEG
  * rotation to the sensor. That is meant to be consumed as relative to the sensor plane.
- *
+ * <p>
  * For all other usages, {@link Axis#ABSOLUTE} is probably a better choice.
  */
 public class Angles {
 
     private final static String TAG = Angles.class.getSimpleName();
     private final static CameraLogger LOG = CameraLogger.create(TAG);
-
+    @VisibleForTesting
+    int mSensorOffset = 0;
+    @VisibleForTesting
+    int mDisplayOffset = 0;
+    @VisibleForTesting
+    int mDeviceOrientation = 0;
     private Facing mSensorFacing;
-    @VisibleForTesting int mSensorOffset = 0;
-    @VisibleForTesting int mDisplayOffset = 0;
-    @VisibleForTesting int mDeviceOrientation = 0;
 
     /**
      * We want to keep everything in the {@link Axis#ABSOLUTE} reference,
@@ -49,6 +51,7 @@ public class Angles {
 
     /**
      * Sets the display offset.
+     *
      * @param displayOffset the display offset
      */
     public void setDisplayOffset(int displayOffset) {
@@ -59,6 +62,7 @@ public class Angles {
 
     /**
      * Sets the device orientation.
+     *
      * @param deviceOrientation the device orientation
      */
     public void setDeviceOrientation(int deviceOrientation) {
@@ -76,8 +80,9 @@ public class Angles {
 
     /**
      * Returns the offset between two reference systems, computed along the given axis.
+     *
      * @param from the source reference system
-     * @param to the destination reference system
+     * @param to   the destination reference system
      * @param axis the axis
      * @return the offset
      */
@@ -98,22 +103,27 @@ public class Angles {
             return sanitizeOutput(360 - absoluteOffset(to, from));
         } else if (from == Reference.BASE) {
             switch (to) {
-                case VIEW: return sanitizeOutput(360 - mDisplayOffset);
-                case OUTPUT: return sanitizeOutput(mDeviceOrientation);
-                case SENSOR: return sanitizeOutput(360 - mSensorOffset);
-                default: throw new RuntimeException("Unknown reference: " + to);
+                case VIEW:
+                    return sanitizeOutput(360 - mDisplayOffset);
+                case OUTPUT:
+                    return sanitizeOutput(mDeviceOrientation);
+                case SENSOR:
+                    return sanitizeOutput(360 - mSensorOffset);
+                default:
+                    throw new RuntimeException("Unknown reference: " + to);
             }
         } else {
             return sanitizeOutput(
                     absoluteOffset(Reference.BASE, to)
-                    - absoluteOffset(Reference.BASE, from));
+                            - absoluteOffset(Reference.BASE, from));
         }
     }
 
     /**
      * Whether the two references systems are flipped.
+     *
      * @param from source
-     * @param to destination
+     * @param to   destination
      * @return true if flipped
      */
     public boolean flip(@NonNull Reference from, @NonNull Reference to) {

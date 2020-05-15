@@ -95,9 +95,12 @@ public class FocusMeter extends BaseMeter {
                 setState(STATE_COMPLETED);
                 break;
             }
-            case CaptureRequest.CONTROL_AF_STATE_INACTIVE: break;
-            case CaptureRequest.CONTROL_AF_STATE_ACTIVE_SCAN: break;
-            default: break;
+            case CaptureRequest.CONTROL_AF_STATE_INACTIVE:
+                break;
+            case CaptureRequest.CONTROL_AF_STATE_ACTIVE_SCAN:
+                break;
+            default:
+                break;
         }
     }
 }

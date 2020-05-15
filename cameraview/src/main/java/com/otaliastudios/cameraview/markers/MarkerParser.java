@@ -2,10 +2,10 @@ package com.otaliastudios.cameraview.markers;
 
 import android.content.res.TypedArray;
 
-import com.otaliastudios.cameraview.R;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.otaliastudios.cameraview.R;
 
 /**
  * Parses markers from XML attributes.
@@ -20,7 +20,8 @@ public class MarkerParser {
             try {
                 Class<?> autoFocusClass = Class.forName(autoFocusName);
                 autoFocusMarker = (AutoFocusMarker) autoFocusClass.newInstance();
-            } catch (Exception ignore) { }
+            } catch (Exception ignore) {
+            }
         }
     }
 

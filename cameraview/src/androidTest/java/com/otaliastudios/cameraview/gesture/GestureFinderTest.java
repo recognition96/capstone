@@ -3,15 +3,15 @@ package com.otaliastudios.cameraview.gesture;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.matcher.RootMatchers;
 import androidx.test.rule.ActivityTestRule;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.otaliastudios.cameraview.BaseTest;
 import com.otaliastudios.cameraview.TestActivity;
@@ -26,17 +26,16 @@ import static androidx.test.espresso.Espresso.onView;
 @TargetApi(17)
 public abstract class GestureFinderTest<T extends GestureFinder> extends BaseTest {
 
-    protected abstract T createFinder(@NonNull GestureFinder.Controller controller);
-
     @Rule
     public ActivityTestRule<TestActivity> rule = new ActivityTestRule<>(TestActivity.class);
-
     @SuppressWarnings("WeakerAccess")
     protected T finder;
     @SuppressWarnings("WeakerAccess")
     protected Op<Gesture> touchOp;
     @SuppressWarnings("WeakerAccess")
     protected ViewGroup layout;
+
+    protected abstract T createFinder(@NonNull GestureFinder.Controller controller);
 
     @Before
     public void setUp() {

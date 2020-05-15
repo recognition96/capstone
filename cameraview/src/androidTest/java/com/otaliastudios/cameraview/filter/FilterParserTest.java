@@ -13,7 +13,6 @@ import com.otaliastudios.cameraview.R;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,6 +31,7 @@ public class FilterParserTest extends BaseTest {
         assertNotNull(parser.getFilter());
         assertTrue(parser.getFilter() instanceof NoFilter);
     }
+
     @Test
     public void testConstructor() {
         TypedArray array = mock(TypedArray.class);

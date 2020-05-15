@@ -68,14 +68,14 @@ public class CameraStateOrchestrator extends CameraOrchestrator {
                     Executor executor = mCallback.getJobWorker(name).getExecutor();
                     return stateChange.call().continueWithTask(executor,
                             new Continuation<T, Task<T>>() {
-                        @Override
-                        public Task<T> then(@NonNull Task<T> task) {
-                            if (task.isSuccessful() || isTearDown) {
-                                mCurrentState = toState;
-                            }
-                            return task;
-                        }
-                    });
+                                @Override
+                                public Task<T> then(@NonNull Task<T> task) {
+                                    if (task.isSuccessful() || isTearDown) {
+                                        mCurrentState = toState;
+                                    }
+                                    return task;
+                                }
+                            });
                 }
             }
         }).addOnCompleteListener(new OnCompleteListener<T>() {

@@ -11,10 +11,18 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface SdkExclude {
-    /** The minimum API level to drop (inclusive) */
+    /**
+     * The minimum API level to drop (inclusive)
+     */
     int minSdkVersion() default 1;
-    /** The maximum API level to drop (inclusive) */
+
+    /**
+     * The maximum API level to drop (inclusive)
+     */
     int maxSdkVersion() default Integer.MAX_VALUE;
-    /** Whether this filter only applies to emulators */
+
+    /**
+     * Whether this filter only applies to emulators
+     */
     boolean emulatorOnly() default false;
 }

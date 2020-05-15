@@ -64,58 +64,12 @@ public class SizeSelectorParser {
         pictureSizeSelector = !pictureConstraints.isEmpty() ?
                 SizeSelectors.and(pictureConstraints.toArray(new SizeSelector[0])) :
                 SizeSelectors.biggest();
-
-        // Video size selector
-        List<SizeSelector> videoConstraints = new ArrayList<>(3);
-        if (array.hasValue(R.styleable.CameraView_cameraVideoSizeMinWidth)) {
-            videoConstraints.add(SizeSelectors.minWidth(
-                    array.getInteger(R.styleable.CameraView_cameraVideoSizeMinWidth, 0)
-            ));
-        }
-        if (array.hasValue(R.styleable.CameraView_cameraVideoSizeMaxWidth)) {
-            videoConstraints.add(SizeSelectors.maxWidth(
-                    array.getInteger(R.styleable.CameraView_cameraVideoSizeMaxWidth, 0)
-            ));
-        }
-        if (array.hasValue(R.styleable.CameraView_cameraVideoSizeMinHeight)) {
-            videoConstraints.add(SizeSelectors.minHeight(
-                    array.getInteger(R.styleable.CameraView_cameraVideoSizeMinHeight, 0)
-            ));
-        }
-        if (array.hasValue(R.styleable.CameraView_cameraVideoSizeMaxHeight)) {
-            videoConstraints.add(SizeSelectors.maxHeight(
-                    array.getInteger(R.styleable.CameraView_cameraVideoSizeMaxHeight, 0)
-            ));
-        }
-        if (array.hasValue(R.styleable.CameraView_cameraVideoSizeMinArea)) {
-            videoConstraints.add(SizeSelectors.minArea(
-                    array.getInteger(R.styleable.CameraView_cameraVideoSizeMinArea, 0)
-            ));
-        }
-        if (array.hasValue(R.styleable.CameraView_cameraVideoSizeMaxArea)) {
-            videoConstraints.add(SizeSelectors.maxArea(
-                    array.getInteger(R.styleable.CameraView_cameraVideoSizeMaxArea, 0)
-            ));
-        }
-        if (array.hasValue(R.styleable.CameraView_cameraVideoSizeAspectRatio)) {
-            //noinspection ConstantConditions
-            videoConstraints.add(SizeSelectors.aspectRatio(
-                    AspectRatio.parse(array.getString(
-                            R.styleable.CameraView_cameraVideoSizeAspectRatio)), 0));
-        }
-        if (array.getBoolean(R.styleable.CameraView_cameraVideoSizeSmallest, false)) {
-            videoConstraints.add(SizeSelectors.smallest());
-        }
-        if (array.getBoolean(R.styleable.CameraView_cameraVideoSizeBiggest, false)) {
-            videoConstraints.add(SizeSelectors.biggest());
-        }
-
     }
 
     @NonNull
     public SizeSelector getPictureSizeSelector() {
         return pictureSizeSelector;
     }
-    
+
 
 }

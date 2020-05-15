@@ -2,9 +2,9 @@ package com.otaliastudios.cameraview.gesture;
 
 import android.content.res.TypedArray;
 
-import com.otaliastudios.cameraview.R;
-
 import androidx.annotation.NonNull;
+
+import com.otaliastudios.cameraview.R;
 
 /**
  * Parses gestures from XML attributes.

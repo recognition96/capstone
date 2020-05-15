@@ -76,7 +76,8 @@ public class OverlayLayoutTest extends BaseTest {
         // Get the attribute set in the correct state: use a parser and move to START_TAG
         XmlResourceParser parser = getContext().getResources().getLayout(layout);
         //noinspection StatementWithEmptyBody
-        while (parser.next() != XmlResourceParser.START_TAG) {}
+        while (parser.next() != XmlResourceParser.START_TAG) {
+        }
         return Xml.asAttributeSet(parser);
     }
 

@@ -167,7 +167,8 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         // Extra wait for the bind and preview state, so we run tests in a fully operational
         // state. If we didn't do so, we could have null values, for example, in getPictureSize
         // or in getSnapshotSize.
-        while (controller.getState() != CameraState.PREVIEW) {}
+        while (controller.getState() != CameraState.PREVIEW) {
+        }
     }
 
     protected final void closeSync(boolean expectSuccess) {
@@ -637,13 +638,6 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         assert15Frames(processor);
     }
 
-    public class FreezeReleaseFrameProcessor implements FrameProcessor {
-        @Override
-        public void process(@NonNull Frame frame) {
-            frame.freeze().release();
-        }
-    }
-
     @Test
     @Retry(emulatorOnly = true)
     @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
@@ -679,10 +673,6 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         return op;
     }
 
-    //endregion
-
-    //region Overlays
-
     @Test
     @Retry(emulatorOnly = true)
     @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
@@ -695,6 +685,17 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         waitForPictureResult(true);
         verify(overlay, atLeastOnce()).drawsOn(Overlay.Target.PICTURE_SNAPSHOT);
         verify(overlay, times(1)).drawOn(eq(Overlay.Target.PICTURE_SNAPSHOT), any(Canvas.class));
+    }
+
+    //endregion
+
+    //region Overlays
+
+    public class FreezeReleaseFrameProcessor implements FrameProcessor {
+        @Override
+        public void process(@NonNull Frame frame) {
+            frame.freeze().release();
+        }
     }
 
 

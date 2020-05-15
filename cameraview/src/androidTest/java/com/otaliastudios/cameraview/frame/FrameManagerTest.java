@@ -17,9 +17,6 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -32,7 +29,8 @@ public class FrameManagerTest extends BaseTest {
         // A 1-pool manager will always recycle the same frame.
         FrameManager<String> manager = new FrameManager<String>(1, String.class) {
             @Override
-            protected void onFrameDataReleased(@NonNull String data, boolean recycled) { }
+            protected void onFrameDataReleased(@NonNull String data, boolean recycled) {
+            }
 
             @NonNull
             @Override
@@ -55,7 +53,8 @@ public class FrameManagerTest extends BaseTest {
     public void testGetFrame() {
         FrameManager<String> manager = new FrameManager<String>(1, String.class) {
             @Override
-            protected void onFrameDataReleased(@NonNull String data, boolean recycled) { }
+            protected void onFrameDataReleased(@NonNull String data, boolean recycled) {
+            }
 
             @NonNull
             @Override

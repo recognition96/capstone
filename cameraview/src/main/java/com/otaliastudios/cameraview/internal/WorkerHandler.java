@@ -4,12 +4,12 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.otaliastudios.cameraview.CameraLogger;
-
-import androidx.annotation.NonNull;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
@@ -34,9 +34,48 @@ public class WorkerHandler {
     // anytime get() is called. This should ensure that this instance is not collected.
     @SuppressWarnings("FieldCanBeLocal")
     private static WorkerHandler sFallbackHandler;
+    private String mName;
+    private HandlerThread mThread;
+    private Handler mHandler;
+    private Executor mExecutor;
+    private WorkerHandler(@NonNull String name) {
+        mName = name;
+        mThread = new HandlerThread(name) {
+            @NonNull
+            @Override
+            public String toString() {
+                return super.toString() + "[" + getThreadId() + "]";
+            }
+        };
+        mThread.setDaemon(true);
+        mThread.start();
+        mHandler = new Handler(mThread.getLooper());
+        mExecutor = new Executor() {
+            @Override
+            public void execute(@NonNull Runnable command) {
+                WorkerHandler.this.run(command);
+            }
+        };
+
+        // HandlerThreads/Handlers sometimes have a significant warmup time.
+        // We want to spend this time here so when this object is built, it
+        // is fully operational.
+        final CountDownLatch latch = new CountDownLatch(1);
+        post(new Runnable() {
+            @Override
+            public void run() {
+                latch.countDown();
+            }
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException ignore) {
+        }
+    }
 
     /**
      * Gets a possibly cached handler with the given name.
+     *
      * @param name the handler name
      * @return a handler
      */
@@ -70,6 +109,7 @@ public class WorkerHandler {
 
     /**
      * Returns a fallback WorkerHandler.
+     *
      * @return a fallback handler
      */
     @NonNull
@@ -89,47 +129,24 @@ public class WorkerHandler {
         get().post(action);
     }
 
-    private String mName;
-    private HandlerThread mThread;
-    private Handler mHandler;
-    private Executor mExecutor;
-
-    private WorkerHandler(@NonNull String name) {
-        mName = name;
-        mThread = new HandlerThread(name) {
-            @NonNull
-            @Override
-            public String toString() {
-                return super.toString() + "[" + getThreadId() + "]";
-            }
-        };
-        mThread.setDaemon(true);
-        mThread.start();
-        mHandler = new Handler(mThread.getLooper());
-        mExecutor = new Executor() {
-            @Override
-            public void execute(@NonNull Runnable command) {
-                WorkerHandler.this.run(command);
-            }
-        };
-
-        // HandlerThreads/Handlers sometimes have a significant warmup time.
-        // We want to spend this time here so when this object is built, it
-        // is fully operational.
-        final CountDownLatch latch = new CountDownLatch(1);
-        post(new Runnable() {
-            @Override
-            public void run() {
-                latch.countDown();
-            }
-        });
-        try {
-            latch.await();
-        } catch (InterruptedException ignore) {}
+    /**
+     * Destroys all handlers, interrupting their work and
+     * removing them from our cache.
+     */
+    public static void destroyAll() {
+        for (String key : sCache.keySet()) {
+            WeakReference<WorkerHandler> ref = sCache.get(key);
+            //noinspection ConstantConditions
+            WorkerHandler handler = ref.get();
+            if (handler != null) handler.destroy();
+            ref.clear();
+        }
+        sCache.clear();
     }
 
     /**
      * Post an action on this handler.
+     *
      * @param runnable the action
      */
     public void run(@NonNull Runnable runnable) {
@@ -142,6 +159,7 @@ public class WorkerHandler {
 
     /**
      * Post an action on this handler.
+     *
      * @param callable the action
      */
     public <T> Task<T> run(@NonNull Callable<T> callable) {
@@ -158,6 +176,7 @@ public class WorkerHandler {
 
     /**
      * Post an action on this handler.
+     *
      * @param runnable the action
      */
     public void post(@NonNull Runnable runnable) {
@@ -166,6 +185,7 @@ public class WorkerHandler {
 
     /**
      * Post an action on this handler.
+     *
      * @param callable the action
      */
     public <T> Task<T> post(@NonNull final Callable<T> callable) {
@@ -185,7 +205,8 @@ public class WorkerHandler {
 
     /**
      * Post an action on this handler.
-     * @param delay the delay in millis
+     *
+     * @param delay    the delay in millis
      * @param runnable the action
      */
     public void post(long delay, @NonNull Runnable runnable) {
@@ -194,6 +215,7 @@ public class WorkerHandler {
 
     /**
      * Removes a previously added action from this handler.
+     *
      * @param runnable the action
      */
     public void remove(@NonNull Runnable runnable) {
@@ -202,6 +224,7 @@ public class WorkerHandler {
 
     /**
      * Returns the android backing {@link Handler}.
+     *
      * @return the handler
      */
     @NonNull
@@ -211,6 +234,7 @@ public class WorkerHandler {
 
     /**
      * Returns the android backing {@link HandlerThread}.
+     *
      * @return the thread
      */
     @NonNull
@@ -220,6 +244,7 @@ public class WorkerHandler {
 
     /**
      * Returns the android backing {@link Looper}.
+     *
      * @return the looper
      */
     @SuppressWarnings("WeakerAccess")
@@ -230,6 +255,7 @@ public class WorkerHandler {
 
     /**
      * Returns an {@link Executor}.
+     *
      * @return the executor
      */
     @NonNull
@@ -240,7 +266,7 @@ public class WorkerHandler {
     /**
      * Destroys this handler and its thread. After this method returns, the handler
      * should be considered unusable.
-     *
+     * <p>
      * Internal note: this does not remove the thread from our cache, but it does
      * interrupt it, so the next {@link #get(String)} call will remove it.
      * In any case, we only store weak references.
@@ -257,20 +283,5 @@ public class WorkerHandler {
         // For example, interrupt() won't interrupt the thread if it's blocked - it will throw
         // an exception instead.
         sCache.remove(mName);
-    }
-
-    /**
-     * Destroys all handlers, interrupting their work and
-     * removing them from our cache.
-     */
-    public static void destroyAll() {
-        for (String key : sCache.keySet()) {
-            WeakReference<WorkerHandler> ref = sCache.get(key);
-            //noinspection ConstantConditions
-            WorkerHandler handler = ref.get();
-            if (handler != null) handler.destroy();
-            ref.clear();
-        }
-        sCache.clear();
     }
 }

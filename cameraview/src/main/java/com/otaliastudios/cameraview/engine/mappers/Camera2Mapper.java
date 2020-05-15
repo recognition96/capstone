@@ -1,6 +1,5 @@
 package com.otaliastudios.cameraview.engine.mappers;
 
-import android.hardware.Camera;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 import android.util.Pair;
@@ -10,15 +9,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.otaliastudios.cameraview.controls.Control;
-import com.otaliastudios.cameraview.controls.Engine;
 import com.otaliastudios.cameraview.controls.Facing;
 import com.otaliastudios.cameraview.controls.Flash;
 import com.otaliastudios.cameraview.controls.Hdr;
 import com.otaliastudios.cameraview.controls.WhiteBalance;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,18 +27,10 @@ import java.util.Set;
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class Camera2Mapper {
 
-    private static Camera2Mapper sInstance;
-
-    public static Camera2Mapper get() {
-        if (sInstance == null) {
-            sInstance = new Camera2Mapper();
-        }
-        return sInstance;
-    }
-
     private static final Map<Facing, Integer> FACING = new HashMap<>();
     private static final Map<WhiteBalance, Integer> WB = new HashMap<>();
     private static final Map<Hdr, Integer> HDR = new HashMap<>();
+    private static Camera2Mapper sInstance;
 
     static {
         FACING.put(Facing.BACK, CameraCharacteristics.LENS_FACING_BACK);
@@ -56,7 +44,15 @@ public class Camera2Mapper {
         HDR.put(Hdr.ON, 18 /* CameraCharacteristics.CONTROL_SCENE_MODE_HDR */);
     }
 
-    private Camera2Mapper() {}
+    private Camera2Mapper() {
+    }
+
+    public static Camera2Mapper get() {
+        if (sInstance == null) {
+            sInstance = new Camera2Mapper();
+        }
+        return sInstance;
+    }
 
     @NonNull
     public List<Pair<Integer, Integer>> mapFlash(@NonNull Flash flash) {
@@ -98,7 +94,7 @@ public class Camera2Mapper {
                 break;
             }
         }
-        return  result;
+        return result;
     }
 
     public int mapFacing(@NonNull Facing facing) {
@@ -136,7 +132,8 @@ public class Camera2Mapper {
                 break;
             }
             case CameraCharacteristics.CONTROL_AE_MODE_ON_EXTERNAL_FLASH:
-            default: break; // we don't support external flash
+            default:
+                break; // we don't support external flash
         }
         return result;
     }

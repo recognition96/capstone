@@ -1,24 +1,14 @@
 package com.otaliastudios.cameraview.metering;
 
 
-import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.otaliastudios.cameraview.BaseTest;
-import com.otaliastudios.cameraview.R;
-import com.otaliastudios.cameraview.markers.AutoFocusMarker;
-import com.otaliastudios.cameraview.markers.AutoFocusTrigger;
-import com.otaliastudios.cameraview.markers.MarkerParser;
 import com.otaliastudios.cameraview.size.Size;
 
 import org.junit.Test;
@@ -28,12 +18,8 @@ import org.mockito.stubbing.Answer;
 
 import java.util.List;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

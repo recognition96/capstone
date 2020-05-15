@@ -18,7 +18,7 @@ public enum Mode implements Control {
 
     /**
      * Session used to capture pictures.
-     *
+     * <p>
      * - {@link CameraView#takeVideo(File)} will throw an exception
      * - Only the camera permission is requested
      * - Capture size is chosen according to the current picture size selector
@@ -34,10 +34,6 @@ public enum Mode implements Control {
         this.value = value;
     }
 
-    int value() {
-        return value;
-    }
-
     @NonNull
     static Mode fromValue(int value) {
         Mode[] list = Mode.values();
@@ -47,5 +43,9 @@ public enum Mode implements Control {
             }
         }
         return DEFAULT;
+    }
+
+    int value() {
+        return value;
     }
 }

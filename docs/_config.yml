@@ -39,7 +39,7 @@ author:
 plugins:
   - jekyll-seo-tag # Add SEO tags
 permalink: /:categories/:title # Ensure permalinks have no date nor extension
-exclude: ['script', 'README.md'] # Exclude non-site files
+exclude: ['script'] # Exclude non-site files
 highlighter: rouge # Syntax highlighting
 markdown: kramdown # Use the kramdown Markdown renderer
 kramdown:

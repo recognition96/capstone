@@ -11,7 +11,7 @@ import com.otaliastudios.cameraview.CameraView;
  * @see CameraView#setEngine(Engine)
  */
 public enum Engine implements Control {
-        /**
+    /**
      * Camera2 based engine. For API versions older than 21,
      * the system falls back to {@link #CAMERA1}.
      */
@@ -25,10 +25,6 @@ public enum Engine implements Control {
         this.value = value;
     }
 
-    int value() {
-        return value;
-    }
-
     @NonNull
     static Engine fromValue(int value) {
         Engine[] list = Engine.values();
@@ -38,5 +34,9 @@ public enum Engine implements Control {
             }
         }
         return DEFAULT;
+    }
+
+    int value() {
+        return value;
     }
 }

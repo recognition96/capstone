@@ -39,29 +39,67 @@ import java.util.List;
  */
 public abstract class CameraBaseEngine extends CameraEngine {
 
-    @SuppressWarnings("WeakerAccess") protected CameraPreview mPreview;
-    @SuppressWarnings("WeakerAccess") protected CameraOptions mCameraOptions;
-    @SuppressWarnings("WeakerAccess") protected PictureRecorder mPictureRecorder;
-    @SuppressWarnings("WeakerAccess") protected Size mCaptureSize;
-    @SuppressWarnings("WeakerAccess") protected Size mPreviewStreamSize;
-    @SuppressWarnings("WeakerAccess") protected Size mFrameProcessingSize;
-    @SuppressWarnings("WeakerAccess") protected int mFrameProcessingFormat;
-    @SuppressWarnings("WeakerAccess") protected boolean mHasFrameProcessors;
-    @SuppressWarnings("WeakerAccess") protected Flash mFlash;
-    @SuppressWarnings("WeakerAccess") protected WhiteBalance mWhiteBalance;
-    @SuppressWarnings("WeakerAccess") protected Hdr mHdr;
-    @SuppressWarnings("WeakerAccess") protected PictureFormat mPictureFormat;
-    @SuppressWarnings("WeakerAccess") protected Location mLocation;
-    @SuppressWarnings("WeakerAccess") protected float mZoomValue;
-    @SuppressWarnings("WeakerAccess") protected float mExposureCorrectionValue;
-    @SuppressWarnings("WeakerAccess") protected boolean mPictureMetering;
-    @SuppressWarnings("WeakerAccess") protected boolean mPictureSnapshotMetering;
-    @SuppressWarnings("WeakerAccess") protected float mPreviewFrameRate;
-    @SuppressWarnings("WeakerAccess") private boolean mPreviewFrameRateExact;
-
-    private FrameManager mFrameManager;
     private final Angles mAngles = new Angles();
-    @Nullable private SizeSelector mPreviewStreamSizeSelector;
+    @SuppressWarnings("WeakerAccess")
+    protected CameraPreview mPreview;
+    @SuppressWarnings("WeakerAccess")
+    protected CameraOptions mCameraOptions;
+    @SuppressWarnings("WeakerAccess")
+    protected PictureRecorder mPictureRecorder;
+    @SuppressWarnings("WeakerAccess")
+    protected Size mCaptureSize;
+    @SuppressWarnings("WeakerAccess")
+    protected Size mPreviewStreamSize;
+    @SuppressWarnings("WeakerAccess")
+    protected Size mFrameProcessingSize;
+    @SuppressWarnings("WeakerAccess")
+    protected int mFrameProcessingFormat;
+    @SuppressWarnings("WeakerAccess")
+    protected boolean mHasFrameProcessors;
+    @SuppressWarnings("WeakerAccess")
+    protected Flash mFlash;
+    @SuppressWarnings("WeakerAccess")
+    protected WhiteBalance mWhiteBalance;
+    @SuppressWarnings("WeakerAccess")
+    protected Hdr mHdr;
+    @SuppressWarnings("WeakerAccess")
+    protected PictureFormat mPictureFormat;
+    @SuppressWarnings("WeakerAccess")
+    protected Location mLocation;
+    @SuppressWarnings("WeakerAccess")
+    protected float mZoomValue;
+    @SuppressWarnings("WeakerAccess")
+    protected float mExposureCorrectionValue;
+    @SuppressWarnings("WeakerAccess")
+    protected boolean mPictureMetering;
+    @SuppressWarnings("WeakerAccess")
+    protected boolean mPictureSnapshotMetering;
+    @SuppressWarnings("WeakerAccess")
+    protected float mPreviewFrameRate;
+    // Ops used for testing.
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    Task<Void> mZoomTask
+            = Tasks.forResult(null);
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    Task<Void> mExposureCorrectionTask
+            = Tasks.forResult(null);
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    Task<Void> mFlashTask
+            = Tasks.forResult(null);
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    Task<Void> mWhiteBalanceTask
+            = Tasks.forResult(null);
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    Task<Void> mHdrTask
+            = Tasks.forResult(null);
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    Task<Void> mLocationTask
+            = Tasks.forResult(null);
+    @SuppressWarnings("WeakerAccess")
+    private boolean mPreviewFrameRateExact;
+    private FrameManager mFrameManager;
+    @Nullable
+    private SizeSelector mPreviewStreamSizeSelector;
     private SizeSelector mPictureSizeSelector;
     private Facing mFacing;
     private Mode mMode;
@@ -73,20 +111,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
     private int mFrameProcessingPoolSize;
     private Overlay mOverlay;
 
-    // Ops used for testing.
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) Task<Void> mZoomTask
-            = Tasks.forResult(null);
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) Task<Void> mExposureCorrectionTask
-            = Tasks.forResult(null);
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) Task<Void> mFlashTask
-            = Tasks.forResult(null);
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) Task<Void> mWhiteBalanceTask
-            = Tasks.forResult(null);
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) Task<Void> mHdrTask
-            = Tasks.forResult(null);
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) Task<Void> mLocationTask
-            = Tasks.forResult(null);
-
 
     @SuppressWarnings("WeakerAccess")
     protected CameraBaseEngine(@NonNull Callback callback) {
@@ -96,6 +120,7 @@ public abstract class CameraBaseEngine extends CameraEngine {
     /**
      * Called at construction time to get a frame manager that can later be
      * accessed through {@link #getFrameManager()}.
+     *
      * @param poolSize pool size
      * @return a frame manager
      */
@@ -123,13 +148,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
         return mCameraOptions;
     }
 
-    @Override
-    public final void setPreview(@NonNull CameraPreview cameraPreview) {
-        if (mPreview != null) mPreview.setSurfaceCallback(null);
-        mPreview = cameraPreview;
-        mPreview.setSurfaceCallback(this);
-    }
-
     @NonNull
     @Override
     public final CameraPreview getPreview() {
@@ -137,8 +155,10 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final void setOverlay(@Nullable Overlay overlay) {
-        mOverlay = overlay;
+    public final void setPreview(@NonNull CameraPreview cameraPreview) {
+        if (mPreview != null) mPreview.setSurfaceCallback(null);
+        mPreview = cameraPreview;
+        mPreview.setSurfaceCallback(this);
     }
 
     @Nullable
@@ -148,8 +168,8 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final void setPreviewStreamSizeSelector(@Nullable SizeSelector selector) {
-        mPreviewStreamSizeSelector = selector;
+    public final void setOverlay(@Nullable Overlay overlay) {
+        mOverlay = overlay;
     }
 
     @Nullable
@@ -159,8 +179,8 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final void setPictureSizeSelector(@NonNull SizeSelector selector) {
-        mPictureSizeSelector = selector;
+    public final void setPreviewStreamSizeSelector(@Nullable SizeSelector selector) {
+        mPreviewStreamSizeSelector = selector;
     }
 
     @NonNull
@@ -170,8 +190,8 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final void setSnapshotMaxWidth(int maxWidth) {
-        mSnapshotMaxWidth = maxWidth;
+    public final void setPictureSizeSelector(@NonNull SizeSelector selector) {
+        mPictureSizeSelector = selector;
     }
 
     @Override
@@ -180,8 +200,8 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final void setSnapshotMaxHeight(int maxHeight) {
-        mSnapshotMaxHeight = maxHeight;
+    public final void setSnapshotMaxWidth(int maxWidth) {
+        mSnapshotMaxWidth = maxWidth;
     }
 
     @Override
@@ -190,8 +210,8 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final void setFrameProcessingMaxWidth(int maxWidth) {
-        mFrameProcessingMaxWidth = maxWidth;
+    public final void setSnapshotMaxHeight(int maxHeight) {
+        mSnapshotMaxHeight = maxHeight;
     }
 
     @Override
@@ -200,8 +220,8 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final void setFrameProcessingMaxHeight(int maxHeight) {
-        mFrameProcessingMaxHeight = maxHeight;
+    public final void setFrameProcessingMaxWidth(int maxWidth) {
+        mFrameProcessingMaxWidth = maxWidth;
     }
 
     @Override
@@ -210,13 +230,13 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final int getFrameProcessingFormat() {
-        return mFrameProcessingFormat;
+    public final void setFrameProcessingMaxHeight(int maxHeight) {
+        mFrameProcessingMaxHeight = maxHeight;
     }
 
     @Override
-    public final void setFrameProcessingPoolSize(int poolSize) {
-        mFrameProcessingPoolSize = poolSize;
+    public final int getFrameProcessingFormat() {
+        return mFrameProcessingFormat;
     }
 
     @Override
@@ -225,8 +245,8 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final void setAutoFocusResetDelay(long delayMillis) {
-        mAutoFocusResetDelayMillis = delayMillis;
+    public final void setFrameProcessingPoolSize(int poolSize) {
+        mFrameProcessingPoolSize = poolSize;
     }
 
     @Override
@@ -234,8 +254,14 @@ public abstract class CameraBaseEngine extends CameraEngine {
         return mAutoFocusResetDelayMillis;
     }
 
+    @Override
+    public final void setAutoFocusResetDelay(long delayMillis) {
+        mAutoFocusResetDelayMillis = delayMillis;
+    }
+
     /**
      * Helper function for subclasses.
+     *
      * @return true if AF should be reset
      */
     @SuppressWarnings("WeakerAccess")
@@ -243,9 +269,16 @@ public abstract class CameraBaseEngine extends CameraEngine {
         return mAutoFocusResetDelayMillis > 0 && mAutoFocusResetDelayMillis != Long.MAX_VALUE;
     }
 
+    @NonNull
+    @Override
+    public final Facing getFacing() {
+        return mFacing;
+    }
+
     /**
      * Sets a new facing value. This will restart the engine session (if there's any)
      * so that we can open the new facing camera.
+     *
      * @param facing facing
      */
     @Override
@@ -255,27 +288,27 @@ public abstract class CameraBaseEngine extends CameraEngine {
             mFacing = facing;
             getOrchestrator().scheduleStateful("facing", CameraState.ENGINE,
                     new Runnable() {
-                @Override
-                public void run() {
-                    if (collectCameraInfo(facing)) {
-                        restart();
-                    } else {
-                        mFacing = old;
-                    }
-                }
-            });
+                        @Override
+                        public void run() {
+                            if (collectCameraInfo(facing)) {
+                                restart();
+                            } else {
+                                mFacing = old;
+                            }
+                        }
+                    });
         }
     }
 
     @NonNull
     @Override
-    public final Facing getFacing() {
-        return mFacing;
+    public final Mode getMode() {
+        return mMode;
     }
-
 
     /**
      * Sets the desired mode (either picture or video).
+     *
      * @param mode desired mode.
      */
     @Override
@@ -284,18 +317,12 @@ public abstract class CameraBaseEngine extends CameraEngine {
             mMode = mode;
             getOrchestrator().scheduleStateful("mode", CameraState.ENGINE,
                     new Runnable() {
-                @Override
-                public void run() {
-                    restart();
-                }
-            });
+                        @Override
+                        public void run() {
+                            restart();
+                        }
+                    });
         }
-    }
-
-    @NonNull
-    @Override
-    public final Mode getMode() {
-        return mMode;
     }
 
     @Override
@@ -339,24 +366,18 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
+    public final boolean getPreviewFrameRateExact() {
+        return mPreviewFrameRateExact;
+    }
+
+    @Override
     public final void setPreviewFrameRateExact(boolean previewFrameRateExact) {
         mPreviewFrameRateExact = previewFrameRateExact;
     }
 
     @Override
-    public final boolean getPreviewFrameRateExact() {
-        return mPreviewFrameRateExact;
-    }
-
-
-    @Override
     public final boolean hasFrameProcessors() {
         return mHasFrameProcessors;
-    }
-
-    @Override
-    public final void setPictureMetering(boolean enable) {
-        mPictureMetering = enable;
     }
 
     @Override
@@ -365,13 +386,18 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
     @Override
-    public final void setPictureSnapshotMetering(boolean enable) {
-        mPictureSnapshotMetering = enable;
+    public final void setPictureMetering(boolean enable) {
+        mPictureMetering = enable;
     }
 
     @Override
     public final boolean getPictureSnapshotMetering() {
         return mPictureSnapshotMetering;
+    }
+
+    @Override
+    public final void setPictureSnapshotMetering(boolean enable) {
+        mPictureSnapshotMetering = enable;
     }
 
     //region Picture control
@@ -385,6 +411,7 @@ public abstract class CameraBaseEngine extends CameraEngine {
     /**
      * The snapshot size is the {@link #getPreviewStreamSize(Reference)}, but cropped based on the
      * view/surface aspect ratio.
+     *
      * @param stub a picture stub
      */
     @Override
@@ -393,20 +420,20 @@ public abstract class CameraBaseEngine extends CameraEngine {
         final boolean metering = mPictureSnapshotMetering;
         getOrchestrator().scheduleStateful("take picture snapshot", CameraState.BIND,
                 new Runnable() {
-            @Override
-            public void run() {
-                LOG.i("takePictureSnapshot:", "running. isTakingPicture:", isTakingPicture());
-                if (isTakingPicture()) return;
-                stub.location = mLocation;
-                stub.isSnapshot = true;
-                stub.facing = mFacing;
-                stub.format = PictureFormat.JPEG;
-                // Leave the other parameters to subclasses.
-                //noinspection ConstantConditions
-                AspectRatio ratio = AspectRatio.of(getPreviewSurfaceSize(Reference.OUTPUT));
-                onTakePictureSnapshot(stub, ratio, metering);
-            }
-        });
+                    @Override
+                    public void run() {
+                        LOG.i("takePictureSnapshot:", "running. isTakingPicture:", isTakingPicture());
+                        if (isTakingPicture()) return;
+                        stub.location = mLocation;
+                        stub.isSnapshot = true;
+                        stub.facing = mFacing;
+                        stub.format = PictureFormat.JPEG;
+                        // Leave the other parameters to subclasses.
+                        //noinspection ConstantConditions
+                        AspectRatio ratio = AspectRatio.of(getPreviewSurfaceSize(Reference.OUTPUT));
+                        onTakePictureSnapshot(stub, ratio, metering);
+                    }
+                });
     }
 
 
@@ -423,8 +450,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
 
-
-
     @EngineThread
     protected abstract void onTakePictureSnapshot(@NonNull PictureResult.Stub stub,
                                                   @NonNull AspectRatio outputRatio,
@@ -439,27 +464,27 @@ public abstract class CameraBaseEngine extends CameraEngine {
         LOG.i("onSurfaceChanged:", "Size is", getPreviewSurfaceSize(Reference.VIEW));
         getOrchestrator().scheduleStateful("surface changed", CameraState.BIND,
                 new Runnable() {
-            @Override
-            public void run() {
-                // Compute a new camera preview size and apply.
-                Size newSize = computePreviewStreamSize();
-                if (newSize.equals(mPreviewStreamSize)) {
-                    LOG.i("onSurfaceChanged:",
-                            "The computed preview size is identical. No op.");
-                } else {
-                    LOG.i("onSurfaceChanged:",
-                            "Computed a new preview size. Calling onPreviewStreamSizeChanged().");
-                    mPreviewStreamSize = newSize;
-                    onPreviewStreamSizeChanged();
-                }
-            }
-        });
+                    @Override
+                    public void run() {
+                        // Compute a new camera preview size and apply.
+                        Size newSize = computePreviewStreamSize();
+                        if (newSize.equals(mPreviewStreamSize)) {
+                            LOG.i("onSurfaceChanged:",
+                                    "The computed preview size is identical. No op.");
+                        } else {
+                            LOG.i("onSurfaceChanged:",
+                                    "Computed a new preview size. Calling onPreviewStreamSizeChanged().");
+                            mPreviewStreamSize = newSize;
+                            onPreviewStreamSizeChanged();
+                        }
+                    }
+                });
     }
 
     /**
      * The preview stream size has changed. At this point, some engine might want to
      * simply call {@link #restartPreview()}, others to {@link #restartBind()}.
-     *
+     * <p>
      * It basically depends on the step at which the preview stream size is actually used.
      */
     @EngineThread
@@ -494,19 +519,19 @@ public abstract class CameraBaseEngine extends CameraEngine {
      * Returns the snapshot size, but not cropped with the view dimensions, which
      * is what we will do before creating the snapshot. However, cropping is done at various
      * levels so we don't want to perform the op here.
-     *
+     * <p>
      * The base snapshot size is based on PreviewStreamSize (later cropped with view ratio). Why?
      * One might be tempted to say that it's the SurfaceSize (which already matches the view ratio).
-     *
+     * <p>
      * The camera sensor will capture preview frames with PreviewStreamSize and that's it. Then they
      * are hardware-scaled by the preview surface, but this does not affect the snapshot, as the
      * snapshot recorder simply creates another surface.
-     *
+     * <p>
      * Done tests to ensure that this is true, by using
      * 1. small SurfaceSize and biggest() PreviewStreamSize: output is not low quality
      * 2. big SurfaceSize and smallest() PreviewStreamSize: output is low quality
      * In both cases the result.size here was set to the biggest of the two.
-     *
+     * <p>
      * I could not find the same evidence for videos, but I would say that the same things should
      * apply, despite the capturing mechanism being different.
      *
@@ -579,6 +604,7 @@ public abstract class CameraBaseEngine extends CameraEngine {
      * This is called anytime {@link #computePreviewStreamSize()} is called.
      * This means that it should be called during the binding process, when
      * we can be sure that the camera is available (engineState == STARTED).
+     *
      * @return a list of available sizes for preview
      */
     @EngineThread
@@ -644,6 +670,7 @@ public abstract class CameraBaseEngine extends CameraEngine {
     /**
      * This is called anytime {@link #computeFrameProcessingSize()} is called.
      * Implementors can return null if frame processor size is not selectable
+     *
      * @return a list of available sizes for frame processing
      */
     @EngineThread

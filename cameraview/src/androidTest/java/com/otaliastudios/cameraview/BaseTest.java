@@ -3,14 +3,12 @@ package com.otaliastudios.cameraview;
 
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 
 import androidx.annotation.NonNull;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.GrantPermissionRule;
 
 import com.otaliastudios.cameraview.tools.Op;
 
@@ -59,18 +57,6 @@ public class BaseTest {
         keyguardLock.reenableKeyguard();
     }
 
-    /**
-     * This will make mockito report the error when it should.
-     * Mockito reports failure on the next mockito invocation, which is terrible
-     * since it might be on the next test or even never happen.
-     */
-    @After
-    public void after_checkMockito() {
-        Object object = Mockito.mock(Object.class);
-        //noinspection ResultOfMethodCallIgnored
-        object.toString();
-    }
-
     @NonNull
     protected static Context getContext() {
         return InstrumentationRegistry.getInstrumentation().getContext();
@@ -115,5 +101,17 @@ public class BaseTest {
     @NonNull
     protected static <T> Stubber doEndOp(final Op<T> op, final int withReturnArgument) {
         return op.controller().from(withReturnArgument);
+    }
+
+    /**
+     * This will make mockito report the error when it should.
+     * Mockito reports failure on the next mockito invocation, which is terrible
+     * since it might be on the next test or even never happen.
+     */
+    @After
+    public void after_checkMockito() {
+        Object object = Mockito.mock(Object.class);
+        //noinspection ResultOfMethodCallIgnored
+        object.toString();
     }
 }

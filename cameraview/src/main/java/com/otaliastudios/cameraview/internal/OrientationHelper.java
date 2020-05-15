@@ -2,15 +2,15 @@ package com.otaliastudios.cameraview.internal;
 
 import android.content.Context;
 import android.hardware.SensorManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
-
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 /**
  * Helps with keeping track of both device orientation (which changes when device is rotated)
@@ -19,28 +19,18 @@ import android.view.WindowManager;
  */
 public class OrientationHelper {
 
-    /**
-     * Receives callback about the orientation changes.
-     */
-    public interface Callback {
-        void onDeviceOrientationChanged(int deviceOrientation);
-        void onDisplayOffsetChanged(int displayOffset, boolean willRecreate);
-    }
-
-    private final Context mContext;
-    private final Callback mCallback;
-
     @VisibleForTesting
     final OrientationEventListener mDeviceOrientationListener;
-    private int mDeviceOrientation = -1;
-
     @VisibleForTesting
     final DisplayManager.DisplayListener mDisplayOffsetListener;
+    private final Context mContext;
+    private final Callback mCallback;
+    private int mDeviceOrientation = -1;
     private int mDisplayOffset = -1;
-
     /**
      * Creates a new orientation helper.
-     * @param context a valid context
+     *
+     * @param context  a valid context
      * @param callback a {@link Callback}
      */
     public OrientationHelper(@NonNull Context context, @NonNull Callback callback) {
@@ -73,8 +63,11 @@ public class OrientationHelper {
         };
         if (Build.VERSION.SDK_INT >= 17) {
             mDisplayOffsetListener = new DisplayManager.DisplayListener() {
-                public void onDisplayAdded(int displayId) { }
-                public void onDisplayRemoved(int displayId) { }
+                public void onDisplayAdded(int displayId) {
+                }
+
+                public void onDisplayRemoved(int displayId) {
+                }
 
                 @Override
                 public void onDisplayChanged(int displayId) {
@@ -122,6 +115,7 @@ public class OrientationHelper {
 
     /**
      * Returns the current device orientation.
+     *
      * @return device orientation
      */
     @SuppressWarnings("WeakerAccess")
@@ -131,6 +125,7 @@ public class OrientationHelper {
 
     /**
      * Returns the current display offset.
+     *
      * @return display offset
      */
     public int getLastDisplayOffset() {
@@ -142,11 +137,25 @@ public class OrientationHelper {
                 .getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay();
         switch (display.getRotation()) {
-            case Surface.ROTATION_0: return 0;
-            case Surface.ROTATION_90: return 90;
-            case Surface.ROTATION_180: return 180;
-            case Surface.ROTATION_270: return 270;
-            default: return 0;
+            case Surface.ROTATION_0:
+                return 0;
+            case Surface.ROTATION_90:
+                return 90;
+            case Surface.ROTATION_180:
+                return 180;
+            case Surface.ROTATION_270:
+                return 270;
+            default:
+                return 0;
         }
+    }
+
+    /**
+     * Receives callback about the orientation changes.
+     */
+    public interface Callback {
+        void onDeviceOrientationChanged(int deviceOrientation);
+
+        void onDisplayOffsetChanged(int displayOffset, boolean willRecreate);
     }
 }

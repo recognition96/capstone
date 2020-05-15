@@ -35,10 +35,6 @@ public enum PictureFormat implements Control {
         this.value = value;
     }
 
-    int value() {
-        return value;
-    }
-
     @NonNull
     static PictureFormat fromValue(int value) {
         PictureFormat[] list = PictureFormat.values();
@@ -48,5 +44,9 @@ public enum PictureFormat implements Control {
             }
         }
         return DEFAULT;
+    }
+
+    int value() {
+        return value;
     }
 }

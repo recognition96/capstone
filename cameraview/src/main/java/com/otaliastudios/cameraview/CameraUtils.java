@@ -57,7 +57,7 @@ public class CameraUtils {
      * Facing value, so that a session can be started.
      *
      * @param context a valid context
-     * @param facing either {@link Facing#BACK} or {@link Facing#FRONT}
+     * @param facing  either {@link Facing#BACK} or {@link Facing#FRONT}
      * @return true if such sensor exists
      */
     public static boolean hasCameraFacing(@SuppressWarnings("unused") @NonNull Context context,
@@ -79,7 +79,7 @@ public class CameraUtils {
      * Simply writes the given data to the given file. It is done synchronously. If you are
      * running on the UI thread, please use {@link #writeToFile(byte[], File, FileCallback)}
      * and pass a file callback.
-     *
+     * <p>
      * If any error is encountered, this returns null.
      *
      * @param data the data to be written
@@ -116,8 +116,8 @@ public class CameraUtils {
      * If some error is encountered, the {@link FileCallback} will return null instead of the
      * original file.
      *
-     * @param data the data to be written
-     * @param file the file to write into
+     * @param data     the data to be written
+     * @param file     the file to write into
      * @param callback a callback
      */
     @SuppressWarnings("WeakerAccess")
@@ -160,7 +160,7 @@ public class CameraUtils {
      * is that this cares about orientation, reading it from the EXIF header.
      * This is executed in a background thread, and returns the result to the original thread.
      *
-     * @param source a JPEG byte array
+     * @param source   a JPEG byte array
      * @param callback a callback to be notified
      */
     @SuppressWarnings("WeakerAccess")
@@ -168,19 +168,19 @@ public class CameraUtils {
                                     @NonNull final BitmapCallback callback) {
         decodeBitmap(source, Integer.MAX_VALUE, Integer.MAX_VALUE, callback);
     }
-    
+
     /**
      * Decodes an input byte array and outputs a Bitmap that is ready to be displayed.
      * The difference with {@link android.graphics.BitmapFactory#decodeByteArray(byte[], int, int)}
      * is that this cares about orientation, reading it from the EXIF header.
      * This is executed in a background thread, and returns the result to the original thread.
-     *
+     * <p>
      * The image is also downscaled taking care of the maxWidth and maxHeight arguments.
      *
-     * @param source a JPEG byte array
-     * @param maxWidth the max allowed width
+     * @param source    a JPEG byte array
+     * @param maxWidth  the max allowed width
      * @param maxHeight the max allowed height
-     * @param callback a callback to be notified
+     * @param callback  a callback to be notified
      */
     @SuppressWarnings("WeakerAccess")
     public static void decodeBitmap(@NonNull final byte[] source,
@@ -195,14 +195,14 @@ public class CameraUtils {
      * The difference with {@link android.graphics.BitmapFactory#decodeByteArray(byte[], int, int)}
      * is that this cares about orientation, reading it from the EXIF header.
      * This is executed in a background thread, and returns the result to the original thread.
-     *
+     * <p>
      * The image is also downscaled taking care of the maxWidth and maxHeight arguments.
      *
-     * @param source a JPEG byte array
-     * @param maxWidth the max allowed width
+     * @param source    a JPEG byte array
+     * @param maxWidth  the max allowed width
      * @param maxHeight the max allowed height
-     * @param options the options to be passed to decodeByteArray
-     * @param callback a callback to be notified
+     * @param options   the options to be passed to decodeByteArray
+     * @param callback  a callback to be notified
      */
     @SuppressWarnings("WeakerAccess")
     public static void decodeBitmap(@NonNull final byte[] source,
@@ -238,11 +238,11 @@ public class CameraUtils {
      * Decodes an input byte array and outputs a Bitmap that is ready to be displayed.
      * The difference with {@link android.graphics.BitmapFactory#decodeByteArray(byte[], int, int)}
      * is that this cares about orientation, reading it from the EXIF header.
-     *
+     * <p>
      * The image is also downscaled taking care of the maxWidth and maxHeight arguments.
      *
-     * @param source a JPEG byte array
-     * @param maxWidth the max allowed width
+     * @param source    a JPEG byte array
+     * @param maxWidth  the max allowed width
      * @param maxHeight the max allowed height
      * @return decoded bitmap or null if error is encountered
      */
@@ -257,13 +257,13 @@ public class CameraUtils {
      * Decodes an input byte array and outputs a Bitmap that is ready to be displayed.
      * The difference with {@link android.graphics.BitmapFactory#decodeByteArray(byte[], int, int)}
      * is that this cares about orientation, reading it from the EXIF header.
-     *
+     * <p>
      * The image is also downscaled taking care of the maxWidth and maxHeight arguments.
      *
-     * @param source a JPEG byte array
-     * @param maxWidth the max allowed width
+     * @param source    a JPEG byte array
+     * @param maxWidth  the max allowed width
      * @param maxHeight the max allowed height
-     * @param options the options to be passed to decodeByteArray
+     * @param options   the options to be passed to decodeByteArray
      * @return decoded bitmap or null if error is encountered
      */
     @SuppressWarnings("WeakerAccess")
@@ -311,7 +311,8 @@ public class CameraUtils {
                 if (stream != null) {
                     try {
                         stream.close();
-                    } catch (Exception ignored) { }
+                    } catch (Exception ignored) {
+                    }
                 }
             }
         } else {

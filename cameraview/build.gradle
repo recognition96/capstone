@@ -140,9 +140,9 @@ bintray {
         override = true
         version {
             name = project.version
-            desc = 'CameraView v. '+project.version
+            desc = 'CameraView v. ' + project.version
             released = new Date()
-            vcsTag = 'v'+project.version
+            vcsTag = 'v' + project.version
         }
     }
 }
@@ -227,8 +227,8 @@ task mergeCoverageReports(type: JacocoReport) {
     // Sources
     sourceDirectories = files(android.sourceSets.main.java.sourceFiles)
     additionalSourceDirs = files([ // Add BuildConfig and R.
-            "$buildDir/generated/source/buildConfig/debug",
-            "$buildDir/generated/source/r/debug"
+                                   "$buildDir/generated/source/buildConfig/debug",
+                                   "$buildDir/generated/source/r/debug"
     ])
 
     // Classes (.class files)

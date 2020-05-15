@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.media.CamcorderProfile;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+
 import com.otaliastudios.cameraview.CameraLogger;
 import com.otaliastudios.cameraview.size.Size;
 
@@ -13,8 +15,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
 
 /**
  * Wraps the {@link android.media.CamcorderProfile} static utilities.
@@ -46,7 +46,7 @@ public class CamcorderProfiles {
      * to ensure we get acceptable video/audio parameters for MediaRecorders
      * (most notably the bitrate).
      *
-     * @param cameraId the camera2 id
+     * @param cameraId   the camera2 id
      * @param targetSize the target video size
      * @return a profile
      */
@@ -67,7 +67,7 @@ public class CamcorderProfiles {
      * to ensure we get acceptable video/audio parameters for MediaRecorders
      * (most notably the bitrate).
      *
-     * @param cameraId the camera id
+     * @param cameraId   the camera id
      * @param targetSize the target video size
      * @return a profile
      */

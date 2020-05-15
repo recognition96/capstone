@@ -1,40 +1,33 @@
 package com.otaliastudios.cameraview.internal;
 
-import com.otaliastudios.cameraview.CameraLogger;
-
-import java.util.concurrent.LinkedBlockingQueue;
-
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.otaliastudios.cameraview.CameraLogger;
+
+import java.util.concurrent.LinkedBlockingQueue;
+
 /**
  * Base class for thread-safe pools of recycleable objects.
+ *
  * @param <T> the object type
  */
 public class Pool<T> {
 
     private static final String TAG = Pool.class.getSimpleName();
     private static final CameraLogger LOG = CameraLogger.create(TAG);
-
+    private final Object lock = new Object();
     private int maxPoolSize;
     private int activeCount;
     private LinkedBlockingQueue<T> queue;
     private Factory<T> factory;
-    private final Object lock = new Object();
-
-    /**
-     * Used to create new instances of objects when needed.
-     * @param <T> object type
-     */
-    public interface Factory<T> {
-        T create();
-    }
 
     /**
      * Creates a new pool with the given pool size and factory.
+     *
      * @param maxPoolSize the max pool size
-     * @param factory the factory
+     * @param factory     the factory
      */
     public Pool(int maxPoolSize, @NonNull Factory<T> factory) {
         this.maxPoolSize = maxPoolSize;
@@ -160,5 +153,14 @@ public class Pool<T> {
     @Override
     public String toString() {
         return getClass().getSimpleName() + " - count:" + count() + ", active:" + activeCount() + ", recycled:" + recycledCount();
+    }
+
+    /**
+     * Used to create new instances of objects when needed.
+     *
+     * @param <T> object type
+     */
+    public interface Factory<T> {
+        T create();
     }
 }

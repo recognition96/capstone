@@ -34,9 +34,7 @@ public abstract class CameraOptions {
     protected Set<Flash> supportedFlash = new HashSet<>(4);
     protected Set<Hdr> supportedHdr = new HashSet<>(2);
     protected Set<Size> supportedPictureSizes = new HashSet<>(15);
-    protected Set<Size> supportedVideoSizes = new HashSet<>(5);
     protected Set<AspectRatio> supportedPictureAspectRatio = new HashSet<>(4);
-    protected Set<AspectRatio> supportedVideoAspectRatio = new HashSet<>(3);
     protected Set<PictureFormat> supportedPictureFormats = new HashSet<>(2);
     protected Set<Integer> supportedFrameProcessingFormats = new HashSet<>(2);
 
@@ -45,10 +43,10 @@ public abstract class CameraOptions {
     protected float exposureCorrectionMinValue;
     protected float exposureCorrectionMaxValue;
     protected boolean autoFocusSupported;
-    protected float previewFrameRateMinValue;
-    protected float previewFrameRateMaxValue;
 
-    protected CameraOptions() { }
+
+    protected CameraOptions() {
+    }
 
     /**
      * Shorthand for getSupported*().contains(value).
@@ -129,32 +127,13 @@ public abstract class CameraOptions {
         return Collections.unmodifiableSet(supportedPictureAspectRatio);
     }
 
-    /**
-     * Set of supported video sizes for the currently opened camera.
-     *
-     * @return a collection of supported values.
-     */
-    @NonNull
-    public final Collection<Size> getSupportedVideoSizes() {
-        return Collections.unmodifiableSet(supportedVideoSizes);
-    }
-
-    /**
-     * Set of supported picture aspect ratios for the currently opened camera.
-     *
-     * @return a set of supported values.
-     */
-    @NonNull
-    public final Collection<AspectRatio> getSupportedVideoAspectRatios() {
-        return Collections.unmodifiableSet(supportedVideoAspectRatio);
-    }
 
     /**
      * Set of supported facing values.
      *
+     * @return a collection of supported values.
      * @see Facing#BACK
      * @see Facing#FRONT
-     * @return a collection of supported values.
      */
     @NonNull
     public final Collection<Facing> getSupportedFacing() {
@@ -164,11 +143,11 @@ public abstract class CameraOptions {
     /**
      * Set of supported flash values.
      *
+     * @return a collection of supported values.
      * @see Flash#AUTO
      * @see Flash#OFF
      * @see Flash#ON
      * @see Flash#TORCH
-     * @return a collection of supported values.
      */
     @NonNull
     public final Collection<Flash> getSupportedFlash() {
@@ -178,12 +157,12 @@ public abstract class CameraOptions {
     /**
      * Set of supported white balance values.
      *
+     * @return a collection of supported values.
      * @see WhiteBalance#AUTO
      * @see WhiteBalance#INCANDESCENT
      * @see WhiteBalance#FLUORESCENT
      * @see WhiteBalance#DAYLIGHT
      * @see WhiteBalance#CLOUDY
-     * @return a collection of supported values.
      */
     @NonNull
     public final Collection<WhiteBalance> getSupportedWhiteBalance() {
@@ -193,9 +172,9 @@ public abstract class CameraOptions {
     /**
      * Set of supported hdr values.
      *
+     * @return a collection of supported values.
      * @see Hdr#OFF
      * @see Hdr#ON
-     * @return a collection of supported values.
      */
     @NonNull
     public final Collection<Hdr> getSupportedHdr() {
@@ -205,9 +184,9 @@ public abstract class CameraOptions {
     /**
      * Set of supported picture formats.
      *
+     * @return a collection of supported values.
      * @see PictureFormat#JPEG
      * @see PictureFormat#DNG
-     * @return a collection of supported values.
      */
     @NonNull
     public final Collection<PictureFormat> getSupportedPictureFormats() {
@@ -218,8 +197,8 @@ public abstract class CameraOptions {
      * Set of supported formats for frame processing,
      * as {@link ImageFormat} constants.
      *
-     * @see CameraView#setFrameProcessingFormat(int)
      * @return a collection of supported values.
+     * @see CameraView#setFrameProcessingFormat(int)
      */
     @NonNull
     public final Collection<Integer> getSupportedFrameProcessingFormats() {
@@ -252,9 +231,9 @@ public abstract class CameraOptions {
      * Whether exposure correction is supported. If this is false, calling
      * {@link CameraView#setExposureCorrection(float)} has no effect.
      *
+     * @return whether exposure correction is supported.
      * @see #getExposureCorrectionMinValue()
      * @see #getExposureCorrectionMaxValue()
-     * @return whether exposure correction is supported.
      */
     public final boolean isExposureCorrectionSupported() {
         return exposureCorrectionSupported;
@@ -281,21 +260,4 @@ public abstract class CameraOptions {
         return exposureCorrectionMaxValue;
     }
 
-    /**
-     * The minimum value for the preview frame rate, in frames per second (FPS).
-     *
-     * @return the min value
-     */
-    public final float getPreviewFrameRateMinValue() {
-        return previewFrameRateMinValue;
-    }
-
-    /**
-     * The maximum value for the preview frame rate, in frames per second (FPS).
-     *
-     * @return the max value
-     */
-    public final float getPreviewFrameRateMaxValue() {
-        return previewFrameRateMaxValue;
-    }
 }

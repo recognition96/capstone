@@ -17,6 +17,7 @@ public abstract class ActionWrapper extends BaseAction {
 
     /**
      * Should return the wrapped action.
+     *
      * @return the wrapped action
      */
     @NonNull

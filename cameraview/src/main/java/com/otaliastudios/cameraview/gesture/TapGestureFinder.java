@@ -1,9 +1,9 @@
 package com.otaliastudios.cameraview.gesture;
 
-import androidx.annotation.NonNull;
-
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+
+import androidx.annotation.NonNull;
 
 /**
  * A {@link GestureFinder} that detects {@link Gesture#TAP}
@@ -19,12 +19,12 @@ public class TapGestureFinder extends GestureFinder {
         mDetector = new GestureDetector(controller.getContext(),
                 new GestureDetector.SimpleOnGestureListener() {
 
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                mNotify = true;
-                setGesture(Gesture.TAP);
-                return true;
-            }
+                    @Override
+                    public boolean onSingleTapUp(MotionEvent e) {
+                        mNotify = true;
+                        setGesture(Gesture.TAP);
+                        return true;
+                    }
 
             /*
             TODO should use onSingleTapConfirmed and enable this.
@@ -34,12 +34,12 @@ public class TapGestureFinder extends GestureFinder {
                 return true;
             } */
 
-            @Override
-            public void onLongPress(MotionEvent e) {
-                mNotify = true;
-                setGesture(Gesture.LONG_TAP);
-            }
-        });
+                    @Override
+                    public void onLongPress(MotionEvent e) {
+                        mNotify = true;
+                        setGesture(Gesture.LONG_TAP);
+                    }
+                });
 
         mDetector.setIsLongpressEnabled(true);
     }

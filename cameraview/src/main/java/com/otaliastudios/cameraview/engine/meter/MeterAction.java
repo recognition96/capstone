@@ -27,12 +27,11 @@ public class MeterAction extends ActionWrapper {
 
     private final static String TAG = MeterAction.class.getSimpleName();
     private final static CameraLogger LOG = CameraLogger.create(TAG);
-
-    private List<BaseMeter> meters;
-    private BaseAction action;
     private final MeteringRegions regions;
     private final CameraEngine engine;
     private final boolean skipIfPossible;
+    private List<BaseMeter> meters;
+    private BaseAction action;
 
     public MeterAction(@NonNull CameraEngine engine,
                        @Nullable MeteringRegions regions,

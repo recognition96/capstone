@@ -3,9 +3,9 @@ package com.otaliastudios.cameraview.video.encoding;
 import android.media.MediaCodec;
 import android.os.Build;
 
-import com.otaliastudios.cameraview.internal.Pool;
-
 import androidx.annotation.RequiresApi;
+
+import com.otaliastudios.cameraview.internal.Pool;
 
 /**
  * A simple {@link Pool(int, Factory)} implementation for output buffers.

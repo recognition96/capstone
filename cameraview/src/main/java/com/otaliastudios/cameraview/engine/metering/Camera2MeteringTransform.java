@@ -86,8 +86,10 @@ public class Camera2MeteringTransform implements MeteringTransform<MeteringRecta
         // 6. Probably not needed, but make sure we clip.
         if (referencePoint.x < 0) referencePoint.x = 0;
         if (referencePoint.y < 0) referencePoint.y = 0;
-        if (referencePoint.x > referenceSize.getWidth()) referencePoint.x = referenceSize.getWidth();
-        if (referencePoint.y > referenceSize.getHeight()) referencePoint.y = referenceSize.getHeight();
+        if (referencePoint.x > referenceSize.getWidth())
+            referencePoint.x = referenceSize.getWidth();
+        if (referencePoint.y > referenceSize.getHeight())
+            referencePoint.y = referenceSize.getHeight();
         LOG.i("input:", point, "output (after clipping):", referencePoint);
         return referencePoint;
     }

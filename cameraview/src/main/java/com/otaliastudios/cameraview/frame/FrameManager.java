@@ -3,26 +3,26 @@ package com.otaliastudios.cameraview.frame;
 
 import android.graphics.ImageFormat;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.otaliastudios.cameraview.CameraLogger;
 import com.otaliastudios.cameraview.engine.offset.Angles;
 import com.otaliastudios.cameraview.engine.offset.Axis;
 import com.otaliastudios.cameraview.engine.offset.Reference;
 import com.otaliastudios.cameraview.size.Size;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * This class manages the allocation of {@link Frame} objects.
  * The FrameManager keeps a {@link #mPoolSize} integer that defines the number of instances to keep.
- *
+ * <p>
  * Main methods are:
  * - {@link #setUp(int, Size, Angles)}: to set up with size and allocate buffers
  * - {@link #release()}: to release. After release, a manager can be setUp again.
  * - {@link #getFrame(Object, long)}: gets a new {@link Frame}.
- *
+ * <p>
  * For frames to get back to the FrameManager pool, all you have to do
  * is call {@link Frame#release()} when done.
  */
@@ -32,10 +32,10 @@ public abstract class FrameManager<T> {
     protected static final CameraLogger LOG = CameraLogger.create(TAG);
 
     private final int mPoolSize;
+    private final Class<T> mFrameDataClass;
     private int mFrameBytes = -1;
     private Size mFrameSize = null;
     private int mFrameFormat = -1;
-    private final Class<T> mFrameDataClass;
     private LinkedBlockingQueue<Frame> mFrameQueue;
     private Angles mAngles;
 
@@ -55,6 +55,7 @@ public abstract class FrameManager<T> {
 
     /**
      * Returns the pool size.
+     *
      * @return pool size
      */
     @SuppressWarnings("WeakerAccess")
@@ -64,6 +65,7 @@ public abstract class FrameManager<T> {
 
     /**
      * Returns the frame size in bytes.
+     *
      * @return frame size in bytes
      */
     @SuppressWarnings("WeakerAccess")
@@ -73,6 +75,7 @@ public abstract class FrameManager<T> {
 
     /**
      * Returns the frame data class.
+     *
      * @return frame data class
      */
     public final Class<T> getFrameDataClass() {
@@ -82,10 +85,11 @@ public abstract class FrameManager<T> {
     /**
      * Allocates a {@link #mPoolSize} number of buffers. Should be called once
      * the preview size and the image format value are known.
-     *
+     * <p>
      * This method can be called again after {@link #release()} has been called.
-     *  @param format the image format
-     * @param size the frame size
+     *
+     * @param format the image format
+     * @param size   the frame size
      * @param angles angle object
      */
     public void setUp(int format, @NonNull Size size, @NonNull Angles angles) {
@@ -148,6 +152,7 @@ public abstract class FrameManager<T> {
 
     /**
      * Called by child frames when they are released.
+     *
      * @param frame the released frame
      */
     void onFrameReleased(@NonNull Frame frame, @NonNull T data) {
@@ -163,7 +168,8 @@ public abstract class FrameManager<T> {
      * This might be called from old Frames that belong to an old 'setUp'
      * of this FrameManager instance. So the buffer size might be different,
      * for instance.
-     * @param data data
+     *
+     * @param data     data
      * @param recycled recycled
      */
     protected abstract void onFrameDataReleased(@NonNull T data, boolean recycled);
