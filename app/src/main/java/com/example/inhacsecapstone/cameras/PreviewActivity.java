@@ -15,8 +15,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import org.json.*;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.inhacsecapstone.R;
@@ -50,7 +48,7 @@ public class   PreviewActivity extends AppCompatActivity {
                     + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
                     + "|[1-9][0-9]|[0-9]))");
     private static final String portNumber = "5000";
-    private static final String ipv4Address = "172.30.1.46";
+    private static final String ipv4Address = "172.30.1.35";
     private static final int SELECT_PICTURE = 1;
     Context context;
 

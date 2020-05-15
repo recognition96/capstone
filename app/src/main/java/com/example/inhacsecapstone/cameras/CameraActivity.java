@@ -241,7 +241,7 @@ public class CameraActivity extends AppCompatActivity {
              */
             mCameraManager = (CameraManager) this.getSystemService(Context.CAMERA_SERVICE);
             String mCameraId = "" + CameraCharacteristics.LENS_FACING_FRONT;    // 후면 카메라 사용
-            mCameraManager.getCameraCharacteristics(mCameraId);
+            characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
 
             // 해당 카메라 지원하는 다양한 정보 (지원하는 화면크기 목록 등을 포함)
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
