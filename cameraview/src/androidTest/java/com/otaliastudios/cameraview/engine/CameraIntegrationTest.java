@@ -4,9 +4,11 @@ package com.otaliastudios.cameraview.engine;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.PointF;
-import android.hardware.Camera;
-import android.os.Build;
-import android.os.Handler;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.rule.GrantPermissionRule;
 
 import com.otaliastudios.cameraview.BaseTest;
 import com.otaliastudios.cameraview.CameraException;
@@ -21,25 +23,17 @@ import com.otaliastudios.cameraview.controls.Engine;
 import com.otaliastudios.cameraview.controls.Flash;
 import com.otaliastudios.cameraview.controls.Hdr;
 import com.otaliastudios.cameraview.controls.Mode;
-import com.otaliastudios.cameraview.controls.PictureFormat;
 import com.otaliastudios.cameraview.controls.WhiteBalance;
 import com.otaliastudios.cameraview.engine.orchestrator.CameraState;
 import com.otaliastudios.cameraview.frame.Frame;
 import com.otaliastudios.cameraview.frame.FrameProcessor;
-import com.otaliastudios.cameraview.size.SizeSelectors;
-import com.otaliastudios.cameraview.tools.Emulator;
-import com.otaliastudios.cameraview.tools.Op;
 import com.otaliastudios.cameraview.internal.WorkerHandler;
 import com.otaliastudios.cameraview.overlay.Overlay;
 import com.otaliastudios.cameraview.size.Size;
+import com.otaliastudios.cameraview.tools.Op;
 import com.otaliastudios.cameraview.tools.Retry;
 import com.otaliastudios.cameraview.tools.RetryRule;
 import com.otaliastudios.cameraview.tools.SdkExclude;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,7 +41,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -191,68 +184,6 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         }
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    @Nullable
-    private VideoResult waitForVideoResult(boolean expectSuccess) {
-        Op<Boolean> wait1 = new Op<>();
-        Op<VideoResult> wait2 = new Op<>();
-        doEndOp(wait1, true).when(listener).onVideoRecordingEnd();
-        doEndOp(wait1, false).when(listener).onCameraError(argThat(new ArgumentMatcher<CameraException>() {
-            @Override
-            public boolean matches(CameraException argument) {
-                return argument.getReason() == CameraException.REASON_VIDEO_FAILED;
-            }
-        }));
-        doEndOp(wait2, 0).when(listener).onVideoTaken(any(VideoResult.class));
-        doEndOp(wait2, null).when(listener).onCameraError(argThat(new ArgumentMatcher<CameraException>() {
-            @Override
-            public boolean matches(CameraException argument) {
-                return argument.getReason() == CameraException.REASON_VIDEO_FAILED;
-            }
-        }));
-        int maxLoops = 10;
-        int loops = 0;
-
-        // First wait for onVideoRecordingEnd().
-        // It seems that when running all the tests together, the device can go in some
-        // power saving mode which makes the CPU extremely slow. This is especially problematic
-        // with video snapshots where we do lots of processing. The videoEnd callback can return
-        // long after the actual stop() call, so if we're still processing, let's wait more.
-        LOG.i("[WAIT VIDEO]", "Waiting for onVideoRecordingEnd()...");
-        Boolean wait1Result = wait1.await(DELAY);
-        if (expectSuccess) {
-            while (wait1Result == null && loops <= maxLoops) {
-                LOG.w("[WAIT VIDEO]", "Waiting extra", DELAY, "milliseconds...");
-                wait1.listen();
-                wait1Result = wait1.await(DELAY);
-                loops++;
-            }
-        }
-
-        // Now wait for onVideoResult(). One cycle should be enough.
-        LOG.i("[WAIT VIDEO]", "Waiting for onVideoTaken()...");
-        VideoResult wait2Result = wait2.await(DELAY);
-        if (expectSuccess) {
-            while (wait2Result == null && loops <= maxLoops) {
-                LOG.w("[WAIT VIDEO]", "Waiting extra", DELAY, "milliseconds...");
-                wait2.listen();
-                wait2Result = wait2.await(DELAY);
-                loops++;
-            }
-        }
-
-        // Assert.
-        if (expectSuccess) {
-            assertNotNull("Should call onVideoRecordingEnd", wait1Result);
-            assertTrue("Should call onVideoRecordingEnd", wait1Result);
-            assertNotNull("Should call onVideoTaken", wait2Result);
-        } else {
-            assertTrue("Should not call onVideoRecordingEnd",
-                    wait1Result == null || !wait1Result);
-            assertNull("Should not call onVideoTaken", wait2Result);
-        }
-        return wait2Result;
-    }
 
     @Nullable
     private PictureResult waitForPictureResult(boolean expectSuccess) {
@@ -275,91 +206,6 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         return result;
     }
 
-    /**
-     * Emulators do not respond well to setVideoMaxDuration() with full videos.
-     * The mediaRecorder.stop() call can hang forever.
-     * @return true if possible
-     */
-    protected boolean canSetVideoMaxDuration() {
-        return !Emulator.isEmulator();
-    }
-
-    protected void takeVideoSync(boolean expectSuccess) {
-        takeVideoSync(expectSuccess,0);
-    }
-
-    protected void takeVideoSync(boolean expectSuccess, int duration) {
-        final Op<Boolean> op = new Op<>();
-        doEndOp(op, true).when(listener).onVideoRecordingStart();
-        doEndOp(op, false).when(listener).onCameraError(argThat(new ArgumentMatcher<CameraException>() {
-            @Override
-            public boolean matches(CameraException argument) {
-                return argument.getReason() == CameraException.REASON_VIDEO_FAILED;
-            }
-        }));
-        File file = new File(getContext().getFilesDir(), "video.mp4");
-        if (duration > 0) {
-            if (canSetVideoMaxDuration()) {
-                camera.takeVideo(file, duration);
-            } else {
-                final int delay = Math.round(duration * 1.2F); // Compensate for thread jumps, ...
-                uiSync(new Runnable() {
-                    @Override
-                    public void run() {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                camera.stopVideo();
-                            }
-                        }, delay);
-                    }
-                });
-                camera.takeVideo(file);
-            }
-        } else {
-            camera.takeVideo(file);
-        }
-        Boolean result = op.await(DELAY);
-        if (expectSuccess) {
-            LOG.i("[WAIT VIDEO START]", "Expecting success.");
-            assertNotNull("should start video recording or get CameraError", result);
-            assertTrue("should start video recording successfully", result);
-        } else {
-            LOG.i("[WAIT VIDEO START]", "Expecting failure.");
-            assertTrue("should not start video recording", result == null || !result);
-        }
-    }
-
-    @SuppressWarnings({"unused", "SameParameterValue"})
-    private void takeVideoSnapshotSync(boolean expectSuccess) {
-        takeVideoSnapshotSync(expectSuccess,0);
-    }
-
-    private void takeVideoSnapshotSync(boolean expectSuccess, int duration) {
-        final Op<Boolean> op = new Op<>();
-        doEndOp(op, true).when(listener).onVideoRecordingStart();
-        doEndOp(op, false).when(listener).onCameraError(argThat(new ArgumentMatcher<CameraException>() {
-            @Override
-            public boolean matches(CameraException argument) {
-                return argument.getReason() == CameraException.REASON_VIDEO_FAILED;
-            }
-        }));
-        File file = new File(getContext().getFilesDir(), "video.mp4");
-        if (duration > 0) {
-            camera.takeVideoSnapshot(file, duration);
-        } else {
-            camera.takeVideoSnapshot(file);
-        }
-        Boolean result = op.await(DELAY);
-        if (expectSuccess) {
-            LOG.i("[WAIT VIDEO SNAP START]", "Expecting success.");
-            assertNotNull("should start video recording or get CameraError", result);
-            assertTrue("should start video recording successfully", result);
-        } else {
-            LOG.i("[WAIT VIDEO SNAP START]", "Expecting failure.");
-            assertTrue("should not start video recording", result == null || !result);
-        }
-    }
 
     private void waitForError() throws Throwable {
         Throwable throwable = error.await(DELAY);
@@ -461,11 +307,8 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         doCountDown(latch).when(listener).onCameraOpened(any(CameraOptions.class));
         doCountDown(latch).when(listener).onCameraClosed();
 
-        camera.setMode(Mode.VIDEO);
-
         boolean did = latch.await(2, TimeUnit.SECONDS);
         assertTrue("Handles setMode while active", did);
-        assertEquals(camera.getMode(), Mode.VIDEO);
     }
 
     //endregion
@@ -573,18 +416,6 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
     @Test
     @Retry(emulatorOnly = true)
     @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testSetAudio() {
-        openSync(true);
-        Audio[] values = Audio.values();
-        for (Audio value : values) {
-            camera.setAudio(value);
-            assertEquals(camera.getAudio(), value);
-        }
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
     public void testSetLocation() {
         openSync(true);
         camera.setLocation(10d, 2d);
@@ -596,188 +427,8 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         // This also ensures there are no crashes when attaching it to camera parameters.
     }
 
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testSetPreviewFrameRate() {
-        CameraOptions options = openSync(true);
-        camera.setPreviewFrameRate(30);
-        Op<Void> op = new Op<>(controller.mPreviewFrameRateTask);
-        op.await(300);
-        assertEquals(camera.getPreviewFrameRate(),
-                Math.min(options.getPreviewFrameRateMaxValue(),
-                        Math.max(options.getPreviewFrameRateMinValue(), 30)),
-                0);
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testSetPlaySounds() {
-        boolean oldValue = camera.getPlaySounds();
-        boolean newValue = !oldValue;
-        camera.setPlaySounds(newValue);
-        Op<Void> op = new Op<>(controller.mPlaySoundsTask);
-        op.await(300);
-
-        if (controller instanceof Camera1Engine) {
-            Camera1Engine camera1Engine = (Camera1Engine) controller;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                Camera.CameraInfo info = new Camera.CameraInfo();
-                Camera.getCameraInfo(camera1Engine.mCameraId, info);
-                if (info.canDisableShutterSound) {
-                    assertEquals(newValue, camera.getPlaySounds());
-                }
-            } else {
-                assertEquals(oldValue, camera.getPlaySounds());
-            }
-        } else {
-            assertEquals(newValue, camera.getPlaySounds());
-        }
-    }
-
     //endregion
 
-    //region test takeVideo
-
-    @Test(expected = RuntimeException.class)
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testStartVideo_whileInPictureMode() throws Throwable {
-        camera.setMode(Mode.PICTURE);
-        openSync(true);
-        takeVideoSync(false);
-        waitForError();
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 25, emulatorOnly = true)
-    public void testStartEndVideo() {
-        camera.setMode(Mode.VIDEO);
-        openSync(true);
-        takeVideoSync(true, 4000);
-        waitForVideoResult(true);
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testStartEndVideoSnapshot() {
-        // TODO should check api level for snapshot?
-        openSync(true);
-        takeVideoSnapshotSync(true, 4000);
-        waitForVideoResult(true);
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 25, emulatorOnly = true)
-    public void testStartEndVideo_withManualStop() {
-        camera.setMode(Mode.VIDEO);
-        openSync(true);
-        takeVideoSync(true);
-        uiSync(new Runnable() {
-            @Override
-            public void run() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        camera.stopVideo();
-                    }
-                }, 5000);
-            }
-        });
-        waitForVideoResult(true);
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testStartEndVideoSnapshot_withManualStop() {
-        openSync(true);
-        takeVideoSnapshotSync(true);
-        uiSync(new Runnable() {
-            @Override
-            public void run() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        camera.stopVideo();
-                    }
-                }, 5000);
-            }
-        });
-        waitForVideoResult(true);
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testEndVideo_withoutStarting() {
-        camera.setMode(Mode.VIDEO);
-        openSync(true);
-        camera.stopVideo();
-        waitForVideoResult(false);
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 25, emulatorOnly = true)
-    public void testEndVideo_withMaxSize() {
-        camera.setMode(Mode.VIDEO);
-        camera.setVideoSize(SizeSelectors.maxArea(480 * 360));
-        openSync(true);
-        // Assuming video frame rate is 20...
-        //noinspection ConstantConditions
-        camera.setVideoBitRate((int) estimateVideoBitRate(camera.getVideoSize(), 20));
-        camera.setVideoMaxSize(estimateVideoBytes(camera.getVideoBitRate(), 5000));
-        takeVideoSync(true);
-        waitForVideoResult(true);
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testEndVideoSnapshot_withMaxSize() {
-        openSync(true);
-        camera.setSnapshotMaxWidth(480);
-        camera.setSnapshotMaxHeight(480);
-        // We don't want a very low FPS or the video frames are too sparse and recording
-        // can fail (e.g. audio reaching completion while video still struggling to start)
-        camera.setPreviewFrameRate(30F);
-        //noinspection ConstantConditions
-        camera.setVideoBitRate((int) estimateVideoBitRate(camera.getSnapshotSize(),
-                (int) camera.getPreviewFrameRate()));
-        camera.setVideoMaxSize(estimateVideoBytes(camera.getVideoBitRate(), 5000));
-        takeVideoSnapshotSync(true);
-        waitForVideoResult(true);
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 25, emulatorOnly = true)
-    public void testEndVideo_withMaxDuration() {
-        if (canSetVideoMaxDuration()) {
-            camera.setMode(Mode.VIDEO);
-            camera.setVideoMaxDuration(4000);
-            openSync(true);
-            takeVideoSync(true);
-            waitForVideoResult(true);
-        }
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testEndVideoSnapshot_withMaxDuration() {
-        camera.setVideoMaxDuration(4000);
-        openSync(true);
-        takeVideoSnapshotSync(true);
-        waitForVideoResult(true);
-    }
-
-    //endregion
 
     //region startAutoFocus
 
@@ -825,100 +476,6 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
     //endregion
 
     //region capture
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testCapturePicture_beforeStarted() {
-        camera.takePicture();
-        waitForPictureResult(false);
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testCapturePicture_concurrentCalls() throws Exception {
-        // Second take should fail.
-        openSync(true);
-
-        CountDownLatch latch = new CountDownLatch(2);
-        doCountDown(latch).when(listener).onPictureTaken(any(PictureResult.class));
-
-        camera.takePicture();
-        camera.takePicture();
-        boolean did = latch.await(4, TimeUnit.SECONDS);
-        assertFalse(did);
-        assertEquals(1, latch.getCount());
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testCapturePicture_size() {
-        // Decoding can fail for large bitmaps. set a small size.
-        // camera.setPictureSize(SizeSelectors.smallest());
-        openSync(true);
-        Size size = camera.getPictureSize();
-        assertNotNull(size);
-        camera.takePicture();
-        PictureResult result = waitForPictureResult(true);
-        assertNotNull(result);
-        assertNotNull(result.getData());
-        assertNull(result.getLocation());
-        assertFalse(result.isSnapshot());
-        assertEquals(result.getSize(), size);
-        Bitmap bitmap = CameraUtils.decodeBitmap(result.getData(),
-                Integer.MAX_VALUE, Integer.MAX_VALUE);
-        if (bitmap != null) {
-            assertNotNull(bitmap);
-            String message = LOG.i("[PICTURE SIZE]", "Desired:", size, "Bitmap:",
-                    new Size(bitmap.getWidth(), bitmap.getHeight()));
-            if (!Emulator.isEmulator()) {
-                assertEquals(message, bitmap.getWidth(), size.getWidth());
-                assertEquals(message, bitmap.getHeight(), size.getHeight());
-            } else {
-                // Emulator implementation sometimes does not rotate the image correctly.
-                assertTrue(message, bitmap.getWidth() == size.getWidth()
-                        || bitmap.getWidth() == size.getHeight());
-                assertTrue(message, bitmap.getHeight() == size.getWidth()
-                        || bitmap.getHeight() == size.getHeight());
-                assertEquals(message, size.getWidth() * size.getHeight(),
-                        bitmap.getWidth() * bitmap.getHeight());
-            }
-        }
-    }
-
-    @Test(expected = RuntimeException.class)
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testCapturePicture_whileInVideoMode() throws Throwable {
-        camera.setMode(Mode.VIDEO);
-        openSync(true);
-        camera.takePicture();
-        waitForError();
-        camera.takePicture();
-
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testCapturePicture_withMetering() {
-        openSync(true);
-        camera.setPictureMetering(true);
-        camera.takePicture();
-        waitForPictureResult(true);
-    }
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testCapturePicture_withoutMetering() {
-        openSync(true);
-        camera.setPictureMetering(false);
-        camera.takePicture();
-        waitForPictureResult(true);
-    }
 
     @Test
     @Retry(emulatorOnly = true)
@@ -989,33 +546,6 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         camera.setPictureSnapshotMetering(false);
         camera.takePictureSnapshot();
         waitForPictureResult(true);
-    }
-
-    //endregion
-
-    //region Picture Formats
-
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 22, emulatorOnly = true)
-    public void testPictureFormat_DNG() {
-        openSync(true);
-        if (camera.getCameraOptions().supports(PictureFormat.DNG)) {
-            Op<Boolean> op = new Op<>();
-            doEndOp(op, true).when(listener).onCameraOpened(any(CameraOptions.class));
-            camera.setPictureFormat(PictureFormat.DNG);
-            assertNotNull(op.await(2000));
-            camera.takePicture();
-            PictureResult result = waitForPictureResult(true);
-            // assert that result.getData() is a DNG file:
-            // We can use the first 4 bytes assuming they are the same as a TIFF file
-            // https://en.wikipedia.org/wiki/List_of_file_signatures 73, 73, 42, 0
-            byte[] b = result.getData();
-            boolean isII = b[0] == 'I' && b[1] == 'I' && b[2] == '*' && b[3] == 0;
-            boolean isMM = b[0] == 'M' && b[1] == 'M' && b[2] == 0 && b[3] == '*';
-            assertTrue(isII || isMM);
-        }
     }
 
     //endregion
@@ -1091,20 +621,6 @@ public abstract class CameraIntegrationTest<E extends CameraBaseEngine> extends 
         assert15Frames(processor);
     }
 
-
-    @Test
-    @Retry(emulatorOnly = true)
-    @SdkExclude(maxSdkVersion = 25, emulatorOnly = true)
-    public void testFrameProcessing_afterVideo() throws Exception {
-        FrameProcessor processor = mock(FrameProcessor.class);
-        camera.addFrameProcessor(processor);
-        camera.setMode(Mode.VIDEO);
-        openSync(true);
-        takeVideoSync(true,4000);
-        waitForVideoResult(true);
-
-        assert15Frames(processor);
-    }
 
     @Test
     @Retry(emulatorOnly = true)

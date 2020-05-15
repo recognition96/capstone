@@ -348,10 +348,6 @@ public abstract class CameraBaseEngine extends CameraEngine {
         return mPreviewFrameRateExact;
     }
 
-    @Override
-    public final float getPreviewFrameRate() {
-        return mPreviewFrameRate;
-    }
 
     @Override
     public final boolean hasFrameProcessors() {
@@ -378,32 +374,13 @@ public abstract class CameraBaseEngine extends CameraEngine {
         return mPictureSnapshotMetering;
     }
 
-    //region Picture and video control
+    //region Picture control
 
     @Override
     public final boolean isTakingPicture() {
         return mPictureRecorder != null;
     }
 
-    @Override
-    public /* final */ void takePicture(final @NonNull PictureResult.Stub stub) {
-        // Save boolean before scheduling! See how Camera2Engine calls this with a temp value.
-        final boolean metering = mPictureMetering;
-        getOrchestrator().scheduleStateful("take picture", CameraState.BIND,
-                new Runnable() {
-            @Override
-            public void run() {
-                LOG.i("takePicture:", "running. isTakingPicture:", isTakingPicture());
-                if (isTakingPicture()) return;
-
-                stub.isSnapshot = false;
-                stub.location = mLocation;
-                stub.facing = mFacing;
-                stub.format = mPictureFormat;
-                onTakePicture(stub, metering);
-            }
-        });
-    }
 
     /**
      * The snapshot size is the {@link #getPreviewStreamSize(Reference)}, but cropped based on the
@@ -446,8 +423,7 @@ public abstract class CameraBaseEngine extends CameraEngine {
     }
 
 
-    @EngineThread
-    protected abstract void onTakePicture(@NonNull PictureResult.Stub stub, boolean doMetering);
+
 
     @EngineThread
     protected abstract void onTakePictureSnapshot(@NonNull PictureResult.Stub stub,

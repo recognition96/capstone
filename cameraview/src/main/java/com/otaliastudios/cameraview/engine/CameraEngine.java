@@ -655,8 +655,6 @@ public abstract class CameraEngine implements
 
     public abstract void setPreviewFrameRateExact(boolean previewFrameRateExact);
     public abstract boolean getPreviewFrameRateExact();
-    public abstract void setPreviewFrameRate(float previewFrameRate);
-    public abstract float getPreviewFrameRate();
 
     public abstract void setHasFrameProcessors(boolean hasFrameProcessors);
     public abstract boolean hasFrameProcessors();
@@ -672,7 +670,6 @@ public abstract class CameraEngine implements
                                         @NonNull PointF legacyPoint);
 
     public abstract boolean isTakingPicture();
-    public abstract void takePicture(@NonNull PictureResult.Stub stub);
     public abstract void takePictureSnapshot(final @NonNull PictureResult.Stub stub);
 
 

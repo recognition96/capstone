@@ -39,7 +39,6 @@ import com.otaliastudios.cameraview.controls.Mode;
 import com.otaliastudios.cameraview.controls.PictureFormat;
 import com.otaliastudios.cameraview.controls.Preview;
 import com.otaliastudios.cameraview.controls.WhiteBalance;
-import com.otaliastudios.cameraview.engine.Camera1Engine;
 import com.otaliastudios.cameraview.engine.Camera2Engine;
 import com.otaliastudios.cameraview.engine.CameraEngine;
 import com.otaliastudios.cameraview.engine.offset.Reference;
@@ -238,7 +237,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         setWhiteBalance(controls.getWhiteBalance());
         setHdr(controls.getHdr());
         setPictureSize(sizeSelectors.getPictureSizeSelector());
-        setPictureMetering(pictureMetering);
         setPictureSnapshotMetering(pictureSnapshotMetering);
         setPictureFormat(controls.getPictureFormat());
         setAutoFocusResetDelay(autoFocusResetDelay);
@@ -305,10 +303,8 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
                 && engine == Engine.CAMERA2
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return new Camera2Engine(callback);
-        } else {
-            mEngine = Engine.CAMERA1;
-            return new Camera1Engine(callback);
         }
+        return null;
     }
 
     /**
@@ -617,9 +613,9 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         //noinspection ConstantConditions
         switch (action) {
 
-            case TAKE_PICTURE:
-                takePicture();
-                break;
+//            case TAKE_PICTURE:
+//                takePicture();
+//                break;
 
             case AUTO_FOCUS:
                 Size size = new Size(getWidth(), getHeight());
@@ -872,7 +868,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         setPictureSize(oldEngine.getPictureSizeSelector());
         setPictureFormat(oldEngine.getPictureFormat());
         setAutoFocusResetDelay(oldEngine.getAutoFocusResetDelay());
-        setPreviewFrameRate(oldEngine.getPreviewFrameRate());
         setPreviewFrameRateExact(oldEngine.getPreviewFrameRateExact());
         setSnapshotMaxWidth(oldEngine.getSnapshotMaxWidth());
         setSnapshotMaxHeight(oldEngine.getSnapshotMaxHeight());
@@ -1232,30 +1227,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         mCameraEngine.setPictureSizeSelector(selector);
     }
 
-    /**
-     * Whether the engine should perform a metering sequence before taking pictures requested
-     * with {@link #takePicture()}. A metering sequence includes adjusting focus, exposure
-     * and white balance to ensure a good quality of the result.
-     * <p>
-     * When this parameter is true, the quality of the picture increases, but the latency
-     * increases as well. Defaults to true.
-     * <p>
-     * This is a CAMERA2 only API. On CAMERA1, picture metering is always enabled.
-     *
-     * @param enable true to enable
-     * @see #setPictureSnapshotMetering(boolean)
-     */
-    public void setPictureMetering(boolean enable) {
-        mCameraEngine.setPictureMetering(enable);
-    }
-
-    /**
-     * Whether the engine should perform a metering sequence before taking pictures requested
-     * with {@link #takePicture()}. See {@link #setPictureMetering(boolean)}.
-     *
-     * @return true if picture metering is enabled
-     * @see #setPictureMetering(boolean)
-     */
     public boolean getPictureMetering() {
         return mCameraEngine.getPictureMetering();
     }
@@ -1343,28 +1314,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         return mCameraEngine.getPreviewFrameRateExact();
     }
 
-    /**
-     * Sets the preview frame rate in frames per second.
-     * This rate will be used, for example, by the frame processor and in video
-     * <p>
-     * A value of 0F will restore the rate to a default value.
-     *
-     * @param frameRate desired frame rate
-     */
-    public void setPreviewFrameRate(float frameRate) {
-        mCameraEngine.setPreviewFrameRate(frameRate);
-    }
-
-    /**
-     * Returns the current preview frame rate.
-     * This can return 0F if no frame rate was set.
-     *
-     * @return current frame rate
-     * @see #setPreviewFrameRate(float)
-     */
-    public float getPreviewFrameRate() {
-        return mCameraEngine.getPreviewFrameRate();
-    }
 
 
     /**
@@ -1396,17 +1345,6 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         mListeners.clear();
     }
 
-    /**
-     * Asks the camera to capture an image of the current scene.
-     * This will trigger {@link CameraListener#onPictureTaken(PictureResult)} if a listener
-     * was registered.
-     *
-     * @see #takePictureSnapshot()
-     */
-    public void takePicture() {
-        PictureResult.Stub stub = new PictureResult.Stub();
-        mCameraEngine.takePicture(stub);
-    }
 
     /**
      * Asks the camera to capture a snapshot of the current preview.

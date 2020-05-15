@@ -760,49 +760,6 @@ public class Camera2Engine extends CameraBaseEngine implements
         }
     }
 
-    @EngineThread
-    @Override
-    protected void onTakePicture(@NonNull final PictureResult.Stub stub, boolean doMetering) {
-        if (doMetering) {
-            LOG.i("onTakePicture:", "doMetering is true. Delaying.");
-            Action action = Actions.timeout(METER_TIMEOUT_SHORT, createMeterAction(null));
-            action.addCallback(new CompletionCallback() {
-                @Override
-                protected void onActionCompleted(@NonNull Action action) {
-                    // This is called on any thread, so be careful.
-                    setPictureMetering(false);
-                    takePicture(stub);
-                    setPictureMetering(true);
-                }
-            });
-            action.start(this);
-        } else {
-            LOG.i("onTakePicture:", "doMetering is false. Performing.");
-            stub.rotation = getAngles().offset(Reference.SENSOR, Reference.OUTPUT,
-                    Axis.RELATIVE_TO_SENSOR);
-            stub.size = getPictureSize(Reference.OUTPUT);
-            try {
-                if (mPictureCaptureStopsPreview) {
-                    // These two are present in official samples and are probably meant to
-                    // speed things up? But from my tests, they actually make everything slower.
-                    // So this is disabled by default with a boolean flag. Maybe in the future
-                    // we can make this configurable as some people might want to stop the preview
-                    // while picture is being taken even if it increases the latency.
-                    mSession.stopRepeating();
-                    mSession.abortCaptures();
-                }
-                CaptureRequest.Builder builder
-                        = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-                applyAllParameters(builder, mRepeatingRequestBuilder);
-                mPictureRecorder = new Full2PictureRecorder(stub, this, builder,
-                        mPictureReader);
-                mPictureRecorder.take();
-            } catch (CameraAccessException e) {
-                throw createCameraException(e);
-            }
-        }
-    }
-
 
     @Override
     public void onPictureResult(@Nullable PictureResult.Stub result, @Nullable Exception error) {
@@ -1231,11 +1188,6 @@ public class Camera2Engine extends CameraBaseEngine implements
                 }
             });
         }
-    }
-
-    @Override
-    public void setPreviewFrameRate(float previewFrameRate) {
-
     }
 
     //endregion

@@ -5,8 +5,6 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.media.CamcorderProfile;
-import android.media.MediaRecorder;
 import android.os.Build;
 import android.util.Range;
 import android.util.Rational;
@@ -21,13 +19,24 @@ import com.otaliastudios.cameraview.controls.Hdr;
 import com.otaliastudios.cameraview.controls.PictureFormat;
 import com.otaliastudios.cameraview.controls.WhiteBalance;
 import com.otaliastudios.cameraview.engine.mappers.Camera2Mapper;
-import com.otaliastudios.cameraview.internal.CamcorderProfiles;
 import com.otaliastudios.cameraview.size.AspectRatio;
 import com.otaliastudios.cameraview.size.Size;
 
 import java.util.Set;
 
-import static android.hardware.camera2.CameraCharacteristics.*;
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES;
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE;
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_AE_COMPENSATION_STEP;
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_AVAILABLE_SCENE_MODES;
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES;
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AE;
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AF;
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AWB;
+import static android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE;
+import static android.hardware.camera2.CameraCharacteristics.LENS_FACING;
+import static android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES;
+import static android.hardware.camera2.CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM;
+import static android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP;
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class Camera2Options extends CameraOptions {
@@ -134,35 +143,6 @@ public class Camera2Options extends CameraOptions {
             supportedPictureAspectRatio.add(AspectRatio.of(width, height));
         }
 
-        // Video Sizes
-        // As a safety measure, remove Sizes bigger than CamcorderProfile.highest
-        CamcorderProfile profile = CamcorderProfiles.get(cameraId,
-                new Size(Integer.MAX_VALUE, Integer.MAX_VALUE));
-        Size videoMaxSize = new Size(profile.videoFrameWidth, profile.videoFrameHeight);
-        android.util.Size[] vsizes = streamMap.getOutputSizes(MediaRecorder.class);
-        for (android.util.Size size : vsizes) {
-            if (size.getWidth() <= videoMaxSize.getWidth()
-                    && size.getHeight() <= videoMaxSize.getHeight()) {
-                int width = flipSizes ? size.getHeight() : size.getWidth();
-                int height = flipSizes ? size.getWidth() : size.getHeight();
-                supportedVideoSizes.add(new Size(width, height));
-                supportedVideoAspectRatio.add(AspectRatio.of(width, height));
-            }
-        }
-
-        // Preview FPS
-        Range<Integer>[] range = cameraCharacteristics.get(CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
-        if (range != null) {
-            previewFrameRateMinValue = Float.MAX_VALUE;
-            previewFrameRateMaxValue = -Float.MAX_VALUE;
-            for (Range<Integer> fpsRange : range) {
-                previewFrameRateMinValue = Math.min(previewFrameRateMinValue, fpsRange.getLower());
-                previewFrameRateMaxValue = Math.max(previewFrameRateMaxValue, fpsRange.getUpper());
-            }
-        } else {
-            previewFrameRateMinValue = 0F;
-            previewFrameRateMaxValue = 0F;
-        }
 
         // Picture formats
         supportedPictureFormats.add(PictureFormat.JPEG);
