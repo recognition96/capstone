@@ -118,19 +118,15 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.send_button:
-                sendToServer();
-                break;
-            case R.id.cancel_button:
-                cancel();
-                break;
-            case R.id.send_button2:
-                sendToServer();
-                break;
-            case R.id.cancel_button2:
-                cancel();
-                break;
+        int id = view.getId();
+        if (id == R.id.send_button) {
+            sendToServer();
+        } else if (id == R.id.cancel_button) {
+            cancel();
+        } else if (id == R.id.send_button2) {
+            sendToServer();
+        } else if (id == R.id.cancel_button2) {
+            cancel();
         }
     }
 

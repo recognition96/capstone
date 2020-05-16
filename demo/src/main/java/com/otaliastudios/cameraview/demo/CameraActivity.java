@@ -125,16 +125,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.takeFromGallery:
-                takePhotoFromGallery();
-                break;
-            case R.id.capturePictureSnapshot:
-                capturePictureSnapshot();
-                break;
-            case R.id.cancel_button:
-                finish();
-                break;
+        int id = view.getId();
+        if (id == R.id.takeFromGallery) {
+            takePhotoFromGallery();
+        } else if (id == R.id.capturePictureSnapshot) {
+            capturePictureSnapshot();
+        } else if (id == R.id.cancel_button) {
+            finish();
         }
     }
 
