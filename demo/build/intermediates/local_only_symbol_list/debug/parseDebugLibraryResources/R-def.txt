@@ -1,0 +1,31 @@
+R_DEF: Internal format may change without notice
+local
+color colorAccent
+color colorPrimary
+color colorPrimaryDark
+drawable guideline
+drawable ic_edit
+drawable ic_filters
+drawable ic_photo
+drawable ic_switch
+drawable ic_video
+id camera
+id cancel_button
+id cancel_button2
+id capturePictureSnapshot
+id controls
+id guideline
+id image
+id root
+id send_button
+id send_button2
+id takeFromGallery
+id tip
+layout activity_camera
+layout activity_picture_preview
+mipmap logo
+mipmap logo_background
+mipmap logo_foreground
+string app_name
+style AppTheme
+xml filepaths
