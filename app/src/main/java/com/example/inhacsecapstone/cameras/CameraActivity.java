@@ -1,4 +1,4 @@
-package com.otaliastudios.cameraview.demo;
+package com.example.inhacsecapstone.cameras;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.inhacsecapstone.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.otaliastudios.cameraview.CameraException;
 import com.otaliastudios.cameraview.CameraListener;
@@ -97,6 +98,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.guideline);
         findViewById(R.id.takeFromGallery).setOnClickListener(this);
         findViewById(R.id.capturePictureSnapshot).setOnClickListener(this);
+        findViewById(R.id.cancel_button).setOnClickListener(this);
         controlPanel = findViewById(R.id.controls);
     }
 
@@ -128,12 +130,16 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View view) {
         int id = view.getId();
-        if (id == R.id.takeFromGallery) {
-            takePhotoFromGallery();
-        } else if (id == R.id.capturePictureSnapshot) {
-            capturePictureSnapshot();
-        } else if (id == R.id.cancel_button) {
-            finish();
+        switch (id) {
+            case R.id.takeFromGallery:
+                takePhotoFromGallery();
+                break;
+            case R.id.capturePictureSnapshot:
+                capturePictureSnapshot();
+                break;
+            case R.id.cancel_button:
+                finish();
+                break;
         }
     }
 

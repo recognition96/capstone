@@ -1,9 +1,5 @@
 package com.example.inhacsecapstone;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -11,13 +7,17 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
 import com.example.inhacsecapstone.calendars.Calendars;
+import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
 import com.example.inhacsecapstone.drugs.allDrug.AllMedicineList;
 import com.example.inhacsecapstone.initial.InformationSetting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.otaliastudios.cameraview.demo.CameraActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,9 +36,9 @@ public class MainActivity extends AppCompatActivity {
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
         fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab1 = (FloatingActionButton) findViewById(R.id.chatbotbtn);
-        fab2 = (FloatingActionButton) findViewById(R.id.userinfobtn);
+        fab = findViewById(R.id.fab);
+        fab1 = findViewById(R.id.chatbotbtn);
+        fab2 = findViewById(R.id.userinfobtn);
 
 
         //

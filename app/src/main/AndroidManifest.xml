@@ -22,6 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
+        tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup,android:icon">
         <activity android:name=".drugs.MedicineInfoActivity"></activity>
         <activity android:name=".chatbot.MessengerActivity" />
@@ -36,8 +37,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.otaliastudios.cameraview.demo.CameraActivity" />
-        <activity android:name="com.otaliastudios.cameraview.demo.PicturePreviewActivity" />
+        <activity android:name=".cameras.CameraActivity" />
+        <activity android:name=".cameras.PicturePreviewActivity" />
         <activity android:name=".initial.InformationSetting" />
         <activity android:name=".MainActivity" />
 

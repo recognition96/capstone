@@ -1,5 +1,7 @@
-package com.otaliastudios.cameraview.demo;
+package com.example.inhacsecapstone.cameras;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -16,6 +18,13 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.Drugs;
+import com.example.inhacsecapstone.drugs.Recog.RecogResultActivity;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.otaliastudios.cameraview.BitmapCallback;
 import com.otaliastudios.cameraview.PictureResult;
 
@@ -24,12 +33,14 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class PicturePreviewActivity extends AppCompatActivity implements View.OnClickListener {
@@ -120,17 +131,17 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     public void onClick(View view) {
         int id = view.getId();
         if (id == R.id.send_button) {
-            sendToServer();
+            sendToServer(mbitmap);
         } else if (id == R.id.cancel_button) {
-            cancel();
+            finish();
         } else if (id == R.id.send_button2) {
-            sendToServer();
+            sendToServer(mbitmap);
         } else if (id == R.id.cancel_button2) {
-            cancel();
+            finish();
         }
     }
 
-    public void connectServer(Bitmap bitmap) {
+    public void sendToServer(Bitmap bitmap) {
         Matcher matcher = IP_ADDRESS.matcher(ipv4Address);
         if (!matcher.matches()) {
             Toast.makeText(this, "Invalid IPv4 Address. Please Check Your Inputs.", Toast.LENGTH_LONG).show();
@@ -181,29 +192,39 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
             }
 
             @Override
-            public void onResponse(okhttp3.Call call, final okhttp3.Response response) throws IOException {
+            public void onResponse(Call call, final Response response) throws IOException {
                 // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            setResult(Activity.RESULT_CANCELED);
+                            finish();
+                        }
+                        String OCR_Result = "";
                         try {
-                            Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
+                            OCR_Result = response.body().string();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
+                        Gson gson = new GsonBuilder().create();
+                        JsonParser parser = new JsonParser();
+                        JsonElement rootObject = parser.parse(OCR_Result)
+                                .getAsJsonObject().get("drugs");
+                        Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
+                        for (int i = 0; i < drugs.length; i++) {
+                            System.out.println(drugs[i].printres());
+                        }
+                        Intent intent = new Intent(PicturePreviewActivity.this, RecogResultActivity.class);
+                        intent.putExtra("drugs", drugs);
+                        startActivity(intent);
+                        finish();
+
                     }
                 });
             }
         });
-    }
-
-    public void sendToServer() {
-        connectServer(mbitmap);
-    }
-
-    public void cancel() {
-//        setResult(Activity.RESULT_CANCELED);
-        finish();
     }
 }
 

@@ -7,4 +7,5 @@
     <string name="options">옵션</string>
     <string name="clear_messages">대화창 초기화</string>
     <string name="send_picture">사진 전송</string>
+    <string name="cameraview_default_autofocus_marker">com.otaliastudios.cameraview.markers.DefaultAutoFocusMarker</string>
 </resources>

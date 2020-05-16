@@ -1,22 +1,22 @@
 package com.example.inhacsecapstone.drugs.Recog;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModel;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModel;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.Drugs;
 import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
-import com.otaliastudios.cameraview.demo.CameraActivity;
 
 import java.util.ArrayList;
 
