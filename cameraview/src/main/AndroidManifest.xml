@@ -25,6 +25,6 @@
 
     <uses-sdk tools:overrideLibrary="com.otaliastudios.opengl" />
 
-    <application android:usesCleartextTraffic="true" />
+<!--    <application android:usesCleartextTraffic="true" />-->
 
 </manifest>

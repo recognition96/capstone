@@ -42,7 +42,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private static final int SENDING_IMAGE = 2;
 
     private CameraView camera;
-    private View mImageView;
     private ViewGroup controlPanel;
     private long mCaptureTime;
 
@@ -92,7 +91,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             });
         }
 
-        mImageView = findViewById(R.id.guideline);
+        findViewById(R.id.guideline);
         findViewById(R.id.takeFromGallery).setOnClickListener(this);
         findViewById(R.id.capturePictureSnapshot).setOnClickListener(this);
         controlPanel = findViewById(R.id.controls);

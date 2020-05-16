@@ -12,12 +12,12 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.example.inhacsecapstone.calendars.Calendars;
-import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
 import com.example.inhacsecapstone.drugs.allDrug.AllMedicineList;
 import com.example.inhacsecapstone.initial.InformationSetting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.otaliastudios.cameraview.demo.CameraActivity;
 
 public class MainActivity extends AppCompatActivity {
 
