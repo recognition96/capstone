@@ -53,8 +53,11 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         CameraLogger.setLogLevel(CameraLogger.LEVEL_VERBOSE);
 
         camera = findViewById(R.id.camera);
+
         camera.setLifecycleOwner(this);
+        Log.d("@@@", "After setlife");
         camera.addCameraListener(new Listener());
+        Log.d("@@@", "After addListener");
 
         if (USE_FRAME_PROCESSOR) {
             camera.addFrameProcessor(new FrameProcessor() {

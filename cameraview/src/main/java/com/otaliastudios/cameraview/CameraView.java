@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -676,9 +677,12 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      * @param owner the owner activity or fragment
      */
     public void setLifecycleOwner(@Nullable LifecycleOwner owner) {
+        Log.d("@@@", "in function");
         if (owner == null) {
+            Log.d("@@@", "owner == null");
             clearLifecycleObserver();
         } else {
+            Log.d("@@@", "owner != null");
             clearLifecycleObserver();
             mLifecycle = owner.getLifecycle();
             mLifecycle.addObserver(this);
