@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         fab2 = findViewById(R.id.userinfobtn);
 
 
+        //
+
         // Bottom Navigation View Setting
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);

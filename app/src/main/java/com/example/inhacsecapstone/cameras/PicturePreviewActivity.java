@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.Drugs;
 import com.example.inhacsecapstone.drugs.Recog.RecogResultActivity;
+import com.example.inhacsecapstone.serverconnect.HttpConnection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -30,8 +31,6 @@ import com.otaliastudios.cameraview.PictureResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -45,17 +44,9 @@ import okhttp3.Response;
 
 public class PicturePreviewActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final Pattern IP_ADDRESS
-            = Pattern.compile(
-            "((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\\.(25[0-5]|2[0-4]"
-                    + "[0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]"
-                    + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
-                    + "|[1-9][0-9]|[0-9]))");
-    private static final String portNumber = "5000";
-    private static final String ipv4Address = "172.30.1.35";
-    private static final int SELECT_PICTURE = 1;
     private static PictureResult picture;
     Bitmap mbitmap;
+    private HttpConnection httpConn = HttpConnection.getInstance();
 
     public static void setPictureResult(@Nullable PictureResult pictureResult) {
         picture = pictureResult;
@@ -132,9 +123,9 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
             // 결과코드를 'RESULT_OK'로 세팅.
             // 이후 이전 액티비티로 돌아가 onActivityResult()가 호출됨.
             Log.d("TAG", "Choose this photo.. transfer to server");
-            sendToServer(mbitmap);
             CameraActivity camera = (CameraActivity) CameraActivity.camera_activity;
             camera.finish();
+            sendImageToServer(mbitmap);
             finish();
         } else if (id == R.id.cancel_button) {
             // 결과코드를 'RESULT_CANCELED'로 세팅.
@@ -145,17 +136,9 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
         }
     }
 
-    public void sendToServer(Bitmap bitmap) {
-        Matcher matcher = IP_ADDRESS.matcher(ipv4Address);
-        if (!matcher.matches()) {
-            Toast.makeText(this, "Invalid IPv4 Address. Please Check Your Inputs.", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/image";
-
+    public void sendImageToServer(Bitmap bitmap) {
+        String postUrl = httpConn.getUrl("image");
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.RGB_565;
 
@@ -171,62 +154,43 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     }
 
     void postRequest(String postUrl, RequestBody postBody) {
-
         OkHttpClient client = new OkHttpClient();
-
         okhttp3.Request request = new Request.Builder()
                 .url(postUrl)
                 .post(postBody)
                 .build();
-
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
-                // Cancel the post on failure.
                 call.cancel();
-                Log.d("FAIL", e.getMessage());
-
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
-                    }
-                });
+                new Thread(() -> Toast.makeText(getApplicationContext(), "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show()).start();
             }
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!response.isSuccessful() || response.body() == null) {
-                            setResult(Activity.RESULT_CANCELED);
-                            finish();
-                        }
-                        String OCR_Result = "";
-                        try {
-                            OCR_Result = response.body().string();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        Gson gson = new GsonBuilder().create();
-                        JsonParser parser = new JsonParser();
-                        JsonElement rootObject = parser.parse(OCR_Result)
-                                .getAsJsonObject().get("drugs");
-                        Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
-                        for (int i = 0; i < drugs.length; i++) {
-                            System.out.println(drugs[i].printres());
-                        }
-                        Intent intent = new Intent(PicturePreviewActivity.this, RecogResultActivity.class);
-                        intent.putExtra("drugs", drugs);
-                        startActivity(intent);
-                        finish();
-
+                new Thread(() -> {
+                    if (!response.isSuccessful() || response.body() == null) {
+                        setResult(Activity.RESULT_CANCELED);
                     }
-                });
+                    String OCR_Result = "";
+                    try {
+                        OCR_Result = response.body().string();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    Gson gson = new GsonBuilder().create();
+                    JsonParser parser = new JsonParser();
+                    JsonElement rootObject = parser.parse(OCR_Result)
+                            .getAsJsonObject().get("drugs");
+                    Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
+                    for (int i = 0; i < drugs.length; i++) {
+                        System.out.println(drugs[i].printres());
+                    }
+                    Intent intent = new Intent(PicturePreviewActivity.this, RecogResultActivity.class);
+                    intent.putExtra("drugs", drugs);
+                    startActivity(intent);
+                }).start();
             }
         });
     }

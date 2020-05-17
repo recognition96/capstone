@@ -2,7 +2,6 @@ package com.example.inhacsecapstone.chatbot;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,11 +18,11 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.serverconnect.HttpConnection;
 import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.view.ChatView;
 
@@ -43,99 +42,23 @@ import static android.speech.tts.TextToSpeech.ERROR;
 
 public class MessengerActivity extends Activity {
 
-    @VisibleForTesting
-    protected static final int RIGHT_BUBBLE_COLOR = R.color.colorPrimaryDark;
-    @VisibleForTesting
-    protected static final int SEND_ICON = R.drawable.ic_action_send;
-    @VisibleForTesting
-    protected static final int RIGHT_MESSAGE_TEXT_COLOR = Color.WHITE;
-    @VisibleForTesting
-    protected static final int LEFT_MESSAGE_TEXT_COLOR = Color.BLACK;
-    @VisibleForTesting
-    protected static final String INPUT_TEXT_HINT = "메시지를 입력하세요.";
-    @VisibleForTesting
-    protected static final int MESSAGE_MARGIN = 5;
-
-    private ChatView mChatView;
-    private ArrayList<User> mUsers;
-
-    private static final int READ_REQUEST_CODE = 100;
-
-    private static final String portNumber = "5000";
-    private static final String ipv4Address = "172.30.1.35";
-    private Context context;
     private Intent SttIntent;
     private SpeechRecognizer mRecognizer;
     private TextToSpeech tts;
-    private int count = 0;
-    private RecognitionListener listener = new RecognitionListener() {
-        @Override
-        public void onReadyForSpeech(Bundle bundle) {
-        }
-
-        @Override
-        public void onBeginningOfSpeech() {
-        }
-
-        @Override
-        public void onRmsChanged(float v) {
-
-        }
-
-        @Override
-        public void onBufferReceived(byte[] bytes) {
-        }
-
-        @Override
-        public void onEndOfSpeech() {
-        }
-
-        @Override
-        public void onError(int i) {
-        }
-
-        @Override
-        public void onResults(Bundle results) {
-            String key = "";
-            key = SpeechRecognizer.RESULTS_RECOGNITION;
-            ArrayList<String> mResult = results.getStringArrayList(key);
-            String[] rs = new String[mResult.size()];
-            mResult.toArray(rs);
-
-            // onResults가 이유를 모르지만 2번씩 호출되서 count로 제한...
-            if (count == 1) {
-                Message message = new Message.Builder()
-                        .setUser(mUsers.get(0))
-                        .setRight(true)
-                        .setText(rs[0])
-                        .hideIcon(true)
-                        .setStatusIconFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
-                        .setStatusTextFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
-                        .setStatusStyle(Message.Companion.getSTATUS_ICON())
-                        .setStatus(MyMessageStatusFormatter.STATUS_DELIVERED)
-                        .build();
-                connectServerSendText(rs[0]);
-                mChatView.send(message);
-                count = 0;
-            } else
-                count = 1;
-        }
-
-        @Override
-        public void onPartialResults(Bundle bundle) {
-        }
-
-        @Override
-        public void onEvent(int i, Bundle bundle) {
-        }
-    };
-
+    private ChatView mChatView;
+    private ArrayList<User> mUsers;
+    private HttpConnection httpConn = HttpConnection.getInstance();
     public void setColors() {
-        mChatView.setRightBubbleColor(ContextCompat.getColor(context, RIGHT_BUBBLE_COLOR));
-        mChatView.setLeftBubbleColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
-        mChatView.setBackgroundColor(ContextCompat.getColor(context, R.color.white));
-        mChatView.setSendButtonColor(ContextCompat.getColor(context, R.color.colorAccent));
-
+        int RIGHT_BUBBLE_COLOR = R.color.colorPrimaryDark;
+        int SEND_ICON = R.drawable.ic_action_send;
+        int RIGHT_MESSAGE_TEXT_COLOR = Color.WHITE;
+        int LEFT_MESSAGE_TEXT_COLOR = Color.BLACK;
+        String INPUT_TEXT_HINT = "메시지를 입력하세요.";
+        int MESSAGE_MARGIN = 5;
+        mChatView.setRightBubbleColor(ContextCompat.getColor(getApplicationContext(), RIGHT_BUBBLE_COLOR));
+        mChatView.setLeftBubbleColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark));
+        mChatView.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
+        mChatView.setSendButtonColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
         mChatView.setSendIcon(SEND_ICON);
         mChatView.setOptionIcon(R.drawable.ic_mic_black_24dp);
         mChatView.setOptionButtonColor(R.color.colorAccent);
@@ -159,55 +82,18 @@ public class MessengerActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger);
-        context = this.getApplicationContext();
         initUsers();
-
         // 화면 생성 시 Welcome Message 출력
-        connectServerSendText("");
+        sendTextToServer("안녕");
         //
-
         mChatView = findViewById(R.id.chat_view);
         setColors();
-        mChatView.setOnBubbleClickListener(new Message.OnBubbleClickListener() {
-            @Override
-            public void onClick(Message message) {
-                mChatView.updateMessageStatus(message, MyMessageStatusFormatter.STATUS_SEEN);
-                Toast.makeText(
-                        MessengerActivity.this,
-                        "click : " + message.getUser().getName() + " - " + message.getText(),
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
-        });
-
-        mChatView.setOnIconClickListener(new Message.OnIconClickListener() {
-            @Override
-            public void onIconClick(Message message) {
-                Toast.makeText(
-                        MessengerActivity.this,
-                        "click : icon " + message.getUser().getName(),
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
-        });
-
-        mChatView.setOnIconLongClickListener(new Message.OnIconLongClickListener() {
-            @Override
-            public void onIconLongClick(Message message) {
-                Toast.makeText(
-                        MessengerActivity.this,
-                        "Removed this message \n" + message.getText(),
-                        Toast.LENGTH_SHORT
-                ).show();
-                mChatView.getMessageView().remove(message);
-            }
-        });
 
         //Click Send Button
         mChatView.setOnClickSendButtonListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mChatView.getInputText().equals("")) {
+                if(!mChatView.getInputText().equals("")) {
                     Message message = new Message.Builder()
                             .setUser(mUsers.get(0))
                             .setRight(true)
@@ -219,7 +105,7 @@ public class MessengerActivity extends Activity {
                             .setStatus(MyMessageStatusFormatter.STATUS_DELIVERED)
                             .build();
 
-                    connectServerSendText(mChatView.getInputText());
+                    sendTextToServer(mChatView.getInputText());
                     //Set to chat view
                     mChatView.send(message);
                     //Reset edit text
@@ -251,8 +137,8 @@ public class MessengerActivity extends Activity {
         mChatView.setOnClickOptionButtonListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MessengerActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+                if(ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO)!= PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MessengerActivity.this,new String[]{Manifest.permission.RECORD_AUDIO},1);
                 } else {
                     try {
                         mRecognizer.startListening(SttIntent);
@@ -263,6 +149,68 @@ public class MessengerActivity extends Activity {
             }
         });
     }
+
+    private int count=0;
+
+    private RecognitionListener listener=new RecognitionListener() {
+        @Override
+        public void onReadyForSpeech(Bundle bundle) {
+        }
+
+        @Override
+        public void onBeginningOfSpeech() {
+        }
+
+        @Override
+        public void onRmsChanged(float v) {
+        }
+
+        @Override
+        public void onBufferReceived(byte[] bytes) {
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+        }
+
+        @Override
+        public void onError(int i) {
+        }
+
+        @Override
+        public void onResults(Bundle results) {
+            String key= SpeechRecognizer.RESULTS_RECOGNITION;
+            ArrayList<String> mResult =results.getStringArrayList(key);
+            String[] rs = new String[mResult.size()];
+            mResult.toArray(rs);
+
+            // onResults가 이유를 모르지만 2번씩 호출되서 count로 제한...
+            if(count==1) {
+                Message message = new Message.Builder()
+                        .setUser(mUsers.get(0))
+                        .setRight(true)
+                        .setText(rs[0])
+                        .hideIcon(true)
+                        .setStatusIconFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
+                        .setStatusTextFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
+                        .setStatusStyle(Message.Companion.getSTATUS_ICON())
+                        .setStatus(MyMessageStatusFormatter.STATUS_DELIVERED)
+                        .build();
+                sendTextToServer(rs[0]);
+                mChatView.send(message);
+                count=0;
+            }else
+                count=1;
+        }
+
+        @Override
+        public void onPartialResults(Bundle bundle) {
+        }
+
+        @Override
+        public void onEvent(int i, Bundle bundle) {
+        }
+    };
 
     private void receiveMessage(String getText) {
         final Message receivedMessage = new Message.Builder()
@@ -304,8 +252,8 @@ public class MessengerActivity extends Activity {
         initUsers();
     }
 
-    public void connectServerSendText(String texts){
-        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/webhook";
+    public void sendTextToServer(String texts){
+        String postUrl = httpConn.getUrl("webhook");
         RequestBody formBody = new FormBody.Builder()
                 .add("message", texts)
                 .build();
@@ -321,31 +269,26 @@ public class MessengerActivity extends Activity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                // Cancel the post on failure.
                 call.cancel();
-                // Log.d("FAIL", e.getMessage());
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(context, "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
                     }
                 });
             }
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         String res = "";
                         try {
                             res = response.body().string();
-                            //Toast.makeText(context, "Server's Response\n" + res , Toast.LENGTH_LONG).show();
                         } catch (IOException e) {
                             e.printStackTrace();
-                            Toast.makeText(context, "연결 오류가 발생되어 응답을 받지 못했습니다.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "연결 오류가 발생되어 응답을 받지 못했습니다.", Toast.LENGTH_LONG).show();
                         }
                         if (!res.equals("")) {
                             receiveMessage(res);
