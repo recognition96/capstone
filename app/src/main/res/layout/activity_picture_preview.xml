@@ -35,24 +35,30 @@
             android:layout_gravity="bottom"
             android:background="@color/colorPrimaryDark"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:paddingLeft="50dp"
+            android:paddingRight="50dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
 
-            <Button
+            <ImageButton
                 android:id="@+id/send_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="확인" />
-
+                android:layout_width="50dp"
+                android:layout_height="40dp"
+                android:scaleType="fitXY"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_check_box_black_24dp" />
             <Space
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1" />
-
-            <Button
+            <ImageButton
                 android:id="@+id/cancel_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="취소" />
+                android:layout_width="50dp"
+                android:layout_height="40dp"
+                android:scaleType="fitXY"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/icon_cancel" />
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView><!--</androidx.coordinatorlayout.widget.CoordinatorLayout>-->

@@ -94,7 +94,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
         findViewById(R.id.guideline);
         findViewById(R.id.takeFromGallery).setOnClickListener(this);
-        findViewById(R.id.capturePictureSnapshot).setOnClickListener(this);
+        findViewById(R.id.takePicture).setOnClickListener(this);
         findViewById(R.id.cancel_button).setOnClickListener(this);
     }
 
@@ -140,7 +140,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 // onActivityResult -> sendImageToPrev
                 takePhotoFromGallery();
                 break;
-            case R.id.capturePictureSnapshot:
+            case R.id.takePicture:
                 // 직접 촬영했을 경우 onPictureTaken에서 결과받고 PicturePreviewActivity로 intent 전송
                 capturePictureSnapshot();
                 break;
