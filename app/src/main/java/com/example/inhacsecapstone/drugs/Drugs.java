@@ -7,6 +7,12 @@ public class Drugs implements Serializable {
     private String drug_name;
     private String small_image;
     private String pack_image;
+    private String usages;
+    private String effect;
+
+    public String getUsages() { return usages; }
+
+    public String getEffect() { return effect; }
 
     public int getCode() {
         return code;
@@ -25,6 +31,6 @@ public class Drugs implements Serializable {
     }
 
     public String printres() {
-        return Integer.toString(code) + " , " + drug_name + " , " + small_image + " , " + pack_image;
+        return Integer.toString(code) + " , " + drug_name + " , " + small_image + " , " + pack_image ;
     }
 }
