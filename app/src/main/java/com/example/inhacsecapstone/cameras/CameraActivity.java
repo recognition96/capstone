@@ -102,8 +102,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         if (requestCode == SELECT_IMAGE) {
             // 앨범에서 성공적으로 사진을 가져왔을 경우
             Log.d("Camera result", "cause IMAGE Chosen..");
-            Uri selectedImageUri = data.getData();
-            sendImageToPrev(selectedImageUri);
+            if (data != null) {
+                Uri selectedImageUri = data.getData();
+                sendImageToPrev(data.getData());
+            }
+            else {
+                Log.d("@@@", "data.getData() == NULL");
+            }
         } else if (requestCode == SENDING_IMAGE) {
             // 찍거나 고른 사진을 성공적으로 PicturePreviewActivity로 보냈을 경우
             Log.d("Camera result", "cause IMAGE Sended..");
