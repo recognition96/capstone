@@ -12,7 +12,7 @@
     app:layout_constraintTop_toTopOf="parent">
 
     <LinearLayout
-        android:id="@+id/LinearLayout"
+        android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:orientation="horizontal"
@@ -73,8 +73,7 @@
         android:layout_height="match_parent"
         android:layout_weight="2"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/LinearLayout"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout1"
         tools:layout_editor_absoluteX="313dp">
 
         <TableLayout
