@@ -1,15 +1,15 @@
 package com.example.inhacsecapstone.drugs.Recog;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModel;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModel;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
@@ -33,9 +33,9 @@ public class RecogResultActivity extends AppCompatActivity {
         context = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recog_result);
-        ArrayList<Medicine> arrayList= new ArrayList<Medicine>();
-        Drugs[] drugs = (Drugs[])getIntent().getSerializableExtra("drugs");
-        for(Drugs iter : drugs){
+        ArrayList<Medicine> arrayList = new ArrayList<Medicine>();
+        Drugs[] drugs = (Drugs[]) getIntent().getSerializableExtra("drugs");
+        for (Drugs iter : drugs) {
             String img = iter.getSmall_image().equals("null") || iter.getSmall_image().equals("") ? (iter.getPack_image().equals("null") || iter.getPack_image().equals("") ? null : iter.getPack_image()) : iter.getSmall_image();
             arrayList.add(new Medicine(iter.getCode(), iter.getDrug_name(), -1, img, null, null,
                     -1, null, -1, -1, -1));
@@ -48,7 +48,7 @@ public class RecogResultActivity extends AppCompatActivity {
         db = AppDatabase.getDataBase(getApplicationContext(), null, 1);
         mRecyclerView.addItemDecoration(new RecyclerViewDecorator(30));
 
-        findViewById(R.id.submit).setOnClickListener(new View.OnClickListener(){
+        findViewById(R.id.submit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 /*for(MedicineEntity iter : arrayList)
@@ -56,15 +56,15 @@ public class RecogResultActivity extends AppCompatActivity {
                         Toast.makeText(context, "빈칸을 채워주세요.", Toast.LENGTH_SHORT).show();
                         return;
                     }*/
-                for(Medicine iter : arrayList)
+                for (Medicine iter : arrayList)
                     db.insert(iter);
-
+                Intent intent = new Intent(context, CameraActivity.class);
                 finish();
 
             }
         });
 
-        findViewById(R.id.nosubmit).setOnClickListener(new View.OnClickListener(){
+        findViewById(R.id.nosubmit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, CameraActivity.class);
@@ -73,6 +73,7 @@ public class RecogResultActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     protected void onStart() {
         super.onStart();

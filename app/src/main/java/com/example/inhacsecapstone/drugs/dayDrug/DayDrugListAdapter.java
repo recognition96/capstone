@@ -19,37 +19,13 @@ import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.DayDrugListHolder> {
-    class DayDrugListHolder extends RecyclerView.ViewHolder {
-        private ArrayList<Takes> takes;
-        private final ImageView imageView;
-        private final TextView nameView;
-        private final TextView amountView;
-        private final View view;
-        private final ViewGroup layout;
-        private DayDrugListHolder(View itemView) {
-            super(itemView);
-            layout = itemView.findViewById(R.id.buttonLayout);
-            view = itemView;
-            takes = new ArrayList<Takes>();
-            imageView = (ImageView) itemView.findViewById(R.id.drugImage) ;
-            nameView = (TextView) itemView.findViewById(R.id.drugName) ;
-            amountView = (TextView) itemView.findViewById(R.id.Amount) ;
-        }
-
-        public ArrayList<Takes> getTakes() {
-            return takes;
-        }
-    }
-    private Context context;
     private final LayoutInflater mInflater;
+    private Context context;
     private ArrayList<Medicine> mdrugs; // Cached copy of words
     private ArrayList<Takes> mtakes;
-
     public DayDrugListAdapter(Context context, ArrayList<Medicine> mediList, ArrayList<Takes> takesList) {
         mdrugs = mediList;
         mtakes = takesList;
@@ -68,7 +44,7 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
         if (mdrugs != null) {
             Medicine curDrug = mdrugs.get(position);
             for (Takes elem : mtakes)
-                if(curDrug.getCode() == elem.getCode())
+                if (curDrug.getCode() == elem.getCode())
                     holder.takes.add(elem);
 
             Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
@@ -81,12 +57,11 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
                 }
             });
 
-            holder.amountView.setText("남은 수량: " + Integer.toString((curDrug.getAmount() - holder.takes.size())));
+            holder.amountView.setText("남은 수량: " + (curDrug.getAmount() - holder.takes.size()));
             holder.nameView.setText(curDrug.getName());
 
             View view = holder.view;
-            for(int i = 0; i < holder.takes.size(); i++)
-            {
+            for (int i = 0; i < holder.takes.size(); i++) {
                 String[] data = holder.takes.get(i).getTime().split(":");
 
                 DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
@@ -102,17 +77,18 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
                                 ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
                         );
                 layoutParams.leftToLeft = R.id.target;
-                layoutParams.leftMargin = ((width-300)/ holder.takes.size()) * i;
+                layoutParams.leftMargin = ((width - 300) / holder.takes.size()) * i;
                 layoutParams.bottomToTop = R.id.view;
                 layoutParams.bottomMargin = bottom;
                 text.setLayoutParams(layoutParams);
 
-                ConstraintLayout layout = (ConstraintLayout) view.findViewById(R.id.target) ;
+                ConstraintLayout layout = view.findViewById(R.id.target);
                 layout.addView(text);
             }
         } else {
         }
     }
+
     @Override
     public int getItemCount() {
         if (mdrugs != null)
@@ -128,5 +104,28 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
         Glide.with(context).load(url).into(iv);
         dialog.setContentView(view);
         dialog.show();
+    }
+
+    class DayDrugListHolder extends RecyclerView.ViewHolder {
+        private final ImageView imageView;
+        private final TextView nameView;
+        private final TextView amountView;
+        private final View view;
+        private final ViewGroup layout;
+        private ArrayList<Takes> takes;
+
+        private DayDrugListHolder(View itemView) {
+            super(itemView);
+            layout = itemView.findViewById(R.id.buttonLayout);
+            view = itemView;
+            takes = new ArrayList<Takes>();
+            imageView = itemView.findViewById(R.id.drugImage);
+            nameView = itemView.findViewById(R.id.drugName);
+            amountView = itemView.findViewById(R.id.Amount);
+        }
+
+        public ArrayList<Takes> getTakes() {
+            return takes;
+        }
     }
 }

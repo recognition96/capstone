@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="@string/calendar_title"
-        android:icon="@drawable/ic_date_range_black_48dp"
+    <item
         android:id="@+id/calendar"
-        />
-    <item android:title="@string/camera_title"
-        android:icon="@drawable/ic_camera_alt_black_48dp"
+        android:icon="@drawable/ic_date_range_black_48dp"
+        android:title="@string/calendar_title" />
+    <item
         android:id="@+id/camera"
-        />
-    <item android:title="@string/userdrug_title"
-        android:icon="@drawable/ic_account_circle_black_48dp"
+        android:icon="@drawable/ic_camera_alt_black_48dp"
+        android:title="@string/camera_title" />
+    <item
         android:id="@+id/userdrug"
-        />
+        android:icon="@drawable/ic_account_circle_black_48dp"
+        android:title="@string/userdrug_title" />
 </menu>

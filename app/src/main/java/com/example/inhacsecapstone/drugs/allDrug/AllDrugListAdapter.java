@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.Entity.Takes;
-import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 
@@ -23,35 +22,10 @@ import java.util.ArrayList;
 
 public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.AllDrugListHolder> {
 
-    class AllDrugListHolder extends RecyclerView.ViewHolder {
-        private final ImageView imageView;
-        private final TextView nameView;
-        private final TextView amountView;
-        private final TextView singleDoseView;
-        private final TextView dailyDoseView;
-        private final TextView numberOfDayTakensView;
-        private final ProgressBar progressBarView;
-        private final ViewGroup layout;
-        private AllDrugListHolder(View itemView) {
-            super(itemView);
-            imageView = (ImageView) itemView.findViewById(R.id.drugImage) ;
-            nameView = (TextView) itemView.findViewById(R.id.drugName) ;
-            amountView = (TextView) itemView.findViewById(R.id.Amount) ;
-            singleDoseView = (TextView) itemView.findViewById(R.id.singleDose) ;
-            dailyDoseView = (TextView) itemView.findViewById(R.id.dailyDose) ;
-            numberOfDayTakensView = (TextView) itemView.findViewById(R.id.period) ;
-            progressBarView = (ProgressBar) itemView.findViewById(R.id.progressBar);
-            layout = (ViewGroup) itemView.findViewById(R.id.buttonLayout);
-
-
-
-        }
-    }
-    private Context context;
     private final LayoutInflater mInflater;
+    private Context context;
     private ArrayList<Medicine> mdrugs;
     private ArrayList<Takes> mtakes;
-
     public AllDrugListAdapter(Context context, ArrayList<Medicine> mdrugs, ArrayList<Takes> mtakes) {
         this.mdrugs = mdrugs;
         this.mtakes = mtakes;
@@ -81,9 +55,9 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
             });*/
 
             int cnt = 0;
-            if(mtakes!= null){
-                for(Takes elem : mtakes){
-                    if(curDrug.getCode() == elem.getCode())
+            if (mtakes != null) {
+                for (Takes elem : mtakes) {
+                    if (curDrug.getCode() == elem.getCode())
                         cnt++;
                 }
             }
@@ -96,7 +70,7 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
                     context.startActivity(intent);
                 }
             });
-            holder.progressBarView.setProgress(cnt* 100 / curDrug.getAmount());
+            holder.progressBarView.setProgress(cnt * 100 / curDrug.getAmount());
             holder.amountView.setText(Integer.toString(curDrug.getAmount()));
             holder.dailyDoseView.setText(Integer.toString(curDrug.getDailyDose()));
             holder.nameView.setText(curDrug.getName());
@@ -105,12 +79,14 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
         } else {
         }
     }
+
     @Override
     public int getItemCount() {
         if (mdrugs != null)
             return mdrugs.size();
         else return 0;
     }
+
     public void showImage(String url) {
         LayoutInflater factory = LayoutInflater.from(context);
         final View view = factory.inflate(R.layout.myphoto_layout, null);
@@ -119,5 +95,30 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
         Glide.with(context).load(url).into(iv);
         dialog.setContentView(view);
         dialog.show();
+    }
+
+    class AllDrugListHolder extends RecyclerView.ViewHolder {
+        private final ImageView imageView;
+        private final TextView nameView;
+        private final TextView amountView;
+        private final TextView singleDoseView;
+        private final TextView dailyDoseView;
+        private final TextView numberOfDayTakensView;
+        private final ProgressBar progressBarView;
+        private final ViewGroup layout;
+
+        private AllDrugListHolder(View itemView) {
+            super(itemView);
+            imageView = itemView.findViewById(R.id.drugImage);
+            nameView = itemView.findViewById(R.id.drugName);
+            amountView = itemView.findViewById(R.id.Amount);
+            singleDoseView = itemView.findViewById(R.id.singleDose);
+            dailyDoseView = itemView.findViewById(R.id.dailyDose);
+            numberOfDayTakensView = itemView.findViewById(R.id.period);
+            progressBarView = itemView.findViewById(R.id.progressBar);
+            layout = itemView.findViewById(R.id.buttonLayout);
+
+
+        }
     }
 }

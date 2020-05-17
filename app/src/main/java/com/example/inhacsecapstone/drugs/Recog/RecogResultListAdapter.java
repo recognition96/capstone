@@ -23,29 +23,9 @@ import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 import java.util.ArrayList;
 
 public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultListAdapter.RecogResultListHolder> {
-    class RecogResultListHolder extends RecyclerView.ViewHolder {
-        private final ImageView imageView;
-        private final TextView nameView;
-        private final EditText amountView;
-        private final EditText singleDoseView;
-        private final EditText dailyDoseView;
-        private final EditText numberOfDayTakensView;
-        private final ViewGroup layout;
-        private RecogResultListHolder(View itemView) {
-            super(itemView);
-            layout = itemView.findViewById(R.id.buttonLayout);
-            imageView = itemView.findViewById(R.id.drugImage) ;
-            nameView = itemView.findViewById(R.id.drugName) ;
-            amountView = itemView.findViewById(R.id.Amount) ;
-            singleDoseView =  itemView.findViewById(R.id.singleDose) ;
-            dailyDoseView =  itemView.findViewById(R.id.dailyDose) ;
-            numberOfDayTakensView = itemView.findViewById(R.id.period);
-        }
-    }
-    private Context context;
     private final LayoutInflater mInflater;
+    private Context context;
     private ArrayList<Medicine> mdrugs; // Cached copy of words
-
     public RecogResultListAdapter(Context context, ArrayList<Medicine> drugs) {
         mInflater = LayoutInflater.from(context);
         this.mdrugs = drugs;
@@ -100,8 +80,7 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     String str = s.toString();
                     try {
                         curDrug.setAmount(Integer.parseInt(str));
-                    }catch(Exception ex)
-                    {
+                    } catch (Exception ex) {
                         Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
                     }
@@ -123,9 +102,7 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     String str = s.toString();
                     try {
                         curDrug.setDailyDose(Integer.parseInt(str));
-                    }
-                    catch(Exception ex)
-                    {
+                    } catch (Exception ex) {
                         Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
                     }
@@ -148,9 +125,7 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     String str = s.toString();
                     try {
                         curDrug.setNumberOfDayTakens(Integer.parseInt(str));
-                    }
-                    catch(Exception ex)
-                    {
+                    } catch (Exception ex) {
                         Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
                     }
@@ -173,8 +148,7 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     String str = s.toString();
                     try {
                         curDrug.setSingleDose(str);
-                    }catch(Exception ex)
-                    {
+                    } catch (Exception ex) {
                         Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
                     }
@@ -183,12 +157,14 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
         } else {
         }
     }
+
     @Override
     public int getItemCount() {
         if (mdrugs != null)
             return mdrugs.size();
         else return 0;
     }
+
     public void showImage(String url) {
         LayoutInflater factory = LayoutInflater.from(context);
         final View view = factory.inflate(R.layout.myphoto_layout, null);
@@ -197,5 +173,26 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
         Glide.with(context).load(url).into(iv);
         dialog.setContentView(view);
         dialog.show();
+    }
+
+    class RecogResultListHolder extends RecyclerView.ViewHolder {
+        private final ImageView imageView;
+        private final TextView nameView;
+        private final EditText amountView;
+        private final EditText singleDoseView;
+        private final EditText dailyDoseView;
+        private final EditText numberOfDayTakensView;
+        private final ViewGroup layout;
+
+        private RecogResultListHolder(View itemView) {
+            super(itemView);
+            layout = itemView.findViewById(R.id.buttonLayout);
+            imageView = itemView.findViewById(R.id.drugImage);
+            nameView = itemView.findViewById(R.id.drugName);
+            amountView = itemView.findViewById(R.id.Amount);
+            singleDoseView = itemView.findViewById(R.id.singleDose);
+            dailyDoseView = itemView.findViewById(R.id.dailyDose);
+            numberOfDayTakensView = itemView.findViewById(R.id.period);
+        }
     }
 }
