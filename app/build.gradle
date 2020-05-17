@@ -72,5 +72,5 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.8.0'
 
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.2.0'
-    implementation project(path: ':cameraview')
+    api 'com.otaliastudios:cameraview:2.6.2'
 }
