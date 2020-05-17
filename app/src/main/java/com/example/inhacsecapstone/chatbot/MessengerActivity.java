@@ -29,7 +29,7 @@ import android.widget.GridLayout;
 import android.widget.Toast;
 
 import com.example.inhacsecapstone.R;
-import com.example.inhacsecapstone.drugs.RecogResultActivity;
+import com.example.inhacsecapstone.drugs.Recog.RecogResultActivity;
 import com.github.bassaer.chatmessageview.model.IChatUser;
 import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.util.ChatBot;
@@ -86,7 +86,7 @@ public class MessengerActivity extends Activity {
     private static final int READ_REQUEST_CODE = 100;
 
     private static final String portNumber = "5000";
-    private static final String ipv4Address = "121.142.4.173";
+    private static final String ipv4Address = "118.47.168.30";
     private Context context;
     private Intent SttIntent;
     private SpeechRecognizer mRecognizer;
@@ -125,7 +125,7 @@ public class MessengerActivity extends Activity {
         initUsers();
 
         // 화면 생성 시 Welcome Message 출력
-        connectServerSendText("");
+        connectServerSendText("안녕");
         //
 
         mChatView = findViewById(R.id.chat_view);
@@ -369,6 +369,7 @@ public class MessengerActivity extends Activity {
                             Toast.makeText(context, "연결 오류가 발생되어 응답을 받지 못했습니다.", Toast.LENGTH_LONG).show();
                         }
                         if(!res.equals("")) {
+
                             receiveMessage(res);
                             tts.speak(res,TextToSpeech.QUEUE_FLUSH,null,null);
                         }
