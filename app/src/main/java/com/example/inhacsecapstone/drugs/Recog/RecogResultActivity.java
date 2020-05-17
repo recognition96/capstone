@@ -37,8 +37,8 @@ public class RecogResultActivity extends AppCompatActivity {
         Drugs[] drugs = (Drugs[]) getIntent().getSerializableExtra("drugs");
         for (Drugs iter : drugs) {
             String img = iter.getSmall_image().equals("null") || iter.getSmall_image().equals("") ? (iter.getPack_image().equals("null") || iter.getPack_image().equals("") ? null : iter.getPack_image()) : iter.getSmall_image();
-            arrayList.add(new Medicine(iter.getCode(), iter.getDrug_name(), -1, img, null, null,
-                    -1, null, -1, -1, -1));
+            arrayList.add(new Medicine(iter.getCode(), iter.getDrug_name(), -1, img, iter.getEffect(), iter.getUsages(),
+                    -1, null, -1, -1, -1)); // 카테고리, warning 해결해야함.
         }
 
         mRecyclerView = this.findViewById(R.id.recogList);

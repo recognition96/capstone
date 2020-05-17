@@ -44,6 +44,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private long mCaptureTime;
 
     @Override
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         camera_activity = CameraActivity.this;
