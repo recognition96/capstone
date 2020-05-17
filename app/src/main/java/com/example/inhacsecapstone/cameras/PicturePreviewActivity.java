@@ -115,8 +115,6 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
 
         findViewById(R.id.send_button).setOnClickListener(this);
         findViewById(R.id.cancel_button).setOnClickListener(this);
-        findViewById(R.id.send_button2).setOnClickListener(this);
-        findViewById(R.id.cancel_button2).setOnClickListener(this);
     }
 
     @Override
@@ -130,7 +128,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     @Override
     public void onClick(View view) {
         int id = view.getId();
-        if (id == R.id.send_button || id == R.id.send_button2) {
+        if (id == R.id.send_button) {
             // 결과코드를 'RESULT_OK'로 세팅.
             // 이후 이전 액티비티로 돌아가 onActivityResult()가 호출됨.
             Log.d("TAG", "Choose this photo.. transfer to server");
@@ -138,7 +136,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
             CameraActivity camera = (CameraActivity) CameraActivity.camera_activity;
             camera.finish();
             finish();
-        } else if (id == R.id.cancel_button || id == R.id.cancel_button2) {
+        } else if (id == R.id.cancel_button) {
             // 결과코드를 'RESULT_CANCELED'로 세팅.
             // 이후 이전 액티비티로 돌아가 onActivityResult()가 호출됨.
             Log.d("TAG", "Discard this photo.. back to camera to retry");
