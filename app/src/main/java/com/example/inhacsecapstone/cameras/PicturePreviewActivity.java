@@ -165,7 +165,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
                 call.cancel();
-                new Thread(() -> Toast.makeText(getApplicationContext(), "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show()).start();
+                Toast.makeText(getApplicationContext(), "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
             }
 
             @Override
