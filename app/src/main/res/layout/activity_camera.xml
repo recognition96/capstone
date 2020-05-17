@@ -1,98 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="#FF444444">
 
-    <SurfaceView
-        android:id="@+id/surfaceView"
-        android:layout_width="match_parent"
+    <!-- Camera -->
+    <com.otaliastudios.cameraview.CameraView
+        android:id="@+id/camera"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tip"
-        tools:ignore="MissingConstraints" />
+        android:layout_gravity="center"
+        android:layout_marginBottom="88dp"
+        android:keepScreenOn="true"
+        app:cameraAutoFocusMarker="@string/cameraview_default_autofocus_marker"
+        app:cameraEngine="camera2"
+        app:cameraExperimental="true"
+        app:cameraFacing="back"
+        app:cameraFlash="auto"
+        app:cameraGestureLongTap="none"
+        app:cameraGesturePinch="zoom"
+        app:cameraGestureScrollHorizontal="filterControl1"
+        app:cameraGestureScrollVertical="exposureCorrection"
+        app:cameraGestureTap="autoFocus"
+        app:cameraMode="picture"
+        app:cameraPreview="glSurface">
 
-    <ImageView
-        android:id="@+id/guide"
-        android:layout_width="match_parent"
-        android:layout_height="540dp"
-        android:layout_below="@+id/tip"
-        android:layout_alignBottom="@+id/surfaceView"
-        android:layout_marginBottom="5dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/guideline"
-        tools:ignore="ContentDescription" />
+        <ImageView
+            android:id="@+id/guideline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:alpha="0.5"
+            android:scaleType="fitXY"
+            android:src="@drawable/guideline"
+            app:layout_drawOnPictureSnapshot="false"
+            app:layout_drawOnPreview="true" />
+    </com.otaliastudios.cameraview.CameraView>
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="144dp"
-        android:layout_below="@+id/surfaceView"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="-3dp"
-        android:layout_marginBottom="0dp"
-        android:orientation="horizontal">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-
-        <Button
-            android:id="@+id/gallery"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/tip"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="60dp"
-            android:layout_marginBottom="45dp"
-            android:layout_weight="1"
-            android:text="사진첩"
-            android:textStyle="bold"
-            android:backgroundTint="@color/colorPrimaryDark"/>
-
-        <ImageButton
-            android:id="@+id/take_photo"
-            android:layout_width="127dp"
-            android:layout_height="63dp"
-            android:layout_below="@+id/surfaceView"
-            android:layout_marginStart="21dp"
-            android:layout_marginTop="59dp"
-            android:layout_marginEnd="21dp"
-            android:layout_marginBottom="675dp"
-            android:layout_weight="1"
-            android:background="@null"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_camera_alt_black_48dp"
-            android:tint="@color/colorPrimaryDark"
-            tools:ignore="MissingConstraints" />
-
-        <Button
-            android:id="@+id/cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp"
-            android:layout_marginEnd="25dp"
-            android:layout_marginBottom="45dp"
-            android:layout_weight="1"
-            android:text="닫기"
-            android:textStyle="bold"
-            android:backgroundTint="@color/colorPrimaryDark" />
+            android:gravity="center_horizontal"
+            android:text="처방전을 주황색 가이드 안쪽에 맞춰주세요!"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tip"
+    <!-- Controls -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginEnd="0dp"
-        android:text="처방전을 주황색 가이드 안쪽에 맞춰주세요"
-        android:textAlignment="center"
-        android:textColor="#DDFF6C22"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:layout_gravity="bottom"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:weightSum="2">
 
-</RelativeLayout>
+        <ImageButton
+            android:id="@+id/takeFromGallery"
+            android:layout_width="56dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_edit" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/capturePictureSnapshot"
+            android:layout_width="56dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_photo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SNAP"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/cancel_button"
+            android:layout_width="56dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_video" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <!-- cancel -->
+    <!--    <androidx.core.widget.NestedScrollView-->
+    <!--        android:id="@+id/controls"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:background="@android:color/white"-->
+    <!--        android:elevation="4dp"-->
+    <!--        app:behavior_hideable="true"-->
+    <!--        app:behavior_peekHeight="300dp"-->
+    <!--        app:behavior_skipCollapsed="false"-->
+    <!--        app:layout_behavior="@string/bottom_sheet_behavior">-->
+
+    <!--        <LinearLayout-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:orientation="vertical" />-->
+    <!--    </androidx.core.widget.NestedScrollView>-->
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

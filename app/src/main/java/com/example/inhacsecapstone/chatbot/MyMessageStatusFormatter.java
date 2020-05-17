@@ -5,21 +5,21 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+
 import com.example.inhacsecapstone.R;
 import com.github.bassaer.chatmessageview.util.IMessageStatusIconFormatter;
 import com.github.bassaer.chatmessageview.util.IMessageStatusTextFormatter;
-
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 
 /**
  * Message status format sample
  * Created by nakayama on 2017/02/16.
  */
 public class MyMessageStatusFormatter implements IMessageStatusIconFormatter, IMessageStatusTextFormatter {
-    private static final int STATUS_DELIVERING = 0;
     static final int STATUS_DELIVERED = 1;
     static final int STATUS_SEEN = 2;
+    private static final int STATUS_DELIVERING = 0;
     private static final int STATUS_ERROR = 3;
     private Drawable mDeliveringIcon;
     private Drawable mDeliveredIcon;

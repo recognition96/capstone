@@ -1,13 +1,12 @@
 package com.example.inhacsecapstone.drugs.dayDrug;
 
+import android.content.Intent;
+import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.content.Intent;
-import android.os.Bundle;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
@@ -31,7 +30,7 @@ public class DayDrugActivity extends AppCompatActivity implements EventListener 
         int year = intent.getIntExtra("year", -1);
         int month = intent.getIntExtra("month", -1);
         int day = intent.getIntExtra("day", -1);
-        String target = Integer.toString(year) + "." + Integer.toString(month) +"." + Integer.toString(day);
+        String target = year + "." + month + "." + day;
 
         db = AppDatabase.getDataBase(getApplicationContext(), null, 1);
         mRecyclerView = this.findViewById(R.id.DayMedicineView);

@@ -3,18 +3,17 @@ package com.example.inhacsecapstone.calendars;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.dayDrug.DayDrugActivity;
-import com.example.inhacsecapstone.R;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
@@ -36,7 +35,7 @@ public class Calendars extends Fragment {
         context = container.getContext();
 
         View rootView = inflater.inflate(R.layout.fragment_calendar, container, false);
-        MaterialCalendarView materialCalendarView = (MaterialCalendarView) rootView.findViewById(R.id.calendarView);
+        MaterialCalendarView materialCalendarView = rootView.findViewById(R.id.calendarView);
         materialCalendarView.addDecorators(new WeekendDecorator(), new WeekendDecorator2());
         materialCalendarView.setSelectionColor(0xffe0f7fa);
         materialCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
@@ -48,7 +47,7 @@ public class Calendars extends Fragment {
 
                 String shot_Day = Year + "." + Month + "." + Day;
 
-                Toast.makeText(context, shot_Day , Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, shot_Day, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), DayDrugActivity.class);
                 intent.putExtra("year", Year);
                 intent.putExtra("month", Month);
@@ -57,11 +56,11 @@ public class Calendars extends Fragment {
             }
         });
         // DeleteAll 추가 부분
-        rootView.findViewById(R.id.deleteAll).setOnClickListener(new View.OnClickListener(){
+        rootView.findViewById(R.id.deleteAll).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                AppDatabase db =  AppDatabase.getDataBase(getActivity().getApplicationContext(), null, 1);
+                AppDatabase db = AppDatabase.getDataBase(getActivity().getApplicationContext(), null, 1);
                 db.init();
             }
         });

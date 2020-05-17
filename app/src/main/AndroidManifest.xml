@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.inhacsecapstone">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -20,7 +21,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:allowBackup,android:icon">
         <activity android:name=".drugs.MedicineInfoActivity"></activity>
         <activity android:name=".chatbot.MessengerActivity" />
         <activity android:name=".drugs.Recog.RecogResultActivity" />
@@ -35,9 +38,19 @@
             </intent-filter>
         </activity>
         <activity android:name=".cameras.CameraActivity" />
-        <activity android:name=".cameras.PreviewActivity" />
+        <activity android:name=".cameras.PicturePreviewActivity" />
         <activity android:name=".initial.InformationSetting" />
         <activity android:name=".MainActivity" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
     </application>
 
 </manifest>

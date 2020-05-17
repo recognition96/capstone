@@ -1,20 +1,16 @@
 package com.example.inhacsecapstone.drugs;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TabHost;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
 import com.google.android.material.tabs.TabLayout;
-
-import org.w3c.dom.Text;
 
 public class MedicineInfoActivity extends AppCompatActivity {
 
@@ -53,18 +49,18 @@ public class MedicineInfoActivity extends AppCompatActivity {
     }
 
     private void changeView(int index) {
-        TextView textView1 = (TextView) findViewById(R.id.effect) ;
-        TextView textView2 = (TextView) findViewById(R.id.usage) ;
+        TextView textView1 = findViewById(R.id.effect);
+        TextView textView2 = findViewById(R.id.usage);
 
         switch (index) {
-            case 0 :
-                textView1.setVisibility(View.VISIBLE) ;
-                textView2.setVisibility(View.INVISIBLE) ;
-                break ;
-            case 1 :
-                textView1.setVisibility(View.INVISIBLE) ;
-                textView2.setVisibility(View.VISIBLE) ;
-                break ;
+            case 0:
+                textView1.setVisibility(View.VISIBLE);
+                textView2.setVisibility(View.INVISIBLE);
+                break;
+            case 1:
+                textView1.setVisibility(View.INVISIBLE);
+                textView2.setVisibility(View.VISIBLE);
+                break;
         }
     }
 }

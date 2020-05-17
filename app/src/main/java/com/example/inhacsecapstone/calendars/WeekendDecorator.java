@@ -3,11 +3,11 @@ package com.example.inhacsecapstone.calendars;
 import android.graphics.Color;
 import android.text.style.ForegroundColorSpan;
 
-import java.util.Calendar;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
-import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+
+import java.util.Calendar;
 
 public class WeekendDecorator implements DayViewDecorator {
     private final Calendar calendar = Calendar.getInstance();
