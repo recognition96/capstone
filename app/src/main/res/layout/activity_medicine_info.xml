@@ -48,13 +48,13 @@
             android:id="@+id/effect"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp" />
+            android:layout_margin="20dp" />
 
         <TextView
             android:id="@+id/usage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp" />
+            android:layout_margin="20dp" />
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
