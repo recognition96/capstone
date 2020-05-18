@@ -57,7 +57,6 @@ public class Calendars extends Fragment {
         });
         // DeleteAll 추가 부분
         rootView.findViewById(R.id.deleteAll).setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 AppDatabase db = AppDatabase.getDataBase(getActivity().getApplicationContext(), null, 1);

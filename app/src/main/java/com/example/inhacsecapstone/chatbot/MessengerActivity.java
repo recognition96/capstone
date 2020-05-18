@@ -16,6 +16,7 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
@@ -91,7 +92,7 @@ public class MessengerActivity extends Activity {
         setContentView(R.layout.activity_messenger);
         initUsers();
         // 화면 생성 시 Welcome Message 출력
-        sendTextToServer("안녕");
+        sendTextToServer("약 먹으러 왔어");
         //
         mChatView = findViewById(R.id.chat_view);
         setColors();
@@ -259,9 +260,11 @@ public class MessengerActivity extends Activity {
     }
 
     public void sendTextToServer(String texts){
+        SharedPreferences sharedPreferences = getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
         String postUrl = httpConn.getUrl("webhook");
+        Log.d("https",postUrl);
         RequestBody formBody = new FormBody.Builder()
-                .add("message", texts)
+                .add("message", texts).add("username",sharedPreferences.getString("Name", "noName"))
                 .build();
         postRequest(postUrl,formBody);
     }
@@ -279,7 +282,7 @@ public class MessengerActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getApplicationContext(), "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "서버와의 연결에 실패했습니다. 인터넷 환경을 확인해주세요.", Toast.LENGTH_LONG).show();
                     }
                 });
             }
