@@ -2,14 +2,12 @@ package com.example.inhacsecapstone.chatbot;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -21,22 +19,17 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.inhacsecapstone.R;
-import com.example.inhacsecapstone.drugs.Recog.RecogResultActivity;
 import com.example.inhacsecapstone.serverconnect.HttpConnection;
-import com.github.bassaer.chatmessageview.model.IChatUser;
 import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.view.ChatView;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -125,7 +118,7 @@ public class MessengerActivity extends Activity {
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                if(status != ERROR) {
+                if (status != ERROR) {
                     // 언어를 선택한다.
                     tts.setLanguage(Locale.KOREAN);
                 }
@@ -134,10 +127,11 @@ public class MessengerActivity extends Activity {
         tts.setPitch(1.0f);
         tts.setSpeechRate(1.0f);
 
-        SttIntent=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,getApplicationContext().getPackageName());
-        SttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"ko-KR");//한국어 사용
-        mRecognizer=SpeechRecognizer.createSpeechRecognizer(this);
+
+        SttIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName());
+        SttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");//한국어 사용
+        mRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         mRecognizer.setRecognitionListener(listener);
 
         //Click option button
@@ -147,9 +141,9 @@ public class MessengerActivity extends Activity {
                 if(ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO)!= PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MessengerActivity.this,new String[]{Manifest.permission.RECORD_AUDIO},1);
                 } else {
-                    try{
+                    try {
                         mRecognizer.startListening(SttIntent);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -239,8 +233,8 @@ public class MessengerActivity extends Activity {
         //User icon
         Bitmap myIcon = BitmapFactory.decodeResource(getResources(), R.drawable.face_2);
         //User name
-        SharedPreferences sharedPreferences = getSharedPreferences("SHARE_PREF",MODE_PRIVATE);
-        String myName = sharedPreferences.getString("Name","NoName");
+        SharedPreferences sharedPreferences = getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
+        String myName = sharedPreferences.getString("Name", "NoName");
 
         int yourId = 1;
         Bitmap yourIcon = BitmapFactory.decodeResource(getResources(), R.drawable.chatbotimg);
@@ -266,7 +260,7 @@ public class MessengerActivity extends Activity {
         RequestBody formBody = new FormBody.Builder()
                 .add("message", texts).add("username",sharedPreferences.getString("Name", "noName"))
                 .build();
-        postRequest(postUrl,formBody);
+        postRequest(postUrl, formBody);
     }
 
     void postRequest(String postUrl, RequestBody postBody) {
@@ -299,13 +293,15 @@ public class MessengerActivity extends Activity {
                             e.printStackTrace();
                             Toast.makeText(getApplicationContext(), "연결 오류가 발생되어 응답을 받지 못했습니다.", Toast.LENGTH_LONG).show();
                         }
-                        if(!res.equals("")) {
+                        if (!res.equals("")) {
                             receiveMessage(res);
-                            tts.speak(res,TextToSpeech.QUEUE_FLUSH,null,null);
+                            tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
                         }
                     }
                 });
+
             }
         });
     }
+
 }

@@ -94,7 +94,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
         findViewById(R.id.guideline);
         findViewById(R.id.takeFromGallery).setOnClickListener(this);
-        findViewById(R.id.capturePictureSnapshot).setOnClickListener(this);
+        findViewById(R.id.takePicture).setOnClickListener(this);
         findViewById(R.id.cancel_button).setOnClickListener(this);
     }
 
@@ -104,8 +104,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         if (requestCode == SELECT_IMAGE) {
             // 앨범에서 성공적으로 사진을 가져왔을 경우
             Log.d("Camera result", "cause IMAGE Chosen..");
-            Uri selectedImageUri = data.getData();
-            sendImageToPrev(selectedImageUri);
+            if (data != null) {
+                Uri selectedImageUri = data.getData();
+                sendImageToPrev(data.getData());
+            }
+            else {
+                Log.d("@@@", "data.getData() == NULL");
+            }
         } else if (requestCode == SENDING_IMAGE) {
             // 찍거나 고른 사진을 성공적으로 PicturePreviewActivity로 보냈을 경우
             Log.d("Camera result", "cause IMAGE Sended..");
@@ -135,7 +140,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 // onActivityResult -> sendImageToPrev
                 takePhotoFromGallery();
                 break;
-            case R.id.capturePictureSnapshot:
+            case R.id.takePicture:
                 // 직접 촬영했을 경우 onPictureTaken에서 결과받고 PicturePreviewActivity로 intent 전송
                 capturePictureSnapshot();
                 break;
