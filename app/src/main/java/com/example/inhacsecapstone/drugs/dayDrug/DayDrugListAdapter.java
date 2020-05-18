@@ -1,6 +1,7 @@
 package com.example.inhacsecapstone.drugs.dayDrug;
 
 import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.DisplayMetrics;
@@ -9,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,7 +20,10 @@ import com.bumptech.glide.Glide;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -26,11 +32,13 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
     private Context context;
     private ArrayList<Medicine> mdrugs; // Cached copy of words
     private ArrayList<Takes> mtakes;
+    private AppDatabase db;
     public DayDrugListAdapter(Context context, ArrayList<Medicine> mediList, ArrayList<Takes> takesList) {
         mdrugs = mediList;
         mtakes = takesList;
         mInflater = LayoutInflater.from(context);
         this.context = context;
+        db = AppDatabase.getDataBase(context, null, 1);
     }
 
     @Override
@@ -62,14 +70,36 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
 
             View view = holder.view;
             for (int i = 0; i < holder.takes.size(); i++) {
-                String[] data = holder.takes.get(i).getTime().split(":");
+                Takes targetTake = holder.takes.get(i);
+                String[] data = targetTake.getTime().split(":");
 
                 DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
                 int width = dm.widthPixels;
                 TextView text = new TextView(context);
 
-                text.setId(R.id.DayDrug_text);
+                text.setTextSize(15); // 단위는 sp
                 text.setText(data[0] + ":" + data[1]);
+
+
+                TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        db.update(new Takes(curDrug.getCode(), targetTake.getDay(),  Integer.toString(hourOfDay) + ":" + Integer.toString(minute)), data[0] + ":" + data[1]);
+                        text.setText(Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
+                    }
+                };
+
+                text.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        TextView textView = (TextView) v;
+                        int hour = Integer.parseInt(textView.getText().toString().split(":")[0]);
+                        int minuite = Integer.parseInt(textView.getText().toString().split(":")[1]);
+                        TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, listener, hour, minuite, true);
+                        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                        dialog.show();
+                    }
+                });
 
                 int bottom = 10;
                 ConstraintLayout.LayoutParams layoutParams =
