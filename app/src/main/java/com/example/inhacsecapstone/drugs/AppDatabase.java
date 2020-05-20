@@ -88,19 +88,11 @@ public class AppDatabase extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO takes VALUES(" + take.getCode() + ",'" + take.getDay() + "','" + take.getTime() + "')");
         db.close();
     }
-   /* public void update(String item, int price) {
+    public void update(Takes take, String prevTime){
         SQLiteDatabase db = getWritableDatabase();
-        // 입력한 항목과 일치하는 행의 가격 정보 수정
-        db.execSQL("UPDATE MONEYBOOK SET price=" + price + " WHERE item='" + item + "';");
-        db.close();
-    }*/
-
-   /* public void delete(String item) {
-        SQLiteDatabase db = getWritableDatabase();
-        // 입력한 항목과 일치하는 행 삭제
-        db.execSQL("DELETE FROM MONEYBOOK WHERE item='" + item + "';");
-        db.close();
-    } */
+        db.execSQL("UPDATE takes SET day ='" + take.getDay() + "', time = '"+ take.getTime() + "' WHERE code = " + take.getCode() +
+                " AND day='" + take.getDay() + "'AND time='" + prevTime+ "'");
+    }
 
     public ArrayList<Medicine> getAllMedicine() {
         SQLiteDatabase db = getReadableDatabase();

@@ -39,28 +39,6 @@ public class DayDrugActivity extends AppCompatActivity implements EventListener 
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new RecyclerViewDecorator(30));
-        /*
-        Context activityContext = this;
-        dayDrugText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TextView textView = (TextView)v;
-                TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        DayDrugListAdapter.DayDrugListHolder holder =  (DayDrugListAdapter.DayDrugListHolder) mRecyclerView.findContainingViewHolder(v);
-                        ArrayList<TakesEntity> takes =  holder.getTakes();
-                        for(TakesEntity take : takes){
-                            if(take.getTime().equals((String)textView.getText()))
-                                mViewModel.update(new TakesEntity(take.getCode(), take.getDay(), Integer.toString(hourOfDay) + ":" + Integer.toString(minute)));
-                        }
-                    }
-                };
-                String data = (String)mRecyclerView.getText();
-                TimePickerDialog dialog = new TimePickerDialog(activityContext, listener,Integer.parseInt(data.split(":")[0]), Integer.parseInt(data.split(":")[1]), true);
-                dialog.show();
-            }
-        });*/
     }
 
 }
