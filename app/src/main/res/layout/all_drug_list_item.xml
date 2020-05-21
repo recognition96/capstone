@@ -92,7 +92,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="1회 투여량"
+                    android:text="@string/dailydose"
                     android:textAlignment="center" />
 
                 <TextView
@@ -100,7 +100,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="투여 횟수"
+                    android:text="@string/perdose"
                     android:textAlignment="center" />
 
                 <TextView
@@ -108,7 +108,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="총 투약일수"
+                    android:text="@string/totaldose"
                     android:textAlignment="center" />
             </TableRow>
 
@@ -121,7 +121,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="TextView"
                     android:textAlignment="center" />
 
                 <TextView
@@ -129,7 +128,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="TextView"
                     android:textAlignment="center" />
 
                 <TextView
@@ -137,7 +135,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="TextView"
                     android:textAlignment="center" />
             </TableRow>
 

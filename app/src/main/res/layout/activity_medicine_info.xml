@@ -14,7 +14,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/example1" />
+        tools:srcCompat="@drawable/example1"
+        android:contentDescription="@string/todo" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
@@ -26,12 +27,12 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="효능 효과" />
+            android:text="@string/effects" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="용법 용량" />
+            android:text="@string/usages" />
 
     </com.google.android.material.tabs.TabLayout>
 

@@ -111,6 +111,8 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mbitmap.recycle();
+        mbitmap=null;
         if (!isChangingConfigurations()) {
             setPictureResult(null);
         }

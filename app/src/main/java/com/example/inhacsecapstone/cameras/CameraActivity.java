@@ -44,8 +44,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private long mCaptureTime;
 
     @Override
-
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         camera_activity = CameraActivity.this;
@@ -189,9 +187,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-
-    //region Permissions
-
     // Listener
     private class Listener extends CameraListener {
         @Override
@@ -229,6 +224,4 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             message("Zoom:" + newValue, false);
         }
     }
-
-    //endregion
 }

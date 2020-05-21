@@ -20,9 +20,6 @@
     </style>
 
     <!-- Custom font 적용 -->
-    <style name="customCalendarViewFontStyle" parent="@android:style/TextAppearance.Small">
-        <item name="fontFamily">@font/custom_font_family</item>
-    </style>
     <style name="customTextViewFontStyle" parent="@android:style/Widget.DeviceDefault.TextView">
         <item name="android:fontFamily">@font/custom_font_family</item>
     </style>

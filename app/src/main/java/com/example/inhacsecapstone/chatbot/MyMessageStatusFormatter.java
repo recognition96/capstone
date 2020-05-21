@@ -12,10 +12,6 @@ import com.example.inhacsecapstone.R;
 import com.github.bassaer.chatmessageview.util.IMessageStatusIconFormatter;
 import com.github.bassaer.chatmessageview.util.IMessageStatusTextFormatter;
 
-/**
- * Message status format sample
- * Created by nakayama on 2017/02/16.
- */
 public class MyMessageStatusFormatter implements IMessageStatusIconFormatter, IMessageStatusTextFormatter {
     static final int STATUS_DELIVERED = 1;
     static final int STATUS_SEEN = 2;
@@ -31,19 +27,17 @@ public class MyMessageStatusFormatter implements IMessageStatusIconFormatter, IM
     private String mErrorText;
 
     MyMessageStatusFormatter(Context context) {
-        //Init icons
         mDeliveringIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_mail_outline));
         mDeliveredIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_done));
         mSeenIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_done_all));
         mErrorIcon = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_report));
-        //Set colors
+
         ColorStateList colorStateList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.blueGray500));
         DrawableCompat.setTintList(mErrorIcon, colorStateList);
         DrawableCompat.setTintList(mDeliveringIcon, colorStateList);
         DrawableCompat.setTintList(mDeliveredIcon, colorStateList);
         DrawableCompat.setTintList(mSeenIcon, colorStateList);
 
-        //Init status labels
         mDeliveringText = context.getString(R.string.sending);
         mDeliveredText = context.getString(R.string.sent);
         mSeenText = context.getString(R.string.seen);

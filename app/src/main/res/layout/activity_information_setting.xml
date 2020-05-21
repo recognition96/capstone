@@ -56,6 +56,7 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="8dp"
                 android:ems="10"
+                android:fontFamily="@font/nanumsquare_acb"
                 android:hint="이름을 입력하세요."
                 android:inputType="textPersonName"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -82,6 +83,7 @@
                 android:layout_marginEnd="8dp"
                 android:ems="10"
                 android:focusable="false"
+                android:fontFamily="@font/nanumsquare_acb"
                 android:hint="생년월일을 입력하세요."
                 android:inputType="textPersonName"
                 android:onClick="setDate" />
@@ -128,7 +130,6 @@
                 android:backgroundTint="@color/colorAccent"
                 android:onClick="btnClick"
                 android:text="설정완료"
-                android:textColor="@color/white"
                 android:textSize="24sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

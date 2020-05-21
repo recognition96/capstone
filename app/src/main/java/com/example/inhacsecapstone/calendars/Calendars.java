@@ -24,7 +24,6 @@ public class Calendars extends Fragment {
     private Context context;
 
     public Calendars() {
-        // Required empty public constructor
     }
 
 
@@ -33,7 +32,6 @@ public class Calendars extends Fragment {
                              Bundle savedInstanceState) {
 
         context = container.getContext();
-
         View rootView = inflater.inflate(R.layout.fragment_calendar, container, false);
         MaterialCalendarView materialCalendarView = rootView.findViewById(R.id.calendarView);
         materialCalendarView.addDecorators(new WeekendDecorator(), new WeekendDecorator2());
@@ -45,9 +43,6 @@ public class Calendars extends Fragment {
                 int Month = date.getMonth() + 1;
                 int Day = date.getDay();
 
-                String shot_Day = Year + "." + Month + "." + Day;
-
-                Toast.makeText(context, shot_Day, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), DayDrugActivity.class);
                 intent.putExtra("year", Year);
                 intent.putExtra("month", Month);
