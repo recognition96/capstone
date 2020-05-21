@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.chatbotbtn:
                 anim();
-                startActivity(new Intent(MainActivity.this, MessengerActivity.class));
+                startActivity(new Intent(MainActivity.this, MessengerActivity.class).putExtra("Code",0));
                 break;
             case R.id.userinfobtn:
                 anim();

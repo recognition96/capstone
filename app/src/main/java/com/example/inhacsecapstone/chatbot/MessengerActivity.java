@@ -8,7 +8,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -19,6 +21,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -79,14 +82,24 @@ public class MessengerActivity extends Activity {
         mChatView.setInputTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger);
         initUsers();
         // 화면 생성 시 Welcome Message 출력 이후 getIntExtra에서 코드값에 따라 Welcome 메시지 다르게 전송
-        sendTextToServer("약 먹으러 왔어");
+        Intent intent = getIntent();
+        int code = intent.getIntExtra("Code", 0);
 
+        switch(code) {
+            case 0:
+                sendTextToServer("안녕");
+                break;
+            case 1:
+                sendTextToServer("약 먹으러 왔어");
+                break;
+        }
 
         mChatView = findViewById(R.id.chat_view);
         setColors();
@@ -185,8 +198,7 @@ public class MessengerActivity extends Activity {
             ArrayList<String> mResult =results.getStringArrayList(key);
             String[] rs = new String[mResult.size()];
             mResult.toArray(rs);
-
-            // onResults가 이유를 모르지만 2번씩 호출되서 count로 제한...
+            // onResults가 이유를 모르지만 2번씩 호출되서 count로 제한
             if(count==1) {
                 Message message = new Message.Builder()
                         .setUser(mUsers.get(0))
@@ -264,6 +276,20 @@ public class MessengerActivity extends Activity {
         postRequest(postUrl, formBody);
     }
 
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull android.os.Message msg) {
+            if(msg.what == 1){
+                String res = (String)msg.obj;
+                receiveMessage(res);
+                tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
+                return true;
+            }
+            Toast.makeText(getApplicationContext(), "연결에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+    });
+
     void postRequest(String postUrl, RequestBody postBody) {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -274,33 +300,29 @@ public class MessengerActivity extends Activity {
             @Override
             public void onFailure(Call call, IOException e) {
                 call.cancel();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "서버와의 연결에 실패했습니다. 인터넷 환경을 확인해주세요.", Toast.LENGTH_LONG).show();
-                    }
-                });
+                android.os.Message message = android.os.Message.obtain();
+                message.what = 0;
+                handler.sendMessage(message);
             }
-
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String res = "";
-                        try {
-                            res = response.body().string();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Toast.makeText(getApplicationContext(), "연결 오류가 발생되어 응답을 받지 못했습니다.", Toast.LENGTH_LONG).show();
-                        }
-                        if (!res.equals("")) {
-                            receiveMessage(res);
-                            tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
-                        }
+                new Thread(() -> {
+                    String res = "";
+                    try {
+                        res = response.body().string();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        android.os.Message message = android.os.Message.obtain();
+                        message.what = 0;
+                        handler.sendMessage(message);
                     }
-                });
-
+                    if (!res.equals("")) {
+                        android.os.Message message = android.os.Message.obtain();
+                        message.obj = res;
+                        message.what = 1;
+                        handler.sendMessage(message);
+                    }
+                }).start();
             }
         });
     }

@@ -14,6 +14,7 @@ import androidx.legacy.content.WakefulBroadcastReceiver;
 
 import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.chatbot.MessengerActivity;
 
 
 public class AlarmReceiver extends WakefulBroadcastReceiver {
@@ -26,12 +27,16 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 //        Toast.makeText(context, "Time to alert", Toast.LENGTH_SHORT).show();
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
-                new Intent(context, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+                new Intent(context, MessengerActivity.class).putExtra("Code",1), PendingIntent.FLAG_CANCEL_CURRENT);
+
         PendingIntent pIntent2 = PendingIntent.getActivity(context, 1,
                 new Intent(context, this.getClass()), PendingIntent.FLAG_CANCEL_CURRENT);
 
         NotificationManager nm = null;
         String channelId = "채널 아이디";
+
+        nm = context.getSystemService(NotificationManager.class);
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -41,7 +46,6 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
             NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
             channel.setDescription(description);
 
-            nm = context.getSystemService(NotificationManager.class);
             nm.createNotificationChannel(channel);
         }
 
@@ -55,8 +59,6 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
                 .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setContentIntent(pIntent)
-                .addAction(R.drawable.ic_action_mic, "다음에요", pIntent)
-                .addAction(R.drawable.ic_action_mic, "먹었어요", pIntent2)
                 .setAutoCancel(true)
                 .setNumber(1);
 
