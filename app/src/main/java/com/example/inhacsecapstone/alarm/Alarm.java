@@ -11,19 +11,23 @@ import java.util.Calendar;
 
 public class Alarm {
     private Context context;
-    private int hour = 10;
-    private int min = 0;
+    private AlarmManager am = null;
+    private Intent intent = null;
+    private PendingIntent pIntent = null;
+    private int hour = 17;
+    private int min = 6;
     private int sec = 0;
+
     public Alarm(Context context) {
         this.context=context;
     }
+
     public void setAlarm() {
         Log.d("@@@", "Start alarm!");
         Toast.makeText(context, "Start alarm!", Toast.LENGTH_SHORT).show();
-        AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmReceiver.class);
-
-        PendingIntent pIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+        am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        intent = new Intent(context, AlarmReceiver.class);
+        pIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 
         //알람시간 calendar에 set해주기
         Calendar calendar = Calendar.getInstance();
@@ -32,10 +36,11 @@ public class Alarm {
 
         long period = 1000 * 60 * 3;
         //알람 예약
-//        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
-        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), period, pIntent);
+        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+//        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), period, pIntent);
     }
     public void removeAlarm(){
-
+        am.cancel(pIntent);
+        pIntent.cancel();
     }
 }

@@ -3,6 +3,7 @@ package com.example.inhacsecapstone.alarm;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -10,13 +11,12 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
-import androidx.legacy.content.WakefulBroadcastReceiver;
 
-import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.chatbot.MessengerActivity;
 
 
-public class AlarmReceiver extends WakefulBroadcastReceiver {
+public class AlarmReceiver extends BroadcastReceiver {
     private static PowerManager.WakeLock sCpuWakeLock;
 
     @Override
@@ -26,7 +26,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 //        Toast.makeText(context, "Time to alert", Toast.LENGTH_SHORT).show();
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
-                new Intent(context, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+                new Intent(context, MessengerActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
         PendingIntent pIntent2 = PendingIntent.getActivity(context, 1,
                 new Intent(context, this.getClass()), PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -41,10 +41,11 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
             NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
             channel.setDescription(description);
 
-            nm = context.getSystemService(NotificationManager.class);
+            nm = (NotificationManager)context.getSystemService(NotificationManager.class);
             nm.createNotificationChannel(channel);
         }
 
+        nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
         builder.setSmallIcon(R.drawable.ic_alarm_add_black_48dp)
                 .setTicker("NOTIFY")
@@ -53,10 +54,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
                 .setWhen(System.currentTimeMillis())
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setContentIntent(pIntent)
-                .addAction(R.drawable.ic_action_mic, "다음에요", pIntent)
-                .addAction(R.drawable.ic_action_mic, "먹었어요", pIntent2)
                 .setAutoCancel(true)
                 .setNumber(1);
 
@@ -77,6 +75,6 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         }
 
         nm.notify(1, builder.build());
-//        nm.cancel(1);    알림삭제
+//        nm.cancel(1);
     }
 }
