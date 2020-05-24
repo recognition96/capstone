@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.inhacsecapstone.alarm.Alarm;
 import com.example.inhacsecapstone.calendars.Calendars;
 import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
@@ -69,7 +70,10 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
         //
+
+        new Alarm(getApplicationContext()).setAlarm();
     }
+
 
     public void floatingonClick(View v) {
         int id = v.getId();
@@ -104,5 +108,7 @@ public class MainActivity extends AppCompatActivity {
             isFabOpen = true;
         }
     }
+
+
 
 }
