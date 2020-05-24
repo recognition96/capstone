@@ -51,7 +51,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
     public void onBindViewHolder(SetTimeListAdapter.SetTimeListHolders holder, int position) {
         if (mdrugs != null) {
             Medicine curDrug = mdrugs.get(position);
-            holder.code = curDrug.getCode();
+            holder.medi = curDrug;
             Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
 
             /*holder.imageView.setOnClickListener(new View.OnClickListener() {
@@ -197,7 +197,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
         private final TextView amountView;
         private final ChipGroup chipGroup;
         public ArrayList<String> will_takes;
-        public int code;
+        public Medicine medi;
 
         private SetTimeListHolders(View itemView) {
             super(itemView);

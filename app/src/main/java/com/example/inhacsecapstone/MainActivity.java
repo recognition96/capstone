@@ -70,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
         //
-
-        new Alarm(getApplicationContext()).setAlarm();
     }
 
 

@@ -13,11 +13,13 @@ import android.widget.Button;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.alarm.Alarm;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class SetTimeActivity extends AppCompatActivity {
     private ViewModel mViewModel;
@@ -25,6 +27,7 @@ public class SetTimeActivity extends AppCompatActivity {
     private SetTimeListAdapter adapter;
     private Context context;
     private AppDatabase db;
+    private Alarm am;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +35,7 @@ public class SetTimeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_set_time);
         Intent intent = getIntent();
         ArrayList<Medicine> medi = (ArrayList<Medicine>) intent.getSerializableExtra("medicine");
-
+        am = new Alarm(this);
         mRecyclerView = this.findViewById(R.id.RecyclerView);
         adapter = new SetTimeListAdapter(this, medi);
         mRecyclerView.setAdapter(adapter);
@@ -45,7 +48,14 @@ public class SetTimeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 for (int childCount = mRecyclerView.getChildCount(), i = 0; i < childCount; ++i) {
                     final SetTimeListAdapter.SetTimeListHolders holder = (SetTimeListAdapter.SetTimeListHolders) mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
-                    db.insert_will_take(holder.code, holder.will_takes);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), 0, 0, 0);
+                    for(int j = 0; j < holder.medi.getNumberOfDayTakens(); j++)
+                    {
+                        am.setDrugAlarm(holder.medi, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), holder.will_takes);
+                        calendar.add(calendar.DATE, 1);
+                    }
+                    db.insert_will_take(holder.medi.getCode(), holder.will_takes);
                     finish();
                 }
             }
