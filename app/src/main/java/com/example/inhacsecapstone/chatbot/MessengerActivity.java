@@ -98,6 +98,7 @@ public class MessengerActivity extends Activity {
         mChatView.setInputTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,7 +114,6 @@ public class MessengerActivity extends Activity {
                 break;
             case 1:
                 sendTextToServer("약 먹으러 왔어");
-
                 break;
         }
 
@@ -156,6 +156,7 @@ public class MessengerActivity extends Activity {
         });
         tts.setPitch(1.0f);
         tts.setSpeechRate(1.0f);
+
 
         SttIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName());
@@ -334,17 +335,15 @@ public class MessengerActivity extends Activity {
                 return true;
             } else if(msg.what==2) {
                 String res = (String)msg.obj;
-                Log.d("@@@@@@", "this is !!");
                 receiveMessage(res);
                 tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
-                Medicine medi = (Medicine) getIntent().getSerializableExtra("medicine");
-                //Toast.makeText(getApplicationContext(),medi.getImage(), Toast.LENGTH_LONG).show();
+                ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
                 if(medi==null)
                     return false;
-                if(medi.getImage() == null)
-                    return false;
-
-                receiveImage(medi.getImage());
+                for(int i=0; i<medi.size(); i++) {
+                    if(medi.get(i).getImage()!=null)
+                        receiveImage(medi.get(i).getImage());
+                }
                 return true;
             }
             return false;
@@ -410,7 +409,7 @@ public class MessengerActivity extends Activity {
     protected void onDestroy()
     {
         super.onDestroy();
-        if(tts != null) {
+        if(tts!=null) {
             tts.stop();
             tts.shutdown();
         }
