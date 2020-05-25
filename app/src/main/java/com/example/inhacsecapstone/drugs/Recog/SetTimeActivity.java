@@ -19,12 +19,11 @@ import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 public class SetTimeActivity extends AppCompatActivity {
-    private ViewModel mViewModel;
     private RecyclerView mRecyclerView;
     private SetTimeListAdapter adapter;
-    private Context context;
     private AppDatabase db;
     private Alarm am;
 
@@ -45,16 +44,19 @@ public class SetTimeActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                HashMap<String, ArrayList<Medicine>> hm = new HashMap<String, ArrayList<Medicine>>();
                 for (int childCount = mRecyclerView.getChildCount(), i = 0; i < childCount; ++i) {
                     final SetTimeListAdapter.SetTimeListHolders holder = (SetTimeListAdapter.SetTimeListHolders) mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), 0, 0, 0);
-                    am.setDrugAlarm(holder.medi, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), holder.will_takes);
-                    calendar.add(calendar.DATE, 1);
                     db.insert_will_take(holder.medi.getCode(), holder.will_takes);
-                    finish();
+                    for (int j = 0; j < holder.will_takes.size(); j++) {
+                        if(hm.get(holder.will_takes.get(j)) == null)
+                            hm.put(holder.will_takes.get(j), new ArrayList<Medicine>());
+                        hm.get(holder.will_takes.get(j)).add(holder.medi);
+                    }
                 }
-            }
+                am.setDrugAlarm(hm);
+                finish();
+                }
         });
     }
 }
