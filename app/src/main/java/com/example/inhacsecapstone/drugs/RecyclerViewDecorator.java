@@ -18,6 +18,7 @@ public class RecyclerViewDecorator extends RecyclerView.ItemDecoration {
     public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         outRect.right = divWidth;
         outRect.left = divWidth;
-        outRect.top = divWidth;
+        outRect.top = divWidth/2;
+        outRect.bottom = divWidth/2;
     }
 }
