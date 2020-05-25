@@ -13,7 +13,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.legacy.content.WakefulBroadcastReceiver;
 
 import com.example.inhacsecapstone.Entity.Medicine;
-import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
 
@@ -32,8 +31,6 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
                 new Intent(context, MessengerActivity.class).putExtra("Code",1).putExtra("medicine", medi), PendingIntent.FLAG_CANCEL_CURRENT);
 
-        PendingIntent pIntent2 = PendingIntent.getActivity(context, 1,
-                new Intent(context, this.getClass()), PendingIntent.FLAG_CANCEL_CURRENT);
 
         NotificationManager nm = null;
         String channelId = "채널 아이디";

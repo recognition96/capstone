@@ -50,8 +50,8 @@ public class Alarm {
 
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.putExtra("medicine", medi);
-            PendingIntent pIntent = PendingIntent.getBroadcast(context, alarm_id++, intent, 0);
-            am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+            PendingIntent pIntent = PendingIntent.getBroadcast(context, alarm_id++, intent, PendingIntent.FLAG_IMMUTABLE);
+            am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
         }
         editor.putInt("alarm_id", alarm_id);
     }
