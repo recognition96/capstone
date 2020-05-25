@@ -30,7 +30,6 @@ public class Alarm {
     }
 
     public void setDrugAlarm(HashMap<String, ArrayList<Medicine>> hm){
-        Log.d("@@@", "Start alarm!");
         AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 
 
@@ -44,10 +43,6 @@ public class Alarm {
         } else {
             alarm_id = sharedPreferences.getInt("alarm_id",0);
         }
-
-
-        HashMap<String, ArrayList<Medicine>> dateTimeToMedicine = new HashMap<String, ArrayList<Medicine>>();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
         Calendar calendar = Calendar.getInstance();
         Set<String> s = hm.keySet();
@@ -64,19 +59,19 @@ public class Alarm {
                         Integer.parseInt(hour_min[0]), Integer.parseInt(hour_min[1]), 0);
                 for(int i = 0; i < medi_list.size(); i++){
                     Medicine medi = medi_list.get(i);
-                    if(medi.getNumberOfDayTakens() > day)
+                    if(medi.getNumberOfDayTakens() < day)
                         continue;
                     cnt++;
                     if(System.currentTimeMillis() > calendar.getTimeInMillis())
                         continue;
-
-                    String datestr = sdf.format(calendar.getTime());
+                    Log.d("@@@", s + " ::::: " + medi.getName());
                     target.add(medi);
                 }
+                if(target.size() == 0) continue;
 
                 Intent intent = new Intent(context, AlarmReceiver.class);
                 intent.putExtra("medicine", target);
-                PendingIntent pIntent = PendingIntent.getBroadcast(context, alarm_id++, intent, 0);
+                PendingIntent pIntent = PendingIntent.getBroadcast(context, alarm_id++, intent, PendingIntent.FLAG_IMMUTABLE);
                 am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
             }
             calendar.add(Calendar.DATE, 1);

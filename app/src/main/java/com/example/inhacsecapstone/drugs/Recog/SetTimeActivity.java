@@ -52,8 +52,7 @@ public class SetTimeActivity extends AppCompatActivity {
                     for (int j = 0; j < holder.will_takes.size(); j++) {
                         if(hm.get(holder.will_takes.get(j)) == null)
                             hm.put(holder.will_takes.get(j), new ArrayList<Medicine>());
-                        else
-                            hm.get(holder.will_takes.get(j)).add(holder.medi);
+                        hm.get(holder.will_takes.get(j)).add(holder.medi);
                     }
                 }
                 am.setDrugAlarm(hm);
