@@ -332,55 +332,57 @@ public class MessengerActivity extends Activity {
     }
 
     public void doTextBasedAction(String texts) {
-//        String regex = "\\d{2}[가-힣]{1,}\\s*\\d{2}[가-힣]{1,}";
-//        Pattern pattern = Pattern.compile(regex);
-//        Matcher matcher = pattern.matcher(texts);
-//        while (matcher.find()) {
-//            String temp = matcher.group();
-//            temp = temp.replace("분에", "시");
-//            String hr[] = temp.split("시");
-//            hr[0] = hr[0].trim();
-//            hr[1] = hr[1].trim();
-//
-//            ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
-//
-//            if (medi.isEmpty()) {
-//
-//            } else {
-//                // 약 시간 설정해야하는 부분 hour , minute 이용하기 시간은 0~23 분은 0~60으로 지정됨
-//                for (int i = 0; i < medi.size(); i++) {
-//                    Integer code = medi.get(i).getCode();
-//                    Calendar calendar = Calendar.getInstance();
-//                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd");
-//                    String str = simpleDateFormat.format(calendar);
-//                    Takes takes = new Takes(code, str, hr[0] + ":" + hr[1]);
-//                    db.insert(takes);
-//                }
-//                //
-//                return;
-//            }
-//        }
-
+        String regex = "\\d{2}[가-힣]{1,}\\s*\\d{2}[가-힣]{1,}";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(texts);
         if(texts.contains("잘하셨어요")) {
-            ArrayList<Medicine> medi = (ArrayList<Medicine>)getIntent().getSerializableExtra("medicine");
-            if(medi.isEmpty()) {
-            } else {
-                // 약 시간 설정해야하는 부분 hour , minute 이용하기 시간은 0~23 분은 0~60으로 지정됨
-                for(int i=0; i<medi.size(); i++) {
-                    Integer code = medi.get(i).getCode();
-                    Calendar calendar = Calendar.getInstance();
-                    String days = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH)) + "." + Integer.toString(calendar.get(Calendar.DATE));
-                    String times = Integer.toString(calendar.get(Calendar.HOUR)) + ":" + Integer.toString(calendar.get(Calendar.MINUTE));
-                    Takes takes = new Takes(code, days, times);
-                    db.insert(takes);
-
-                    Log.d("DB저장완료", medi.get(i).getName());
+            while (matcher.find()) {
+                String temp = matcher.group();
+                temp = temp.replace("분에", "시");
+                String hr[] = temp.split("시");
+                hr[0] = hr[0].trim();
+                hr[1] = hr[1].trim();
+                ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
+                if (medi.isEmpty()) {
+                } else {
+                    for (int i = 0; i < medi.size(); i++) {
+                        Integer code = medi.get(i).getCode();
+                        Calendar calendar = Calendar.getInstance();
+                        String days = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH)) + "." + Integer.toString(calendar.get(Calendar.DATE));
+                        String times = Integer.parseInt(hr[0]) + ":" + Integer.parseInt(hr[1]);
+                        Takes takes = new Takes(code, days, times);
+                        db.insert(takes);
+                        Log.d("DB저장완료", medi.get(i).getName() + " - " + hr[0] + ":" + hr[1] );
+                    }
+                    Log.d("DB저장완료", "시간저장완료");
+                    return;
                 }
             }
-            Log.d("DB저장완료", "시간저장완료");
-            return;
-        }
+        } else {
+            while (matcher.find()) {
+                String temp = matcher.group();
+                temp = temp.replace("분에", "시");
+                String hr[] = temp.split("시");
+                hr[0] = hr[0].trim();
+                hr[1] = hr[1].trim();
+                ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
+                if (medi.isEmpty()) {
+                } else {
+                    // 약 시간 설정해야하는 부분 hour , minute 이용하기 시간은 0~23 분은 0~60으로 지정됨
+                    for (int i = 0; i < medi.size(); i++) {
+                        Integer code = medi.get(i).getCode();
+                        Calendar calendar = Calendar.getInstance();
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd");
+                        String str = simpleDateFormat.format(calendar);
+                        Takes takes = new Takes(code, str, hr[0] + ":" + hr[1]);
+                        db.insert(takes);
+                    }
+                    //
+                    return;
+                }
+            }
 
+        }
     }
 
     Handler handler = new Handler(new Handler.Callback() {
