@@ -2,6 +2,7 @@ package com.example.inhacsecapstone.chatbot;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,7 +20,10 @@ import android.speech.tts.TextToSpeech;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,6 +41,7 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 import com.example.inhacsecapstone.serverconnect.HttpConnection;
 import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.view.ChatView;
@@ -92,7 +97,6 @@ public class MessengerActivity extends Activity {
         mChatView.setInputTextColor(ContextCompat.getColor(this, android.R.color.black));
         mChatView.setInputTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -157,6 +161,23 @@ public class MessengerActivity extends Activity {
         SttIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName());
         SttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");//한국어 사용
+
+        mChatView.setOnBubbleClickListener(new Message.OnBubbleClickListener() {
+            @Override
+            public void onClick(Message message) {
+                final Bitmap bitmap = message.getPicture();
+
+                LayoutInflater factory = LayoutInflater.from(MessengerActivity.this);
+                final View view = factory.inflate(R.layout.myphoto_layout, null);
+
+                Dialog dialog = new Dialog(MessengerActivity.this);
+                ImageView iv = view.findViewById(R.id.iv);
+
+                Glide.with(getApplicationContext()).load(bitmap).into(iv);
+                dialog.setContentView(view);
+                dialog.show();
+            }
+        });
 
         //Click option button
         mChatView.setOnClickOptionButtonListener(new View.OnClickListener() {

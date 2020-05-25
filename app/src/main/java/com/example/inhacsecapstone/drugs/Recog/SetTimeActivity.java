@@ -50,11 +50,8 @@ public class SetTimeActivity extends AppCompatActivity {
                     final SetTimeListAdapter.SetTimeListHolders holder = (SetTimeListAdapter.SetTimeListHolders) mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
                     Calendar calendar = Calendar.getInstance();
                     calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), 0, 0, 0);
-                    for(int j = 0; j < holder.medi.getNumberOfDayTakens(); j++)
-                    {
-                        am.setDrugAlarm(holder.medi, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), holder.will_takes);
-                        calendar.add(calendar.DATE, 1);
-                    }
+                    am.setDrugAlarm(holder.medi, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), holder.will_takes);
+                    calendar.add(calendar.DATE, 1);
                     db.insert_will_take(holder.medi.getCode(), holder.will_takes);
                     finish();
                 }
