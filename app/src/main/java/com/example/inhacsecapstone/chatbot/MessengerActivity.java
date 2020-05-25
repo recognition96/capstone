@@ -26,6 +26,8 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +45,9 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.inhacsecapstone.Entity.Medicine;
+import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 import com.example.inhacsecapstone.serverconnect.HttpConnection;
 import com.github.bassaer.chatmessageview.model.Message;
@@ -70,6 +74,7 @@ public class MessengerActivity extends Activity {
     private TextToSpeech tts;
     private ChatView mChatView;
     private ArrayList<User> mUsers;
+    private AppDatabase db;
     private HttpConnection httpConn = HttpConnection.getInstance();
     public void setColors() {
         int RIGHT_BUBBLE_COLOR = R.color.colorPrimaryDark;
@@ -107,6 +112,7 @@ public class MessengerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger);
         initUsers();
+        db = AppDatabase.getDataBase(getApplicationContext(),null,1);
         // 화면 생성 시 Welcome Message 출력 이후 getIntExtra에서 코드값에 따라 Welcome 메시지 다르게 전송
         Intent intent = getIntent();
         int code = intent.getIntExtra("Code", 0);
@@ -326,30 +332,55 @@ public class MessengerActivity extends Activity {
     }
 
     public void doTextBasedAction(String texts) {
-        String regex = "\\d{2}[가-힣]{1,}\\s*\\d{2}[가-힣]{1,}";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(texts);
-        while (matcher.find()) {
-            String temp = matcher.group();
-            temp = temp.replace("분에", "시");
-            String hr[] = temp.split("시");
-            hr[0] = hr[0].trim();
-            hr[1] = hr[1].trim();
-            Integer hour = Integer.parseInt(hr[0]), minute = Integer.parseInt(hr[1]);
+//        String regex = "\\d{2}[가-힣]{1,}\\s*\\d{2}[가-힣]{1,}";
+//        Pattern pattern = Pattern.compile(regex);
+//        Matcher matcher = pattern.matcher(texts);
+//        while (matcher.find()) {
+//            String temp = matcher.group();
+//            temp = temp.replace("분에", "시");
+//            String hr[] = temp.split("시");
+//            hr[0] = hr[0].trim();
+//            hr[1] = hr[1].trim();
+//
+//            ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
+//
+//            if (medi.isEmpty()) {
+//
+//            } else {
+//                // 약 시간 설정해야하는 부분 hour , minute 이용하기 시간은 0~23 분은 0~60으로 지정됨
+//                for (int i = 0; i < medi.size(); i++) {
+//                    Integer code = medi.get(i).getCode();
+//                    Calendar calendar = Calendar.getInstance();
+//                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd");
+//                    String str = simpleDateFormat.format(calendar);
+//                    Takes takes = new Takes(code, str, hr[0] + ":" + hr[1]);
+//                    db.insert(takes);
+//                }
+//                //
+//                return;
+//            }
+//        }
 
+        if(texts.contains("잘하셨어요")) {
             ArrayList<Medicine> medi = (ArrayList<Medicine>)getIntent().getSerializableExtra("medicine");
-
             if(medi.isEmpty()) {
-
             } else {
                 // 약 시간 설정해야하는 부분 hour , minute 이용하기 시간은 0~23 분은 0~60으로 지정됨
+                for(int i=0; i<medi.size(); i++) {
+                    Integer code = medi.get(i).getCode();
+                    Calendar calendar = Calendar.getInstance();
+                    String days = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH)) + "." + Integer.toString(calendar.get(Calendar.DATE));
+                    String times = Integer.toString(calendar.get(Calendar.HOUR)) + ":" + Integer.toString(calendar.get(Calendar.MINUTE));
+                    Takes takes = new Takes(code, days, times);
+                    db.insert(takes);
 
-
-                //
+                    Log.d("DB저장완료", medi.get(i).getName());
+                }
             }
+            Log.d("DB저장완료", "시간저장완료");
             return;
         }
-        // 시간이 아닌 경우, ~약 알려줘
+
     }
 
     Handler handler = new Handler(new Handler.Callback() {
