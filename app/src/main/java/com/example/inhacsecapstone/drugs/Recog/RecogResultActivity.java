@@ -3,8 +3,8 @@ package com.example.inhacsecapstone.drugs.Recog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModel;
@@ -21,7 +21,6 @@ import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
 import java.util.ArrayList;
 
 public class RecogResultActivity extends AppCompatActivity {
-    private static String TAG = "RecogResultActivity";
     private ViewModel mViewModel;
     private RecyclerView mRecyclerView;
     private RecogResultListAdapter adapter;
@@ -51,16 +50,29 @@ public class RecogResultActivity extends AppCompatActivity {
         findViewById(R.id.submit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*for(MedicineEntity iter : arrayList)
+                ArrayList<Medicine> toss = new ArrayList<Medicine>();
+                for(Medicine iter : arrayList)
                     if(iter.getAmount() == -1 || iter.getDailyDose() == -1 ||  iter.getSingleDose() == null || iter.getNumberOfDayTakens() == -1) {
                         Toast.makeText(context, "빈칸을 채워주세요.", Toast.LENGTH_SHORT).show();
                         return;
-                    }*/
+                    }
                 for (Medicine iter : arrayList)
-                    db.insert(iter);
-                Intent intent = new Intent(context, CameraActivity.class);
+                {
+                    try{
+                        db.insert(iter);
+                        toss.add(iter);
+                    }catch (Exception ex){
+                        Toast.makeText(context, iter.getName() + "은 이미 복용중인 약입니다.", Toast.LENGTH_SHORT).show();
+                        ex.printStackTrace();
+                    }
+                }
+                Intent intent = new Intent(context, SetTimeActivity.class);
+                intent.putExtra("medicine", toss);
+                if(toss.size() > 0)
+                    startActivity(intent);
+                else
+                    Toast.makeText(context, "모든 약이 복용중입니다.", Toast.LENGTH_SHORT).show();
                 finish();
-
             }
         });
 
@@ -72,41 +84,5 @@ public class RecogResultActivity extends AppCompatActivity {
                 finish();
             }
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d(TAG, "onStart()");
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.d(TAG, "onRestart()");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume()");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause()");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop()");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy()");
     }
 }

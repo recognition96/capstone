@@ -5,41 +5,41 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.example.inhacsecapstone.Entity.Medicine;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class Alarm {
+    private int cnt = 0;
     private Context context;
-    private AlarmManager am = null;
-    private Intent intent = null;
-    private PendingIntent pIntent = null;
-    private int hour = 17;
-    private int min = 6;
-    private int sec = 0;
-
+    private PendingIntent pIntent;
+    private AlarmManager am;
     public Alarm(Context context) {
         this.context=context;
     }
 
-    public void setAlarm() {
+    public void setDrugAlarm(Medicine medi, int year, int month, int day, ArrayList<String> times) {
         Log.d("@@@", "Start alarm!");
-        Toast.makeText(context, "Start alarm!", Toast.LENGTH_SHORT).show();
-        am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        intent = new Intent(context, AlarmReceiver.class);
-        pIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+        am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-        //알람시간 calendar에 set해주기
         Calendar calendar = Calendar.getInstance();
-        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), hour, min, sec);
 
+        for (int i = 0; i < times.size(); i++) {
+            String[] hour_min = times.get(i).split(":");
+            calendar.set(year, month, day, Integer.parseInt(hour_min[0]), Integer.parseInt(hour_min[1]), 0);
+            if (System.currentTimeMillis() > calendar.getTimeInMillis())
+                continue;
 
-        long period = 1000 * 60 * 3;
-        //알람 예약
-        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
-//        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), period, pIntent);
+            Intent intent = new Intent(context, AlarmReceiver.class);
+            intent.putExtra("medicine", medi);
+            pIntent = PendingIntent.getBroadcast(context, cnt++, intent, 0);
+            am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+        }
     }
-    public void removeAlarm(){
+
+    public void removeAlarm() {
         am.cancel(pIntent);
         pIntent.cancel();
     }

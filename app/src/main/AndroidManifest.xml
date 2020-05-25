@@ -30,7 +30,7 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup,android:icon">
-        <activity android:name=".drugs.MedicineInfoActivity"></activity>
+        <activity android:name=".drugs.Recog.SetTimeActivity"></activity>
         <activity android:name=".chatbot.MessengerActivity" />
         <activity android:name=".drugs.Recog.RecogResultActivity" />
         <activity android:name=".drugs.dayDrug.DayDrugActivity" />
