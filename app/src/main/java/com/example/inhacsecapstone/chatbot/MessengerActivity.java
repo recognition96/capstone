@@ -8,8 +8,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognitionListener;
@@ -23,17 +21,11 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
@@ -308,9 +300,13 @@ public class MessengerActivity extends Activity {
                 String res = (String)msg.obj;
                 receiveMessage(res);
                 Medicine medi = (Medicine) getIntent().getSerializableExtra("medicine");
-                receiveImage(medi.getImage());
+
+                if(medi != null) {
+                    receiveImage(medi.getImage());
+                    tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
+                    return true;
+                }
                 tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
-                return true;
             }
             Toast.makeText(getApplicationContext(), "연결에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show();
             return false;

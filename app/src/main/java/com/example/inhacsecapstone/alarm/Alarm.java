@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 
@@ -52,7 +51,7 @@ public class Alarm {
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.putExtra("medicine", medi);
             PendingIntent pIntent = PendingIntent.getBroadcast(context, alarm_id++, intent, 0);
-            am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+            am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
         }
         editor.putInt("alarm_id", alarm_id);
     }
