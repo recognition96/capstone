@@ -48,13 +48,15 @@
             android:id="@+id/effect"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="20dp" />
+            android:layout_margin="20dp"
+            android:scrollbars="vertical" />
 
         <TextView
             android:id="@+id/usage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="20dp" />
+            android:layout_margin="20dp"
+            android:scrollbars="vertical" />
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

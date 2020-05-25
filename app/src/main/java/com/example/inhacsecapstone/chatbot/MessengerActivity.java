@@ -14,6 +14,7 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
@@ -300,5 +301,4 @@ public class MessengerActivity extends Activity {
             }
         });
     }
-
 }
