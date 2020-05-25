@@ -28,7 +28,6 @@ public class Alarm {
         Log.d("@@@", "Start alarm!");
         AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 
-
         SharedPreferences sharedPreferences = context.getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
@@ -51,9 +50,11 @@ public class Alarm {
 
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.putExtra("medicine", medi);
-            PendingIntent pIntent = PendingIntent.getBroadcast(context, alarm_id++, intent, 0);
+            PendingIntent pIntent = PendingIntent.getBroadcast(context, alarm_id++, intent, PendingIntent.FLAG_IMMUTABLE);
             am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
         }
+
         editor.putInt("alarm_id", alarm_id);
+        editor.commit();
     }
 }

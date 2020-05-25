@@ -17,6 +17,8 @@ import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
 
+import java.util.ArrayList;
+
 
 public class AlarmReceiver extends WakefulBroadcastReceiver {
     private static PowerManager.WakeLock sCpuWakeLock;
@@ -27,19 +29,15 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         Log.d("@@@", "Time to alert");
 //        Toast.makeText(context, "Time to alert", Toast.LENGTH_SHORT).show();
 
-        Medicine medi = (Medicine)intent.getSerializableExtra("medicine");
+        ArrayList<Medicine> medi = (ArrayList<Medicine>) intent.getSerializableExtra("medicine");
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
                 new Intent(context, MessengerActivity.class).putExtra("Code",1).putExtra("medicine", medi), PendingIntent.FLAG_CANCEL_CURRENT);
-
-        PendingIntent pIntent2 = PendingIntent.getActivity(context, 1,
-                new Intent(context, this.getClass()), PendingIntent.FLAG_CANCEL_CURRENT);
 
         NotificationManager nm = null;
         String channelId = "채널 아이디";
 
         nm = context.getSystemService(NotificationManager.class);
-
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 

@@ -114,7 +114,6 @@ public class MessengerActivity extends Activity {
                 break;
             case 1:
                 sendTextToServer("약 먹으러 왔어");
-
                 break;
         }
 
@@ -338,10 +337,13 @@ public class MessengerActivity extends Activity {
                 String res = (String)msg.obj;
                 receiveMessage(res);
                 tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
-                Medicine medi = (Medicine) getIntent().getSerializableExtra("medicine");
-                if(medi==null || medi.getImage() == null)
+                ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
+                if(medi==null)
                     return false;
-                receiveImage(medi.getImage());
+                for(int i=0; i<medi.size(); i++) {
+                    if(medi.get(i).getImage()!=null)
+                        receiveImage(medi.get(i).getImage());
+                }
                 return true;
             }
             return false;
@@ -407,6 +409,9 @@ public class MessengerActivity extends Activity {
     protected void onDestroy()
     {
         super.onDestroy();
-        //tts.shutdown();
+        if(tts!=null) {
+            tts.stop();
+            tts.shutdown();
+        }
     }
 }
