@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,9 +23,19 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
+import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.serverconnect.HttpConnection;
 import com.github.bassaer.chatmessageview.model.Message;
@@ -97,6 +108,10 @@ public class MessengerActivity extends Activity {
                 sendTextToServer("안녕");
                 break;
             case 1:
+                Medicine medi = (Medicine) getIntent().getSerializableExtra("medicine");
+                receiveImage(medi.getImage());
+                Toast.makeText(getApplicationContext(), medi.getName() , Toast.LENGTH_LONG).show();
+
                 sendTextToServer("약 먹으러 왔어");
                 break;
         }
@@ -145,8 +160,6 @@ public class MessengerActivity extends Activity {
         SttIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName());
         SttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");//한국어 사용
-        mRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-        mRecognizer.setRecognitionListener(listener);
 
         //Click option button
         mChatView.setOnClickOptionButtonListener(new View.OnClickListener() {
@@ -239,6 +252,27 @@ public class MessengerActivity extends Activity {
         mChatView.receive(receivedMessage);
     }
 
+    private void receiveImage(String uri) {
+        Glide.with(getApplicationContext()).asBitmap().load(uri)
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                        final Bitmap bitmap = resource;
+                        Message message = new Message.Builder()
+                                .setRight(false)
+                                .setText(Message.Type.PICTURE.name())
+                                .setUser(mUsers.get(1))
+                                .setPicture(bitmap)
+                                .setType(Message.Type.PICTURE)
+                                .setStatusIconFormatter(new MyMessageStatusFormatter(MessengerActivity.this))
+                                .setStatusStyle(Message.Companion.getSTATUS_ICON())
+                                .setStatus(MyMessageStatusFormatter.STATUS_DELIVERED)
+                                .build();
+                        mChatView.receive(message);
+                    }
+                });
+    }
+
     private void initUsers() {
         mUsers = new ArrayList<>();
         //User id
@@ -258,12 +292,6 @@ public class MessengerActivity extends Activity {
 
         mUsers.add(me);
         mUsers.add(you);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        initUsers();
     }
 
     public void sendTextToServer(String texts){
@@ -328,9 +356,24 @@ public class MessengerActivity extends Activity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        mRecognizer.setRecognitionListener(listener);
+        initUsers();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        mRecognizer.destroy();
+    }
+
+    @Override
     protected void onDestroy()
     {
         super.onDestroy();
-        tts.shutdown();
+        //tts.shutdown();
     }
 }

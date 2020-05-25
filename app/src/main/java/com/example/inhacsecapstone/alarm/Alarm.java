@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,8 +13,10 @@ import com.example.inhacsecapstone.Entity.Medicine;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class Alarm {
-    private int cnt = 0;
+    private int alarm_id = 0;
     private Context context;
     public Alarm(Context context) {
         this.context=context;
@@ -24,6 +27,18 @@ public class Alarm {
     public void setDrugAlarm(Medicine medi, int year, int month, int day, ArrayList<String> times){
         Log.d("@@@", "Start alarm!");
         AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        if(!sharedPreferences.contains("alarm_id")) {
+            editor.putInt("alarm_id", 0);
+            editor.commit();
+            alarm_id = 0;
+        } else {
+            alarm_id = sharedPreferences.getInt("alarm_id",0);
+        }
 
         Calendar calendar = Calendar.getInstance();
 
@@ -36,8 +51,9 @@ public class Alarm {
 
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.putExtra("medicine", medi);
-            PendingIntent pIntent = PendingIntent.getBroadcast(context, cnt++, intent, 0);
+            PendingIntent pIntent = PendingIntent.getBroadcast(context, alarm_id++, intent, 0);
             am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
         }
+        editor.putInt("alarm_id", alarm_id);
     }
 }

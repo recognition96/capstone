@@ -12,6 +12,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.legacy.content.WakefulBroadcastReceiver;
 
+import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
@@ -26,8 +27,10 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         Log.d("@@@", "Time to alert");
 //        Toast.makeText(context, "Time to alert", Toast.LENGTH_SHORT).show();
 
+        Medicine medi = (Medicine)intent.getSerializableExtra("medicine");
+
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
-                new Intent(context, MessengerActivity.class).putExtra("Code",1), PendingIntent.FLAG_CANCEL_CURRENT);
+                new Intent(context, MessengerActivity.class).putExtra("Code",1).putExtra("medicine", medi), PendingIntent.FLAG_CANCEL_CURRENT);
 
         PendingIntent pIntent2 = PendingIntent.getActivity(context, 1,
                 new Intent(context, this.getClass()), PendingIntent.FLAG_CANCEL_CURRENT);

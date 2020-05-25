@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -155,6 +157,29 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
         postRequest(postUrl, postBodyImage);
     }
 
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull android.os.Message msg) {
+            if(msg.what == 1){
+                String OCR_Result = (String)msg.obj;
+                Gson gson = new GsonBuilder().create();
+                JsonParser parser = new JsonParser();
+                JsonElement rootObject = parser.parse(OCR_Result)
+                        .getAsJsonObject().get("drugs");
+                Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
+                for (int i = 0; i < drugs.length; i++) {
+                    System.out.println(drugs[i].printres());
+                }
+                Intent intent = new Intent(PicturePreviewActivity.this, RecogResultActivity.class);
+                intent.putExtra("drugs", drugs);
+                startActivity(intent);
+                return true;
+            }
+            Toast.makeText(getApplicationContext(), "연결에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+    });
+
     void postRequest(String postUrl, RequestBody postBody) {
         OkHttpClient client = new OkHttpClient();
         okhttp3.Request request = new Request.Builder()
@@ -164,7 +189,10 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
-                Toast.makeText(getApplicationContext(), "Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
+                call.cancel();
+                android.os.Message message = android.os.Message.obtain();
+                message.what = 0;
+                handler.sendMessage(message);
             }
 
             @Override
@@ -178,19 +206,17 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
                         OCR_Result = response.body().string();
                     } catch (IOException e) {
                         e.printStackTrace();
+                        android.os.Message message = android.os.Message.obtain();
+                        message.what = 0;
+                        handler.sendMessage(message);
                     }
 
-                    Gson gson = new GsonBuilder().create();
-                    JsonParser parser = new JsonParser();
-                    JsonElement rootObject = parser.parse(OCR_Result)
-                            .getAsJsonObject().get("drugs");
-                    Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
-                    for (int i = 0; i < drugs.length; i++) {
-                        System.out.println(drugs[i].printres());
-                    }
-                    Intent intent = new Intent(PicturePreviewActivity.this, RecogResultActivity.class);
-                    intent.putExtra("drugs", drugs);
-                    startActivity(intent);
+                    android.os.Message message = android.os.Message.obtain();
+                    message.obj = OCR_Result;
+                    message.what = 1;
+                    handler.sendMessage(message);
+
+
                 }).start();
             }
         });

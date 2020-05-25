@@ -28,12 +28,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
+        android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup,android:icon">
         <activity android:name=".drugs.Recog.SetTimeActivity"></activity>
         <activity android:name=".drugs.MedicineInfoActivity" />
 
-        <activity android:name=".drugs.MedicineInfoActivity" />
         <activity android:name=".chatbot.MessengerActivity" />
         <activity android:name=".drugs.Recog.RecogResultActivity" />
         <activity android:name=".drugs.dayDrug.DayDrugActivity" />
