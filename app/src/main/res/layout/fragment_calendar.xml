@@ -14,8 +14,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:mcv_allowClickDaysOutsideCurrentMonth="false"
+        app:mcv_dateTextAppearance="@style/TextAppearance.AppCompat"
         app:mcv_selectionColor="#00F"
-        app:mcv_showOtherDates="all" />
+        app:mcv_showOtherDates="defaults" />
 
     <Button
         android:id="@+id/deleteAll"

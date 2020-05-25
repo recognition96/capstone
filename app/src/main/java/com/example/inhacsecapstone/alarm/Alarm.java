@@ -4,43 +4,56 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class Alarm {
-    private int cnt = 0;
+    private int alarm_id = 0;
     private Context context;
-    private PendingIntent pIntent;
-    private AlarmManager am;
     public Alarm(Context context) {
         this.context=context;
     }
+    public void removeAlarm(){
 
-    public void setDrugAlarm(Medicine medi, int year, int month, int day, ArrayList<String> times) {
+    }
+    public void setDrugAlarm(Medicine medi, int year, int month, int day, ArrayList<String> times){
         Log.d("@@@", "Start alarm!");
-        am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        if(!sharedPreferences.contains("alarm_id")) {
+            editor.putInt("alarm_id", 0);
+            editor.commit();
+            alarm_id = 0;
+        } else {
+            alarm_id = sharedPreferences.getInt("alarm_id",0);
+        }
 
         Calendar calendar = Calendar.getInstance();
 
-        for (int i = 0; i < times.size(); i++) {
+        for(int i = 0; i < times.size(); i++)
+        {
             String[] hour_min = times.get(i).split(":");
             calendar.set(year, month, day, Integer.parseInt(hour_min[0]), Integer.parseInt(hour_min[1]), 0);
-            if (System.currentTimeMillis() > calendar.getTimeInMillis())
+            if(System.currentTimeMillis() > calendar.getTimeInMillis())
                 continue;
 
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.putExtra("medicine", medi);
-            pIntent = PendingIntent.getBroadcast(context, cnt++, intent, 0);
+            PendingIntent pIntent = PendingIntent.getBroadcast(context, alarm_id++, intent, 0);
             am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
         }
-    }
-
-    public void removeAlarm() {
-        am.cancel(pIntent);
-        pIntent.cancel();
+        editor.putInt("alarm_id", alarm_id);
     }
 }

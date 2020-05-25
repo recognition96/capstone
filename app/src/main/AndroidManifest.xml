@@ -28,10 +28,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
+        android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup,android:icon">
         <activity android:name=".drugs.Recog.SetTimeActivity"></activity>
-        <activity android:name=".chatbot.MessengerActivity" />
+        <activity android:name=".drugs.MedicineInfoActivity" />
+
+        <activity android:name=".chatbot.MessengerActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".drugs.Recog.RecogResultActivity" />
         <activity android:name=".drugs.dayDrug.DayDrugActivity" />
         <activity
@@ -39,7 +43,6 @@
             android:theme="@style/Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

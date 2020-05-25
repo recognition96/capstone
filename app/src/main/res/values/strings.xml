@@ -8,4 +8,15 @@
     <string name="clear_messages">대화창 초기화</string>
     <string name="send_picture">사진 전송</string>
     <string name="cameraview_default_autofocus_marker">com.otaliastudios.cameraview.markers.DefaultAutoFocusMarker</string>
+    <string name="effects">효능 효과</string>
+    <string name="usages">용법 용량</string>
+    <string name="todo">TODO</string>
+    <string name="todo2">TODO</string>
+    <string name="yes">확인</string>
+    <string name="no">취소</string>
+    <string name="yes1">맞습니다</string>
+    <string name="no1">틀립니다</string>
+    <string name="dailydose">1회 투여량</string>
+    <string name="perdose">투여 횟수</string>
+    <string name="totaldose">총 투약일수</string>
 </resources>

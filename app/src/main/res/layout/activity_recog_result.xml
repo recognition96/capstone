@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/gray200">
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recogList"
         android:layout_width="match_parent"
@@ -15,7 +14,6 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="0dp"
         tools:listitem="@layout/recog_result_list_item">
-
     </androidx.recyclerview.widget.RecyclerView>
 
     <Button
@@ -24,7 +22,7 @@
         android:layout_height="56dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:text="맞습니다"
+        android:text="@string/yes1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -34,7 +32,8 @@
         android:layout_height="56dp"
         android:layout_marginStart="20dp"
         android:layout_marginBottom="20dp"
-        android:text="틀립니다"
+        android:text="@string/no1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
