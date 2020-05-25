@@ -125,7 +125,12 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
                         @Override
                         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                             holder.will_takes.set(index, Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
-                            target.setText(Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
+                            String m = new String();
+                            if(minute < 10)
+                                m = "0" + Integer.toString(minute);
+                            else
+                                m = Integer.toString(minute);
+                            target.setText(Integer.toString(hourOfDay) + ":" + m);
                         }
                     };
                     target.setOnCloseIconClickListener(new Chip.OnClickListener(){
