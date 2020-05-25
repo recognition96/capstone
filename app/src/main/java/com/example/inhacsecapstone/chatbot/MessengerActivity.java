@@ -108,11 +108,8 @@ public class MessengerActivity extends Activity {
                 sendTextToServer("안녕");
                 break;
             case 1:
-                Medicine medi = (Medicine) getIntent().getSerializableExtra("medicine");
-                receiveImage(medi.getImage());
-                Toast.makeText(getApplicationContext(), medi.getName() , Toast.LENGTH_LONG).show();
-
                 sendTextToServer("약 먹으러 왔어");
+
                 break;
         }
 
@@ -310,6 +307,8 @@ public class MessengerActivity extends Activity {
             if(msg.what == 1){
                 String res = (String)msg.obj;
                 receiveMessage(res);
+                Medicine medi = (Medicine) getIntent().getSerializableExtra("medicine");
+                receiveImage(medi.getImage());
                 tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
                 return true;
             }

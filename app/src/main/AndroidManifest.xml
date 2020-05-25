@@ -34,7 +34,8 @@
         <activity android:name=".drugs.Recog.SetTimeActivity"></activity>
         <activity android:name=".drugs.MedicineInfoActivity" />
 
-        <activity android:name=".chatbot.MessengerActivity" />
+        <activity android:name=".chatbot.MessengerActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".drugs.Recog.RecogResultActivity" />
         <activity android:name=".drugs.dayDrug.DayDrugActivity" />
         <activity
