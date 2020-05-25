@@ -62,8 +62,8 @@ public class Alarm {
                     if(medi.getNumberOfDayTakens() < day)
                         continue;
                     cnt++;
-                    if(System.currentTimeMillis() > calendar.getTimeInMillis())
-                        continue;
+                    //if(System.currentTimeMillis() > calendar.getTimeInMillis())
+                    //    continue;
                     Log.d("@@@", s + " ::::: " + medi.getName());
                     target.add(medi);
                 }

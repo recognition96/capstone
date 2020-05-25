@@ -49,6 +49,7 @@ public class AppDatabase extends SQLiteOpenHelper {
                 "PRIMARY KEY (code, day, time))");
         db.execSQL("CREATE TABLE will_take (" + "" +
                 "code INTEGER, " +
+                "date TEXT," +
                 "time TEXT," +
                 "PRIMARY KEY (code, time))");
     }
@@ -88,10 +89,10 @@ public class AppDatabase extends SQLiteOpenHelper {
                 medicine.getWarning() + ")");
         db.close();
     }
-    public void insert_will_take(int code, ArrayList<String> will_take){
+    public void insert_will_take(int code, String date, ArrayList<String> will_take){
         SQLiteDatabase db = getWritableDatabase();
         for(String elem : will_take)
-            db.execSQL("INSERT INTO will_take VALUES(" + code + ", '" + elem + "')");
+            db.execSQL("INSERT INTO will_take VALUES(" + code + ",  '" + date + "', '" + elem + "')");
     }
     public void insert(Takes take) {
         SQLiteDatabase db = getWritableDatabase();

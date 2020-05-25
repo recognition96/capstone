@@ -8,16 +8,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.view.View;
 import android.widget.Button;
 
 import com.example.inhacsecapstone.Entity.Medicine;
+import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.alarm.Alarm;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -33,31 +36,48 @@ public class SetTimeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_time);
         Intent intent = getIntent();
-        ArrayList<Medicine> medi = (ArrayList<Medicine>) intent.getSerializableExtra("medicine");
+        ArrayList<Medicine> medis = (ArrayList<Medicine>) intent.getSerializableExtra("medicine");
+        HashMap<Integer, ArrayList<String>> times = new HashMap<Integer, ArrayList<String>>();
+        for(int i =0; i < medis.size(); i++)
+            times.put(medis.get(i).getCode(), new ArrayList<String>());
         am = new Alarm(this);
         mRecyclerView = this.findViewById(R.id.RecyclerView);
-        adapter = new SetTimeListAdapter(this, medi);
+        adapter = new SetTimeListAdapter(this, medis, times);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new RecyclerViewDecorator(30));
+
         db = AppDatabase.getDataBase(this, null, 1);
         Button btn = findViewById(R.id.confirm);
+
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 HashMap<String, ArrayList<Medicine>> hm = new HashMap<String, ArrayList<Medicine>>();
-                for (int childCount = mRecyclerView.getChildCount(), i = 0; i < childCount; ++i) {
-                    final SetTimeListAdapter.SetTimeListHolders holder = (SetTimeListAdapter.SetTimeListHolders) mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
-                    db.insert_will_take(holder.medi.getCode(), holder.will_takes);
-                    for (int j = 0; j < holder.will_takes.size(); j++) {
-                        if(hm.get(holder.will_takes.get(j)) == null)
-                            hm.put(holder.will_takes.get(j), new ArrayList<Medicine>());
-                        hm.get(holder.will_takes.get(j)).add(holder.medi);
+                for (int i = 0; i < medis.size(); i++) { // 5 4
+                    Medicine medi = medis.get(i);
+                    ArrayList<String> time = times.get(medi.getCode());
+                    for (int j = 0; j < time.size(); j++) {
+                        if (hm.get(time.get(j)) == null)
+                            hm.put(time.get(j), new ArrayList<Medicine>());
+                        hm.get(time.get(j)).add(medi);
                     }
                 }
+
                 am.setDrugAlarm(hm);
-                finish();
+                for (int i = 0; i < medis.size(); i++) {
+                    Calendar calendar = Calendar.getInstance();
+                    Medicine medi = medis.get(i);
+                    for (int j = 0; j < medi.getNumberOfDayTakens(); j++) {
+                        String date = Integer.toString(calendar.get(Calendar.YEAR)) + "."
+                                + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "."
+                                + Integer.toString(calendar.get(Calendar.DATE));
+                        db.insert_will_take(medi.getCode(), date, times.get(medi.getCode()));
+                        calendar.add(Calendar.DATE, 1);
+                    }
                 }
+                finish();
+            }
         });
     }
 }

@@ -29,16 +29,19 @@ import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.SetTimeListHolders> {
     private final LayoutInflater mInflater;
     private Context context;
     private ArrayList<Medicine> mdrugs; // Cached copy of words
+    private HashMap<Integer, ArrayList<String>> times;
 
-    public SetTimeListAdapter(Context context, ArrayList<Medicine> drugs) {
+    public SetTimeListAdapter(Context context, ArrayList<Medicine> drugs, HashMap<Integer, ArrayList<String>> times) {
         mInflater = LayoutInflater.from(context);
         this.mdrugs = drugs;
         this.context = context;
+        this.times = times;
     }
 
     @Override
@@ -53,6 +56,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
             Medicine curDrug = mdrugs.get(position);
             holder.medi = curDrug;
             Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
+            holder.will_takes = times.get(curDrug.getCode());
 
             /*holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -211,7 +215,6 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
             nameView = itemView.findViewById(R.id.drugName);
             amountView = itemView.findViewById(R.id.Amount);
             chipGroup= itemView.findViewById(R.id.chipgroup);
-            will_takes = new ArrayList<String>();
         }
     }
 }
