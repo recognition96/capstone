@@ -26,6 +26,9 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -322,6 +325,33 @@ public class MessengerActivity extends Activity {
         postRequest(postUrl, formBody);
     }
 
+    public void doTextBasedAction(String texts) {
+        String regex = "\\d{2}[가-힣]{1,}\\s*\\d{2}[가-힣]{1,}";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(texts);
+        while (matcher.find()) {
+            String temp = matcher.group();
+            temp = temp.replace("분에", "시");
+            String hr[] = temp.split("시");
+            hr[0] = hr[0].trim();
+            hr[1] = hr[1].trim();
+            Integer hour = Integer.parseInt(hr[0]), minute = Integer.parseInt(hr[1]);
+
+            ArrayList<Medicine> medi = (ArrayList<Medicine>)getIntent().getSerializableExtra("medicine");
+
+            if(medi.isEmpty()) {
+
+            } else {
+                // 약 시간 설정해야하는 부분 hour , minute 이용하기 시간은 0~23 분은 0~60으로 지정됨
+
+
+                //
+            }
+            return;
+        }
+        // 시간이 아닌 경우, ~약 알려줘
+    }
+
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull android.os.Message msg) {
@@ -330,6 +360,7 @@ public class MessengerActivity extends Activity {
                 return false;
             } else if(msg.what == 1){
                 String res = (String)msg.obj;
+                doTextBasedAction(res);
                 receiveMessage(res);
                 tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
                 return true;
