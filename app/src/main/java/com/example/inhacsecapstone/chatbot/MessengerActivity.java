@@ -2,12 +2,15 @@ package com.example.inhacsecapstone.chatbot;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognitionListener;
@@ -17,18 +20,28 @@ import android.speech.tts.TextToSpeech;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 import com.example.inhacsecapstone.serverconnect.HttpConnection;
 import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.view.ChatView;
@@ -149,6 +162,23 @@ public class MessengerActivity extends Activity {
         SttIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName());
         SttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");//한국어 사용
+
+        mChatView.setOnBubbleClickListener(new Message.OnBubbleClickListener() {
+            @Override
+            public void onClick(Message message) {
+                final Bitmap bitmap = message.getPicture();
+
+                LayoutInflater factory = LayoutInflater.from(MessengerActivity.this);
+                final View view = factory.inflate(R.layout.myphoto_layout, null);
+
+                Dialog dialog = new Dialog(MessengerActivity.this);
+                ImageView iv = view.findViewById(R.id.iv);
+
+                Glide.with(getApplicationContext()).load(bitmap).into(iv);
+                dialog.setContentView(view);
+                dialog.show();
+            }
+        });
 
         //Click option button
         mChatView.setOnClickOptionButtonListener(new View.OnClickListener() {
@@ -296,19 +326,24 @@ public class MessengerActivity extends Activity {
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull android.os.Message msg) {
-            if(msg.what == 1){
+            if(msg.what==0) {
+                Toast.makeText(getApplicationContext(), "연결에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show();
+                return false;
+            } else if(msg.what == 1){
                 String res = (String)msg.obj;
                 receiveMessage(res);
-                Medicine medi = (Medicine) getIntent().getSerializableExtra("medicine");
-
-                if(medi != null) {
-                    receiveImage(medi.getImage());
-                    tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
-                    return true;
-                }
                 tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
+                return true;
+            } else if(msg.what==2) {
+                String res = (String)msg.obj;
+                receiveMessage(res);
+                tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
+                Medicine medi = (Medicine) getIntent().getSerializableExtra("medicine");
+                if(medi==null || medi.getImage() == null)
+                    return false;
+                receiveImage(medi.getImage());
+                return true;
             }
-            Toast.makeText(getApplicationContext(), "연결에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show();
             return false;
         }
     });
@@ -342,7 +377,10 @@ public class MessengerActivity extends Activity {
                     if (!res.equals("")) {
                         android.os.Message message = android.os.Message.obtain();
                         message.obj = res;
-                        message.what = 1;
+                        if(res.contains("약 드실 시간이에요."))
+                            message.what = 2;
+                        else
+                            message.what = 1;
                         handler.sendMessage(message);
                     }
                 }).start();
