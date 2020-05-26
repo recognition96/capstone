@@ -68,6 +68,7 @@ public class InformationSetting extends AppCompatActivity {
             Toast.makeText(this, "유저 정보를 모두 입력해주세요!", Toast.LENGTH_SHORT).show();
         } else {
             editor.putString("Name", user_name);
+            editor.putInt("noti_cnt", 0);
             editor.commit();
             Toast.makeText(this, "유저 정보 설정이 완료되었습니다.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, MainActivity.class);

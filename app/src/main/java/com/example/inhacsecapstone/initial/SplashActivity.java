@@ -17,6 +17,10 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         SharedPreferences sharedPreferences = getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("noti_cnt",0);
+        editor.commit();
+
         if (!sharedPreferences.contains("Name")) {
             Toast.makeText(this, "유저 정보가 없습니다.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, InformationSetting.class);

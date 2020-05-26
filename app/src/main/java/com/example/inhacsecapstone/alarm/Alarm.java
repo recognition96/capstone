@@ -5,10 +5,13 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -28,18 +31,6 @@ public class Alarm {
 
     public void setDrugAlarm(HashMap<String, ArrayList<Medicine>> hm){
         AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-
-
-        SharedPreferences sharedPreferences = context.getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        if(!sharedPreferences.contains("alarm_id")) {
-            editor.putInt("alarm_id", 0);
-            editor.commit();
-            alarm_id = 0;
-        } else {
-            alarm_id = sharedPreferences.getInt("alarm_id",0);
-        }
 
         Calendar calendar = Calendar.getInstance();
         Set<String> s = hm.keySet();
@@ -68,17 +59,12 @@ public class Alarm {
 
                 Intent intent = new Intent(context, AlarmReceiver.class);
                 intent.putExtra("medicine", target);
-                PendingIntent pIntent = PendingIntent.getBroadcast(context, alarm_id++, intent, PendingIntent.FLAG_IMMUTABLE);
-                am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+                PendingIntent pIntent = PendingIntent.getBroadcast(context, (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
             }
             calendar.add(Calendar.DATE, 1);
             day++;
-//            Log.d("@@@", String.valueOf(medi.size()));
             if(cnt == 0) break;
         }
-
-        editor.putInt("alarm_id", alarm_id);
-        editor.commit();
     }
-
 }
