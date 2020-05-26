@@ -11,10 +11,8 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
-import androidx.legacy.content.WakefulBroadcastReceiver;
 
 import com.example.inhacsecapstone.Entity.Medicine;
-import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
 
@@ -32,7 +30,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         ArrayList<Medicine> medi = (ArrayList<Medicine>) intent.getSerializableExtra("medicine");
 
-        PendingIntent pIntent = PendingIntent.getActivity(context, 0,
+        Log.d("@@@", String.valueOf(medi.size()));
+        PendingIntent pIntent = PendingIntent.getActivity(context, (int)System.currentTimeMillis()/1000,
                 new Intent(context, MessengerActivity.class).putExtra("Code",1).putExtra("medicine", medi), PendingIntent.FLAG_CANCEL_CURRENT);
 
         NotificationManager nm = null;
@@ -58,7 +57,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setContentText("~~약을 드셨나요?")
                 .setWhen(System.currentTimeMillis())
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
+                .setDefaults(NotificationCompat.DEFAULT_VIBRATE|NotificationCompat.FLAG_NO_CLEAR)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setContentIntent(pIntent)
                 .setAutoCancel(true)
@@ -80,7 +79,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             sCpuWakeLock = null;
         }
 
-        nm.notify(1, builder.build());
+        nm.notify((int)System.currentTimeMillis()/1000, builder.build());
 //        nm.cancel(1);    알림삭제
     }
 }

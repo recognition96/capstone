@@ -5,13 +5,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -76,9 +73,12 @@ public class Alarm {
             }
             calendar.add(Calendar.DATE, 1);
             day++;
+//            Log.d("@@@", String.valueOf(medi.size()));
             if(cnt == 0) break;
         }
+
         editor.putInt("alarm_id", alarm_id);
         editor.commit();
     }
+
 }
