@@ -47,7 +47,7 @@ public class SetTimeActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new RecyclerViewDecorator(30));
 
-        db = AppDatabase.getDataBase(this, null, 1);
+        db = AppDatabase.getDataBase(this);
         Button btn = findViewById(R.id.confirm);
 
         btn.setOnClickListener(new View.OnClickListener() {

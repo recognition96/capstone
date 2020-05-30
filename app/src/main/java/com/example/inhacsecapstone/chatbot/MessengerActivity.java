@@ -112,7 +112,7 @@ public class MessengerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger);
         initUsers();
-        db = AppDatabase.getDataBase(getApplicationContext(),null,1);
+        db = AppDatabase.getDataBase(getApplicationContext());
         // 화면 생성 시 Welcome Message 출력 이후 getIntExtra에서 코드값에 따라 Welcome 메시지 다르게 전송
         Intent intent = getIntent();
         int code = intent.getIntExtra("Code", 0);

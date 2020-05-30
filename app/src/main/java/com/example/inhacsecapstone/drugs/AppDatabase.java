@@ -12,17 +12,19 @@ import java.util.ArrayList;
 
 public class AppDatabase extends SQLiteOpenHelper {
     private static AppDatabase INSTANCE;
-    private static String databaseName = "app_database2";
+    private static String databaseName = "app_database";
+    private static SQLiteDatabase.CursorFactory factory = null;
+    private static int version = 1;
 
     // DBHelper 생성자로 관리할 DB 이름과 버전 정보를 받음
-    private AppDatabase(Context context, SQLiteDatabase.CursorFactory factory, int version) {
+    private AppDatabase(Context context) {
         super(context, databaseName, factory, version);
     }
 
-    public static AppDatabase getDataBase(Context context, SQLiteDatabase.CursorFactory factory, int version) {
+    public static AppDatabase getDataBase(Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
-                INSTANCE = new AppDatabase(context, factory, version);
+                INSTANCE = new AppDatabase(context);
             }
         }
         return INSTANCE;
@@ -47,11 +49,9 @@ public class AppDatabase extends SQLiteOpenHelper {
                 "day TEXT, " +
                 "time TEXT," +
                 "PRIMARY KEY (code, day, time))");
-        db.execSQL("CREATE TABLE will_take (" + "" +
+        db.execSQL("CREATE TABLE will_take (alarmid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 "code INTEGER, " +
-                "date TEXT," +
-                "time TEXT," +
-                "PRIMARY KEY (code, time))");
+                "time TEXT)");
     }
 
     public void init() {
@@ -65,7 +65,6 @@ public class AppDatabase extends SQLiteOpenHelper {
         Takes take = new Takes(11111111, "2020.5.9", "12:10");
         insert(medi);
         insert(take);
-
     }
 
     // DB 업그레이드를 위해 버전이 변경될 때 호출되는 함수
