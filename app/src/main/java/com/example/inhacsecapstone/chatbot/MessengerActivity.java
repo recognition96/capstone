@@ -2,7 +2,10 @@ package com.example.inhacsecapstone.chatbot;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -47,6 +50,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.alarm.AlarmReceiver;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 import com.example.inhacsecapstone.serverconnect.HttpConnection;
@@ -105,26 +109,14 @@ public class MessengerActivity extends Activity {
         mChatView.setInputTextColor(ContextCompat.getColor(this, android.R.color.black));
         mChatView.setInputTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
     }
-
+    boolean notendofspeech=false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger);
         initUsers();
-        db = AppDatabase.getDataBase(getApplicationContext());
-        // 화면 생성 시 Welcome Message 출력 이후 getIntExtra에서 코드값에 따라 Welcome 메시지 다르게 전송
-        Intent intent = getIntent();
-        int code = intent.getIntExtra("Code", 0);
-
-        switch(code) {
-            case 0:
-                sendTextToServer("안녕");
-                break;
-            case 1:
-                sendTextToServer("약 먹으러 왔어");
-                break;
-        }
+        db = AppDatabase.getDataBase(getApplicationContext(),null,1);
 
         mChatView = findViewById(R.id.chat_view);
         setColors();
@@ -203,6 +195,25 @@ public class MessengerActivity extends Activity {
                 }
             }
         });
+
+        // 화면 생성 시 Welcome Message 출력 이후 getIntExtra에서 코드값에 따라 Welcome 메시지 다르게 전송
+        Intent intent = getIntent();
+        int code = intent.getIntExtra("Code", 0);
+
+        switch(code) {
+            case 0:
+                sendTextToServer("안녕");
+                break;
+            case 1:
+                int errorcode = intent.getIntExtra("errorcode",0);
+                if(errorcode!=0) {
+                    String texts = "비정상적인 종료가 발생된 약품입니다.";
+                    receiveMessage(texts);
+                    tts.speak(texts, TextToSpeech.QUEUE_FLUSH, null, null);
+                }
+                sendTextToServer("약 먹으러 왔어");
+                break;
+        }
     }
 
     private int count=0;
@@ -238,7 +249,7 @@ public class MessengerActivity extends Activity {
             ArrayList<String> mResult =results.getStringArrayList(key);
             String[] rs = new String[mResult.size()];
             mResult.toArray(rs);
-            // onResults가 이유를 모르지만 2번씩 호출되서 count로 제한
+            // onResults가 2번씩 호출되서 count로 제한
             if(count==1) {
                 Message message = new Message.Builder()
                         .setUser(mUsers.get(0))
@@ -338,27 +349,27 @@ public class MessengerActivity extends Activity {
         if(texts.contains("잘하셨어요")) {
             while (matcher.find()) {
                 String temp = matcher.group();
-                temp = temp.replace("분에", "시");
+                temp = temp.replace("분에", "시"); temp = temp.replace("분으로", "시");
                 String hr[] = temp.split("시");
                 hr[0] = hr[0].trim();
                 hr[1] = hr[1].trim();
                 ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
-                if (medi.isEmpty()) {
-                } else {
+                if (!medi.isEmpty()) {
                     for (int i = 0; i < medi.size(); i++) {
                         Integer code = medi.get(i).getCode();
                         Calendar calendar = Calendar.getInstance();
-                        String days = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH)) + "." + Integer.toString(calendar.get(Calendar.DATE));
+                        String days = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
                         String times = Integer.parseInt(hr[0]) + ":" + Integer.parseInt(hr[1]);
                         Takes takes = new Takes(code, days, times);
                         db.insert(takes);
                         Log.d("DB저장완료", medi.get(i).getName() + " - " + hr[0] + ":" + hr[1] );
                     }
+                    notendofspeech = false;
                     Log.d("DB저장완료", "시간저장완료");
                     return;
                 }
             }
-        } else {
+        } else if(texts.contains("알려드릴게요")){
             while (matcher.find()) {
                 String temp = matcher.group();
                 temp = temp.replace("분에", "시");
@@ -366,22 +377,21 @@ public class MessengerActivity extends Activity {
                 hr[0] = hr[0].trim();
                 hr[1] = hr[1].trim();
                 ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
-                if (medi.isEmpty()) {
-                } else {
-                    // 약 시간 설정해야하는 부분 hour , minute 이용하기 시간은 0~23 분은 0~60으로 지정됨
-                    for (int i = 0; i < medi.size(); i++) {
-                        Integer code = medi.get(i).getCode();
-                        Calendar calendar = Calendar.getInstance();
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd");
-                        String str = simpleDateFormat.format(calendar);
-                        Takes takes = new Takes(code, str, hr[0] + ":" + hr[1]);
-                        db.insert(takes);
-                    }
-                    //
-                    return;
-                }
-            }
 
+                Calendar calendar = Calendar.getInstance();
+                if(Integer.parseInt(hr[0]) < calendar.get(Calendar.HOUR))
+                    calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE+1), Integer.parseInt(hr[0]), Integer.parseInt(hr[1]), 0);
+                else
+                    calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), Integer.parseInt(hr[0]), Integer.parseInt(hr[1]), 0);
+
+                AlarmManager am = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+                intent.putExtra("medicine", medi);
+                PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+            }
+            notendofspeech = false;
+            return;
         }
     }
 
@@ -393,9 +403,9 @@ public class MessengerActivity extends Activity {
                 return false;
             } else if(msg.what == 1){
                 String res = (String)msg.obj;
-                doTextBasedAction(res);
                 receiveMessage(res);
                 tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
+                doTextBasedAction(res);
                 return true;
             } else if(msg.what==2) {
                 String res = (String)msg.obj;
@@ -443,9 +453,10 @@ public class MessengerActivity extends Activity {
                     if (!res.equals("")) {
                         android.os.Message message = android.os.Message.obtain();
                         message.obj = res;
-                        if(res.contains("약 드실 시간이에요."))
+                        if(res.contains("약 드실 시간이에요.")) {
                             message.what = 2;
-                        else
+                            notendofspeech = true;
+                        } else
                             message.what = 1;
                         handler.sendMessage(message);
                     }
@@ -472,10 +483,25 @@ public class MessengerActivity extends Activity {
     @Override
     protected void onDestroy()
     {
-        super.onDestroy();
+        if(notendofspeech) {
+            Log.d("@@@", "비정상적 종료");
+            ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
+            if(!medi.isEmpty()) {
+                for(int i=0; i<medi.size(); i++) {
+                    AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                    Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+                    intent.putExtra("medicine", medi).putExtra("errorcode",1);
+                    PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
+                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+ 1000 * 60, pIntent);
+                }
+            }
+
+            Log.d("@@@", "세팅완료");
+        }
         if(tts!=null) {
             tts.stop();
             tts.shutdown();
         }
+        super.onDestroy();
     }
 }
