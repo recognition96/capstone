@@ -63,7 +63,6 @@ public class SetTimeActivity extends AppCompatActivity {
                         hm.get(time.get(j)).add(medi);
                     }
                 }
-
                 am.setDrugAlarm(hm);
                 for (int i = 0; i < medis.size(); i++) {
                     Calendar calendar = Calendar.getInstance();
