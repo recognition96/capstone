@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.inhacsecapstone.alarm.Alarm;
 import com.example.inhacsecapstone.calendars.Calendars;
 import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;

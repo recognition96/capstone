@@ -3,7 +3,6 @@ package com.example.inhacsecapstone.drugs.Recog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -19,7 +18,6 @@ import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.Drugs;
 import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class RecogResultActivity extends AppCompatActivity {
