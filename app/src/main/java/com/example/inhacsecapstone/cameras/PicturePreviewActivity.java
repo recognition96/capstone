@@ -185,7 +185,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
 
     void postRequest(String postUrl, RequestBody postBody) {
         OkHttpClient client = new OkHttpClient.Builder()
-                .readTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.MINUTES)
                 .build();
         okhttp3.Request request = new Request.Builder()
                 .url(postUrl)

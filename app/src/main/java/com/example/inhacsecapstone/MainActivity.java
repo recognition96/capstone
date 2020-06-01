@@ -1,15 +1,11 @@
 package com.example.inhacsecapstone;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,13 +19,12 @@ import com.example.inhacsecapstone.initial.InformationSetting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.Calendar;
-
 public class MainActivity extends AppCompatActivity {
 
     private Animation fab_open, fab_close;
     private Boolean isFabOpen = false;
     private FloatingActionButton fab, fab1, fab2;
+    private int curFragment;
     // Bottom Navigation의 3 메뉴 클릭을 item.getItemId를 기준으로 판단하여 Fragment Replace or Activity Start 실행
     private BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
@@ -38,14 +33,22 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.calendar:
                     selectedFragment = new Calendars();
+                    curFragment = 1;
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
                     break;
                 case R.id.camera:
+                    if(curFragment == 1) {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
+                    }
+                    else if(curFragment == 3){
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
+                    }
                     startActivity(new Intent(MainActivity.this, CameraActivity.class));
                     //overridePendingTransition(0,0);
                     break;
                 case R.id.userdrug:
                     selectedFragment = new AllMedicineList();
+                    curFragment = 3;
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
                     break;
 
@@ -75,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
         //
     }
-
 
     public void floatingonClick(View v) {
         int id = v.getId();
