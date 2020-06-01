@@ -20,10 +20,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.Drugs;
 import com.example.inhacsecapstone.drugs.Recog.RecogResultActivity;
 import com.example.inhacsecapstone.serverconnect.HttpConnection;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -33,6 +35,7 @@ import com.otaliastudios.cameraview.PictureResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -181,7 +184,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     });
 
     void postRequest(String postUrl, RequestBody postBody) {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder().readTimeout(10, TimeUnit.MINUTES).build();
         okhttp3.Request request = new Request.Builder()
                 .url(postUrl)
                 .post(postBody)

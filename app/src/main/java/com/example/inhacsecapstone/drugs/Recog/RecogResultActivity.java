@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -18,6 +21,7 @@ import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.Drugs;
 import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -74,6 +78,8 @@ public class RecogResultActivity extends AppCompatActivity {
                     startActivity(intent);
                 else
                     Toast.makeText(context, "모든 약이 복용중입니다.", Toast.LENGTH_SHORT).show();
+
+
                 finish();
             }
         });

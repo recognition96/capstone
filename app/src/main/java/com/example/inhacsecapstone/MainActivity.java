@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -43,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.camera:
                     startActivity(new Intent(MainActivity.this, CameraActivity.class));
-                    //overridePendingTransition(0,0);
                     break;
                 case R.id.userdrug:
                     selectedFragment = new AllMedicineList();
@@ -54,6 +55,27 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setContentView(R.layout.activity_main);
+
+        // Floating Action Bar Setting
+        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
+
+        fab = findViewById(R.id.fab);
+        fab1 = findViewById(R.id.chatbotbtn);
+        fab2 = findViewById(R.id.userinfobtn);
+        //
+
+        // Bottom Navigation View Setting
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
+        //
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

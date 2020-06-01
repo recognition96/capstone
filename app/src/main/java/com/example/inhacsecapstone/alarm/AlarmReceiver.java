@@ -22,6 +22,8 @@ import com.example.inhacsecapstone.chatbot.MessengerActivity;
 
 import java.util.ArrayList;
 
+import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+
 
 public class AlarmReceiver extends BroadcastReceiver {
     private static PowerManager.WakeLock sCpuWakeLock;
@@ -37,7 +39,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
                 new Intent(context, MessengerActivity.class).putExtra("Code",1).putExtra("medicine", medi)
-                , PendingIntent.FLAG_CANCEL_CURRENT);
+                , PendingIntent.FLAG_UPDATE_CURRENT);
+
 
         NotificationManager nm = null;
         String channelId = "채널 아이디";

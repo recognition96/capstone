@@ -69,6 +69,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 import static android.speech.tts.TextToSpeech.ERROR;
 
 public class MessengerActivity extends Activity {
@@ -116,7 +117,7 @@ public class MessengerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger);
         initUsers();
-        db = AppDatabase.getDataBase(getApplicationContext(),null,1);
+        db = AppDatabase.getDataBase(getApplicationContext());
 
         mChatView = findViewById(R.id.chat_view);
         setColors();
@@ -387,7 +388,7 @@ public class MessengerActivity extends Activity {
                 AlarmManager am = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                 Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
                 intent.putExtra("medicine", medi);
-                PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
+                PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
             }
             notendofspeech = false;
@@ -487,13 +488,11 @@ public class MessengerActivity extends Activity {
             Log.d("@@@", "비정상적 종료");
             ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
             if(!medi.isEmpty()) {
-                for(int i=0; i<medi.size(); i++) {
-                    AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-                    Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-                    intent.putExtra("medicine", medi).putExtra("errorcode",1);
-                    PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
-                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+ 1000 * 60, pIntent);
-                }
+                AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+                intent.putExtra("medicine", medi).putExtra("errorcode",1);
+                PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+ 1000 * 60, pIntent);
             }
 
             Log.d("@@@", "세팅완료");
