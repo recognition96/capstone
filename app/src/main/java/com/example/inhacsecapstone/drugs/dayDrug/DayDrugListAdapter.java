@@ -64,8 +64,8 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
                     context.startActivity(intent);
                 }
             });
-
-            holder.amountView.setText("남은 수량: " + (curDrug.getAmount() - holder.takes.size()));
+            int amount = curDrug.getDailyDose() * curDrug.getNumberOfDayTakens();
+            holder.amountView.setText("남은 수량: " + (amount - holder.takes.size()));
             holder.nameView.setText(curDrug.getName());
 
             View view = holder.view;

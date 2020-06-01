@@ -40,9 +40,11 @@ public class SetTimeActivity extends AppCompatActivity {
         HashMap<Integer, ArrayList<String>> times = new HashMap<Integer, ArrayList<String>>();
         for(int i =0; i < medis.size(); i++)
             times.put(medis.get(i).getCode(), new ArrayList<String>());
+
         am = new Alarm(this);
         mRecyclerView = this.findViewById(R.id.RecyclerView);
         adapter = new SetTimeListAdapter(this, medis, times);
+
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new RecyclerViewDecorator(30));
@@ -53,26 +55,15 @@ public class SetTimeActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HashMap<String, ArrayList<Medicine>> hm = new HashMap<String, ArrayList<Medicine>>();
-                for (int i = 0; i < medis.size(); i++) { // 5 4
-                    Medicine medi = medis.get(i);
-                    ArrayList<String> time = times.get(medi.getCode());
-                    for (int j = 0; j < time.size(); j++) {
-                        if (hm.get(time.get(j)) == null)
-                            hm.put(time.get(j), new ArrayList<Medicine>());
-                        hm.get(time.get(j)).add(medi);
-                    }
-                }
-                am.setDrugAlarm(hm);
-                for (int i = 0; i < medis.size(); i++) {
-                    Calendar calendar = Calendar.getInstance();
-                    Medicine medi = medis.get(i);
-                    for (int j = 0; j < medi.getNumberOfDayTakens(); j++) {
-                        String date = Integer.toString(calendar.get(Calendar.YEAR)) + "."
-                                + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "."
-                                + Integer.toString(calendar.get(Calendar.DATE));
-                        db.insert_will_take(medi.getCode(), date, times.get(medi.getCode()));
-                        calendar.add(Calendar.DATE, 1);
+                for(int i = 0; i < medis.size(); i++){
+                    int code = medis.get(i).getCode();
+                    ArrayList<String> time = times.get(code);
+                    medis.get(i).setDailyDose(times.get(code).size());
+
+                    db.insert(medis.get(i));
+                    for(int j = 0; j < time.size(); j++){
+                        db.insertWillTake(code, time.get(j));
+                        am.refresh(time.get(j));
                     }
                 }
                 finish();

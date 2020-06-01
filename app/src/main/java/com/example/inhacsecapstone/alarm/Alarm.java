@@ -4,9 +4,11 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.inhacsecapstone.Entity.Medicine;
+import com.example.inhacsecapstone.drugs.AppDatabase;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,15 +16,45 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class Alarm {
-    private int alarm_id = 0;
     private Context context;
+    private AppDatabase appDatabase;
     public Alarm(Context context) {
+
         this.context=context;
+        appDatabase = AppDatabase.getDataBase(context);
     }
-    public void removeAlarm(){
+    public void refresh(String time){
+        Calendar calendar = Calendar.getInstance();
+        AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        String day = Integer.toString(calendar.get(Calendar.YEAR)) + "."+  Integer.toString(calendar.get(Calendar.MONTH)) + "."+ Integer.toString(calendar.get(Calendar.DATE));
+        ArrayList<Medicine> medis = appDatabase.getMedisAtDayAndTime(day, time);
+        String hour_min[] = time.split(":");
+        int alramId = Integer.parseInt(hour_min[0])*100 + Integer.parseInt(hour_min[1]);
 
+        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hour_min[0]));
+        calendar.set(Calendar.MINUTE, Integer.parseInt(hour_min[1]));
+        calendar.set(Calendar.SECOND, 0);
+
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        intent.putExtra("medicine", medis);
+        PendingIntent pIntent = PendingIntent.getBroadcast(context, alramId, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        if(pIntent != null)
+            am.cancel(pIntent);
+
+        if(!medis.isEmpty())
+            am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pIntent);
     }
+    public void setAlarmWhenBoot(){
+        Calendar calendar = Calendar.getInstance();
+        String cur = Integer.toString(calendar.get(Calendar.YEAR)) + "."+  Integer.toString(calendar.get(Calendar.MONTH)) + "."+ Integer.toString(calendar.get(Calendar.DATE));
+        ArrayList<String> medi_times = appDatabase.getTimesAtDay(cur);
 
+        for(int i = 0; i < medi_times.size(); i++){
+
+        }
+    }
+    /*
     public void setDrugAlarm(HashMap<String, ArrayList<Medicine>> hm){
         AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 
@@ -60,5 +92,5 @@ public class Alarm {
             day++;
             if(cnt == 0) break;
         }
-    }
+    }*/
 }

@@ -44,7 +44,7 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
     public void onBindViewHolder(AllDrugListHolder holder, int position) {
         if (mdrugs != null) {
             Medicine curDrug = mdrugs.get(position);
-
+            int amount = curDrug.getDailyDose() * curDrug.getNumberOfDayTakens();
             Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
 
             /*holder.imageView.setOnClickListener(new View.OnClickListener() {
@@ -70,8 +70,8 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
                     context.startActivity(intent);
                 }
             });
-            holder.progressBarView.setProgress(cnt * 100 / curDrug.getAmount());
-            holder.amountView.setText(Integer.toString(curDrug.getAmount()));
+            holder.progressBarView.setProgress(cnt * 100 / amount);
+            holder.amountView.setText(Integer.toString(amount));
             holder.dailyDoseView.setText(Integer.toString(curDrug.getDailyDose()));
             holder.nameView.setText(curDrug.getName());
             holder.numberOfDayTakensView.setText(Integer.toString(curDrug.getNumberOfDayTakens()));

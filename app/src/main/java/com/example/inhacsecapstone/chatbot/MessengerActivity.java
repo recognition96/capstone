@@ -368,7 +368,7 @@ public class MessengerActivity extends Activity {
 
                 Calendar calendar = Calendar.getInstance();
                 if(Integer.parseInt(hr[0]) < calendar.get(Calendar.HOUR))
-                    calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE+1), Integer.parseInt(hr[0]), Integer.parseInt(hr[1]), 0);
+                    calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), Integer.parseInt(hr[0]), Integer.parseInt(hr[1]), 0);
                 else
                     calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), Integer.parseInt(hr[0]), Integer.parseInt(hr[1]), 0);
 
