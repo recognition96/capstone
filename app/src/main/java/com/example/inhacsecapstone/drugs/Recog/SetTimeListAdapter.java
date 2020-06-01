@@ -1,31 +1,22 @@
 package com.example.inhacsecapstone.drugs.Recog;
 
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.text.Editable;
-import android.text.Spanned;
-import android.text.TextWatcher;
-import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.inhacsecapstone.Entity.Medicine;
-import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;

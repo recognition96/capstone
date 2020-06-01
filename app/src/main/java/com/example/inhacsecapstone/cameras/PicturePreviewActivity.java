@@ -163,6 +163,8 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull android.os.Message msg) {
+            Log.d("@@@", "msg.what : " + String.valueOf(msg.what));
+
             if(msg.what == 1){
                 String OCR_Result = (String)msg.obj;
                 Gson gson = new GsonBuilder().create();
@@ -192,6 +194,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(okhttp3.Call call, IOException e) {
+                Log.d("@@@", "FAIL");
                 call.cancel();
                 android.os.Message message = android.os.Message.obtain();
                 message.what = 0;
@@ -201,10 +204,12 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 new Thread(() -> {
+                    Log.d("@@@", "in Thread");
                     if (!response.isSuccessful() || response.body() == null) {
                         setResult(Activity.RESULT_CANCELED);
                     }
                     String OCR_Result = "";
+
                     try {
                         OCR_Result = response.body().string();
                     } catch (IOException e) {
@@ -213,13 +218,10 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
                         message.what = 0;
                         handler.sendMessage(message);
                     }
-
                     android.os.Message message = android.os.Message.obtain();
                     message.obj = OCR_Result;
                     message.what = 1;
                     handler.sendMessage(message);
-
-
                 }).start();
             }
         });

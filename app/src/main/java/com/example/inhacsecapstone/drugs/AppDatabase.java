@@ -191,4 +191,3 @@ public class AppDatabase extends SQLiteOpenHelper {
         return result;
     }
 }
-

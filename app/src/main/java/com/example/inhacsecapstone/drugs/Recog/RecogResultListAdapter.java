@@ -45,12 +45,12 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
 
             Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
 
-            /*holder.imageView.setOnClickListener(new View.OnClickListener() {
+            holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     showImage(curDrug.getImage());
                 }
-            });*/
+            });
             holder.amountView.setText(curDrug.getAmount() == -1 ? "" : Integer.toString(curDrug.getAmount()));
             holder.dailyDoseView.setText(curDrug.getDailyDose() == -1 ? "" : Integer.toString(curDrug.getDailyDose()));
             holder.nameView.setText(curDrug.getName() == null ? "" : curDrug.getName());

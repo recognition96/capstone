@@ -23,7 +23,6 @@ import com.example.inhacsecapstone.drugs.Drugs;
 import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class RecogResultActivity extends AppCompatActivity {

@@ -4,20 +4,14 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Set;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class Alarm {
     private int alarm_id = 0;
