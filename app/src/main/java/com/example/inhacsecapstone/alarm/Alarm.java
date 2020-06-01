@@ -50,9 +50,9 @@ public class Alarm {
                     if(medi.getNumberOfDayTakens() < day)
                         continue;
                     cnt++;
-                    //if(System.currentTimeMillis() > calendar.getTimeInMillis())
-                    //    continue;
-                    Log.d("@@@", s + " ::::: " + medi.getName());
+                    if(System.currentTimeMillis() > calendar.getTimeInMillis())
+                        continue;
+                    Log.d("@@@", key + " ::::: " + medi.getName());
                     target.add(medi);
                 }
                 if(target.size() == 0) continue;
