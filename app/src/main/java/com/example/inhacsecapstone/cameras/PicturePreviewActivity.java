@@ -33,6 +33,7 @@ import com.otaliastudios.cameraview.PictureResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -160,7 +161,8 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull android.os.Message msg) {
-            Log.d("@@@", String.valueOf(msg.what));
+            Log.d("@@@", "msg.what : " + String.valueOf(msg.what));
+
             if(msg.what == 1){
                 String OCR_Result = (String)msg.obj;
                 Gson gson = new GsonBuilder().create();
@@ -182,7 +184,9 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     });
 
     void postRequest(String postUrl, RequestBody postBody) {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
         okhttp3.Request request = new Request.Builder()
                 .url(postUrl)
                 .post(postBody)

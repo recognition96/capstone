@@ -1,6 +1,5 @@
 package com.example.inhacsecapstone.alarm;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,10 +12,8 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
-import androidx.legacy.content.WakefulBroadcastReceiver;
 
 import com.example.inhacsecapstone.Entity.Medicine;
-import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
 
@@ -39,16 +36,12 @@ public class AlarmReceiver extends BroadcastReceiver {
                 new Intent(context, MessengerActivity.class).putExtra("Code",1).putExtra("medicine", medi)
                 , PendingIntent.FLAG_CANCEL_CURRENT);
 
-        NotificationManager nm = null;
-        String channelId = "채널 아이디";
-
-        nm = context.getSystemService(NotificationManager.class);
-
+        NotificationManager nm = context.getSystemService(NotificationManager.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String channelName = "채널 이름";
+            String channelName = "채널 " + String.valueOf(noti_cnt);
             String description = "채널 디스크립션";
             int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+            NotificationChannel channel = new NotificationChannel("1", channelName, importance);
             channel.setDescription(description);
             nm.createNotificationChannel(channel);
         }
@@ -64,17 +57,14 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setAutoCancel(true);
 
         // 알림시 화면이 켜지게 하기 위함
-        if (sCpuWakeLock != null) {
-            return;
-        }
-
+        if (sCpuWakeLock != null) { return; }
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         sCpuWakeLock = pm.newWakeLock(
                 PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
                         PowerManager.ACQUIRE_CAUSES_WAKEUP |
                         PowerManager.ON_AFTER_RELEASE, "Tag: for PowerManager");
 
-        sCpuWakeLock.acquire();
+        sCpuWakeLock.acquire(60 * 1000L /*1 minutes*/);
         if (sCpuWakeLock != null) {
             sCpuWakeLock.release();
             sCpuWakeLock = null;
