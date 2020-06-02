@@ -46,7 +46,7 @@ public class Alarm {
                     cnt++;
                     if(System.currentTimeMillis() > calendar.getTimeInMillis())
                         continue;
-                    Log.d("@@@", s + " ::::: " + medi.getName());
+                    Log.d("@@@", key + " ::::: " + medi.getName());
                     target.add(medi);
                 }
                 if(target.size() == 0) continue;

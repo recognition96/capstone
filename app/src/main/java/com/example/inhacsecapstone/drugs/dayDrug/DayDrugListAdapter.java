@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,8 +21,6 @@ import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -38,7 +35,7 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
         mtakes = takesList;
         mInflater = LayoutInflater.from(context);
         this.context = context;
-        db = AppDatabase.getDataBase(context, null, 1);
+        db = AppDatabase.getDataBase(context);
     }
 
     @Override

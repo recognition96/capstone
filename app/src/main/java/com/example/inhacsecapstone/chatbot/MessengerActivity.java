@@ -68,6 +68,7 @@ public class MessengerActivity extends Activity {
     private ArrayList<User> mUsers;
     private AppDatabase db;
     private HttpConnection httpConn = HttpConnection.getInstance();
+
     public void setColors() {
         int RIGHT_BUBBLE_COLOR = R.color.colorPrimaryDark;
         int SEND_ICON = R.drawable.ic_action_send;
@@ -97,14 +98,15 @@ public class MessengerActivity extends Activity {
         mChatView.setInputTextColor(ContextCompat.getColor(this, android.R.color.black));
         mChatView.setInputTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
     }
-    boolean notendofspeech=false;
+
+    boolean notendofspeech = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger);
         initUsers();
-        db = AppDatabase.getDataBase(getApplicationContext(),null,1);
+        db = AppDatabase.getDataBase(getApplicationContext());
 
         mChatView = findViewById(R.id.chat_view);
         setColors();
@@ -113,7 +115,7 @@ public class MessengerActivity extends Activity {
         mChatView.setOnClickSendButtonListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!mChatView.getInputText().equals("")) {
+                if (!mChatView.getInputText().equals("")) {
                     Message message = new Message.Builder()
                             .setUser(mUsers.get(0))
                             .setRight(true)
@@ -172,8 +174,8 @@ public class MessengerActivity extends Activity {
         mChatView.setOnClickOptionButtonListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO)!= PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MessengerActivity.this,new String[]{Manifest.permission.RECORD_AUDIO},1);
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MessengerActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
                 } else {
                     try {
                         mRecognizer.startListening(SttIntent);
@@ -188,13 +190,13 @@ public class MessengerActivity extends Activity {
         Intent intent = getIntent();
         int code = intent.getIntExtra("Code", 0);
 
-        switch(code) {
+        switch (code) {
             case 0:
                 sendTextToServer("안녕");
                 break;
             case 1:
-                int errorcode = intent.getIntExtra("errorcode",0);
-                if(errorcode!=0) {
+                int errorcode = intent.getIntExtra("errorcode", 0);
+                if (errorcode != 0) {
                     String texts = "비정상적인 종료가 발생된 약품입니다.";
                     receiveMessage(texts);
                     tts.speak(texts, TextToSpeech.QUEUE_FLUSH, null, null);
@@ -204,9 +206,9 @@ public class MessengerActivity extends Activity {
         }
     }
 
-    private int count=0;
+    private int count = 0;
 
-    private RecognitionListener listener=new RecognitionListener() {
+    private RecognitionListener listener = new RecognitionListener() {
         @Override
         public void onReadyForSpeech(Bundle bundle) {
         }
@@ -233,12 +235,12 @@ public class MessengerActivity extends Activity {
 
         @Override
         public void onResults(Bundle results) {
-            String key= SpeechRecognizer.RESULTS_RECOGNITION;
-            ArrayList<String> mResult =results.getStringArrayList(key);
+            String key = SpeechRecognizer.RESULTS_RECOGNITION;
+            ArrayList<String> mResult = results.getStringArrayList(key);
             String[] rs = new String[mResult.size()];
             mResult.toArray(rs);
             // onResults가 2번씩 호출되서 count로 제한
-            if(count==1) {
+            if (count == 1) {
                 Message message = new Message.Builder()
                         .setUser(mUsers.get(0))
                         .setRight(true)
@@ -251,9 +253,9 @@ public class MessengerActivity extends Activity {
                         .build();
                 sendTextToServer(rs[0]);
                 mChatView.send(message);
-                count=0;
-            }else
-                count=1;
+                count = 0;
+            } else
+                count = 1;
         }
 
         @Override
@@ -320,12 +322,12 @@ public class MessengerActivity extends Activity {
         mUsers.add(you);
     }
 
-    public void sendTextToServer(String texts){
+    public void sendTextToServer(String texts) {
         SharedPreferences sharedPreferences = getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
         String postUrl = httpConn.getUrl("webhook");
-        Log.d("https",postUrl);
+        Log.d("https", postUrl);
         RequestBody formBody = new FormBody.Builder()
-                .add("message", texts).add("username",sharedPreferences.getString("Name", "noName"))
+                .add("message", texts).add("username", sharedPreferences.getString("Name", "noName"))
                 .build();
         postRequest(postUrl, formBody);
     }
@@ -334,10 +336,11 @@ public class MessengerActivity extends Activity {
         String regex = "\\d{2}[가-힣]{1,}\\s*\\d{2}[가-힣]{1,}";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(texts);
-        if(texts.contains("잘하셨어요")) {
+        if (texts.contains("잘하셨어요")) {
             while (matcher.find()) {
                 String temp = matcher.group();
-                temp = temp.replace("분에", "시"); temp = temp.replace("분으로", "시");
+                temp = temp.replace("분에", "시");
+                temp = temp.replace("분으로", "시");
                 String hr[] = temp.split("시");
                 hr[0] = hr[0].trim();
                 hr[1] = hr[1].trim();
@@ -350,14 +353,14 @@ public class MessengerActivity extends Activity {
                         String times = Integer.parseInt(hr[0]) + ":" + Integer.parseInt(hr[1]);
                         Takes takes = new Takes(code, days, times);
                         db.insert(takes);
-                        Log.d("DB저장완료", medi.get(i).getName() + " - " + hr[0] + ":" + hr[1] );
+                        Log.d("DB저장완료", medi.get(i).getName() + " - " + hr[0] + ":" + hr[1]);
                     }
                     notendofspeech = false;
                     Log.d("DB저장완료", "시간저장완료");
                     return;
                 }
             }
-        } else if(texts.contains("알려드릴게요")){
+        } else if (texts.contains("알려드릴게요")) {
             while (matcher.find()) {
                 String temp = matcher.group();
                 temp = temp.replace("분에", "시");
@@ -367,15 +370,15 @@ public class MessengerActivity extends Activity {
                 ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
 
                 Calendar calendar = Calendar.getInstance();
-                if(Integer.parseInt(hr[0]) < calendar.get(Calendar.HOUR))
-                    calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE+1), Integer.parseInt(hr[0]), Integer.parseInt(hr[1]), 0);
+                if (Integer.parseInt(hr[0]) < calendar.get(Calendar.HOUR))
+                    calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE + 1), Integer.parseInt(hr[0]), Integer.parseInt(hr[1]), 0);
                 else
                     calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), Integer.parseInt(hr[0]), Integer.parseInt(hr[1]), 0);
 
-                AlarmManager am = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                 Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
                 intent.putExtra("medicine", medi);
-                PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
+                PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
             }
             notendofspeech = false;
@@ -386,24 +389,24 @@ public class MessengerActivity extends Activity {
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull android.os.Message msg) {
-            if(msg.what==0) {
+            if (msg.what == 0) {
                 Toast.makeText(getApplicationContext(), "연결에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show();
                 return false;
-            } else if(msg.what == 1){
-                String res = (String)msg.obj;
+            } else if (msg.what == 1) {
+                String res = (String) msg.obj;
                 receiveMessage(res);
                 tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
                 doTextBasedAction(res);
                 return true;
-            } else if(msg.what==2) {
-                String res = (String)msg.obj;
+            } else if (msg.what == 2) {
+                String res = (String) msg.obj;
                 receiveMessage(res);
                 tts.speak(res, TextToSpeech.QUEUE_FLUSH, null, null);
                 ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
-                if(medi==null)
+                if (medi == null)
                     return false;
-                for(int i=0; i<medi.size(); i++) {
-                    if(medi.get(i).getImage()!=null)
+                for (int i = 0; i < medi.size(); i++) {
+                    if (medi.get(i).getImage() != null)
                         receiveImage(medi.get(i).getImage());
                 }
                 return true;
@@ -426,6 +429,7 @@ public class MessengerActivity extends Activity {
                 message.what = 0;
                 handler.sendMessage(message);
             }
+
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 new Thread(() -> {
@@ -441,7 +445,7 @@ public class MessengerActivity extends Activity {
                     if (!res.equals("")) {
                         android.os.Message message = android.os.Message.obtain();
                         message.obj = res;
-                        if(res.contains("약 드실 시간이에요.")) {
+                        if (res.contains("약 드실 시간이에요.")) {
                             message.what = 2;
                             notendofspeech = true;
                         } else
@@ -462,31 +466,27 @@ public class MessengerActivity extends Activity {
     }
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
         mRecognizer.destroy();
     }
 
     @Override
-    protected void onDestroy()
-    {
-        if(notendofspeech) {
+    protected void onDestroy() {
+        if (notendofspeech) {
             Log.d("@@@", "비정상적 종료");
             ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
-            if(!medi.isEmpty()) {
-                for(int i=0; i<medi.size(); i++) {
-                    AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-                    Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-                    intent.putExtra("medicine", medi).putExtra("errorcode",1);
-                    PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
-                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+ 1000 * 60, pIntent);
-                }
+            if (!medi.isEmpty()) {
+                AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+                intent.putExtra("medicine", medi).putExtra("errorcode", 1);
+                PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1000 * 60, pIntent);
             }
 
             Log.d("@@@", "세팅완료");
         }
-        if(tts!=null) {
+        if (tts != null) {
             tts.stop();
             tts.shutdown();
         }
