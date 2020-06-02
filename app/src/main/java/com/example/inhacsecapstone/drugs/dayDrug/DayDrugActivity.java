@@ -32,7 +32,7 @@ public class DayDrugActivity extends AppCompatActivity implements EventListener 
         int day = intent.getIntExtra("day", -1);
         String target = year + "." + month + "." + day;
 
-        db = AppDatabase.getDataBase(getApplicationContext(),null,1);
+        db = AppDatabase.getDataBase(getApplicationContext());
         mRecyclerView = this.findViewById(R.id.DayMedicineView);
         List<Medicine> list = db.getMedicineAtDay(target);
         adapter = new DayDrugListAdapter(this, db.getMedicineAtDay(target), db.gettakesAtDay(target));

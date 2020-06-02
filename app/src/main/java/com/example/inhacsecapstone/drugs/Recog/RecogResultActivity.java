@@ -3,10 +3,6 @@ package com.example.inhacsecapstone.drugs.Recog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,7 +17,6 @@ import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.Drugs;
 import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 
@@ -49,7 +44,7 @@ public class RecogResultActivity extends AppCompatActivity {
         adapter = new RecogResultListAdapter(this, arrayList);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        db = AppDatabase.getDataBase(getApplicationContext(),null,1);
+        db = AppDatabase.getDataBase(getApplicationContext());
         mRecyclerView.addItemDecoration(new RecyclerViewDecorator(30));
 
         findViewById(R.id.submit).setOnClickListener(new View.OnClickListener() {
