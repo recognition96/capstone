@@ -3,6 +3,7 @@ package com.example.inhacsecapstone.drugs.Recog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.inhacsecapstone.Entity.Medicine;
+import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.drugs.AppDatabase;
@@ -32,6 +34,13 @@ public class RecogResultActivity extends AppCompatActivity {
         context = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recog_result);
+        if(getIntent().getSerializableExtra("drugs") == null) {
+            Log.d("@@@", "Extras == null");
+            startActivity(new Intent(RecogResultActivity.this, MainActivity.class));
+            finish();
+            return;
+        }
+
         ArrayList<Medicine> arrayList = new ArrayList<Medicine>();
         Drugs[] drugs = (Drugs[]) getIntent().getSerializableExtra("drugs");
         for (Drugs iter : drugs) {
