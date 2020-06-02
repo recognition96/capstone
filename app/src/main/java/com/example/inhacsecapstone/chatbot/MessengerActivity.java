@@ -105,7 +105,7 @@ public class MessengerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger);
         initUsers();
-        db = AppDatabase.getDataBase(getApplicationContext());
+        db = AppDatabase.getDataBase(getApplicationContext(),null,1);
 
         mChatView = findViewById(R.id.chat_view);
         setColors();

@@ -38,7 +38,7 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
         mtakes = takesList;
         mInflater = LayoutInflater.from(context);
         this.context = context;
-        db = AppDatabase.getDataBase(context);
+        db = AppDatabase.getDataBase(context,null,1);
     }
 
     @Override

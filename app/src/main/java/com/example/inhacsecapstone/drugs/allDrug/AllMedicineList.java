@@ -63,7 +63,7 @@ public class AllMedicineList extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_all_medicine_list, container, false);
 
-        db = AppDatabase.getDataBase(getActivity().getApplicationContext());
+        db = AppDatabase.getDataBase(getActivity().getApplicationContext(),null,1);
         RecyclerView recyclerView = view.findViewById(R.id.allMedicineView);
         final AllDrugListAdapter adapter = new AllDrugListAdapter(getActivity(), db.getAllMedicine(), db.getAllTakes());
         recyclerView.setAdapter(adapter);

@@ -12,19 +12,17 @@ import java.util.ArrayList;
 
 public class AppDatabase extends SQLiteOpenHelper {
     private static AppDatabase INSTANCE;
-    private static String databaseName = "app_database";
-    private static SQLiteDatabase.CursorFactory factory = null;
-    private static int version = 1;
+    private static String databaseName = "app_database2";
 
     // DBHelper 생성자로 관리할 DB 이름과 버전 정보를 받음
-    private AppDatabase(Context context) {
+    private AppDatabase(Context context, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, databaseName, factory, version);
     }
 
-    public static AppDatabase getDataBase(Context context) {
+    public static AppDatabase getDataBase(Context context, SQLiteDatabase.CursorFactory factory, int version) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
-                INSTANCE = new AppDatabase(context);
+                INSTANCE = new AppDatabase(context, factory, version);
             }
         }
         return INSTANCE;
@@ -49,9 +47,10 @@ public class AppDatabase extends SQLiteOpenHelper {
                 "day TEXT, " +
                 "time TEXT," +
                 "PRIMARY KEY (code, day, time))");
-        db.execSQL("CREATE TABLE will_take (alarmid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+        db.execSQL("CREATE TABLE will_take (" + "" +
                 "code INTEGER, " +
-                "time TEXT)");
+                "time TEXT," +
+                "PRIMARY KEY (code, time))");
     }
 
     public void init() {
@@ -65,6 +64,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         Takes take = new Takes(11111111, "2020.5.9", "12:10");
         insert(medi);
         insert(take);
+
     }
 
     // DB 업그레이드를 위해 버전이 변경될 때 호출되는 함수
@@ -88,10 +88,10 @@ public class AppDatabase extends SQLiteOpenHelper {
                 medicine.getWarning() + ")");
         db.close();
     }
-    public void insert_will_take(int code, String date, ArrayList<String> will_take){
+    public void insert_will_take(int code, ArrayList<String> will_take){
         SQLiteDatabase db = getWritableDatabase();
         for(String elem : will_take)
-            db.execSQL("INSERT INTO will_take VALUES(" + code + ",  '" + date + "', '" + elem + "')");
+            db.execSQL("INSERT INTO will_take VALUES(" + code + ", '" + elem + "')");
     }
     public void insert(Takes take) {
         SQLiteDatabase db = getWritableDatabase();

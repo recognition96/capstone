@@ -49,7 +49,7 @@ public class RecogResultActivity extends AppCompatActivity {
         adapter = new RecogResultListAdapter(this, arrayList);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        db = AppDatabase.getDataBase(getApplicationContext());
+        db = AppDatabase.getDataBase(getApplicationContext(),null,1);
         mRecyclerView.addItemDecoration(new RecyclerViewDecorator(30));
 
         findViewById(R.id.submit).setOnClickListener(new View.OnClickListener() {
