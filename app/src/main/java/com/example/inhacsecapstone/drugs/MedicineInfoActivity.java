@@ -45,48 +45,11 @@ public class MedicineInfoActivity extends AppCompatActivity {
 
         ArrayList<String> will_takes = appDatabase.getWillTakeAtMedi(medi.getCode());
         for(int i = 0; i < will_takes.size(); i++){
-
-            Chip chip = new Chip(this);
-            chip.setTextSize(20);
-            chip.setCloseIconSize(60);
-            chip.setText(will_takes.get(i));
-            chip.setCloseIconVisible(true);
-            int index = i;
-            chip.setOnCloseIconClickListener(new Chip.OnClickListener(){
-                @Override
-                public void onClick(View v) {
-                    TextView vtext = (TextView)v;
-                    String time = (String) vtext.getText();
-                    appDatabase.deleteWillTake(medi.getCode(), time);
-                    chipGroup.removeView(chip);
-                    alarm.refresh(time);
-                }
-            });
-            TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-                @Override
-                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
-                    appDatabase.updateWillTake(medi.getCode(), time);
-                    chip.setText(time);
-                    alarm.refresh(time);
-                }
-            };
-
-            chip.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    TextView textView = (TextView) v;
-                    String time = (String)textView.getText();
-                    int hour = Integer.parseInt(textView.getText().toString().split(":")[0]);
-                    int minuite = Integer.parseInt(textView.getText().toString().split(":")[1]);
-                    TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, listener, hour, minuite, true);
-                    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                    dialog.show();
-                }
-            });
-
-            chipGroup.addView(chip);
+            createChip(medi.getCode(), will_takes.get(i), chipGroup);
         }
+
+
+        // addChip 넣기
         Chip addChip = new Chip(context);
         addChip.setTextSize(25);
         addChip.setText("+");
@@ -94,51 +57,9 @@ public class MedicineInfoActivity extends AppCompatActivity {
         TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                Chip target = new Chip(context);
-                target.setTextSize(20);
-                target.setCloseIconSize(60);
-                target.setText(Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
-                target.setCloseIconVisible(true);
-
-                chipGroup.removeView(addChip);
-                chipGroup.addView(target);
-                chipGroup.addView(addChip);
-                appDatabase.insertWillTake(medi.getCode(), Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
-                target.setOnCloseIconClickListener(new Chip.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        TextView vtext = (TextView)v;
-                        String time = (String) vtext.getText();
-                        appDatabase.deleteWillTake(medi.getCode(), time);
-                        chipGroup.removeView(target);
-                        alarm.refresh(time);
-                    }
-                });
-                TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
-                        appDatabase.updateWillTake(medi.getCode(), time);
-                        target.setText(time);
-                        alarm.refresh(time);
-                    }
-                };
-
-                target.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        TextView textView = (TextView) v;
-                        String time = (String)textView.getText();
-                        int hour = Integer.parseInt(textView.getText().toString().split(":")[0]);
-                        int minuite = Integer.parseInt(textView.getText().toString().split(":")[1]);
-                        TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, listener, hour, minuite, true);
-                        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                        dialog.show();
-                    }
-                });
+                createChip(medi.getCode(), Integer.toString(hourOfDay) + ":" + Integer.toString(minute), chipGroup);
             }
         };
-
         addChip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -148,7 +69,9 @@ public class MedicineInfoActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
+        chipGroup.addView(addChip);
 
+        // tab누르면 화면 전환
         t.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -167,7 +90,52 @@ public class MedicineInfoActivity extends AppCompatActivity {
             }
         });
     }
+    public void createChip(int code, String time, ChipGroup chipGroup){
+        Chip chip = new Chip(this);
+        chip.setTextSize(20);
+        chip.setCloseIconSize(60);
+        chip.setText(time);
+        chip.setCloseIconVisible(true);
 
+        chip.setOnCloseIconClickListener(new Chip.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                TextView vtext = (TextView)v;
+                String time = (String) vtext.getText();
+                appDatabase.deleteWillTake(code, time);
+                appDatabase.deleteTempTake(code, time);
+
+                chipGroup.removeView(chip);
+                alarm.setAlarm();
+            }
+        });
+        TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
+                appDatabase.insertWillTake(code, time);
+                appDatabase.insertTempTake(code, time);
+                chip.setText(time);
+                alarm.setAlarm();
+            }
+        };
+
+        chip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView textView = (TextView) v;
+                String time = (String)textView.getText();
+                appDatabase.deleteWillTake(code, time);
+                appDatabase.deleteTempTake(code, time);
+
+                String hour_min[] = time.split(":");
+                TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, listener, Integer.parseInt(hour_min[0]), Integer.parseInt(hour_min[1]), true);
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+            }
+        });
+        chipGroup.addView(chip);
+    }
     private void changeView(int index) {
         TextView textView1 = findViewById(R.id.effect);
         TextView textView2 = findViewById(R.id.usage);

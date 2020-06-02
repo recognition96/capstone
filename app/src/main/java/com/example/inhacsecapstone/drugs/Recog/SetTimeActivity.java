@@ -63,7 +63,8 @@ public class SetTimeActivity extends AppCompatActivity {
                     db.insert(medis.get(i));
                     for(int j = 0; j < time.size(); j++){
                         db.insertWillTake(code, time.get(j));
-                        am.refresh(time.get(j));
+                        db.insertTempTake(code, time.get(j));
+                        am.setAlarm();
                     }
                 }
                 finish();

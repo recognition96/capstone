@@ -12,6 +12,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
+import androidx.legacy.content.WakefulBroadcastReceiver;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
@@ -20,7 +21,7 @@ import com.example.inhacsecapstone.chatbot.MessengerActivity;
 import java.util.ArrayList;
 
 
-public class AlarmReceiver extends BroadcastReceiver {
+public class AlarmReceiver extends WakefulBroadcastReceiver {
     private static PowerManager.WakeLock sCpuWakeLock;
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -30,6 +31,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         Log.d("@@@", "Time to alert " + Long.toString(noti_cnt++));
 
+        if(intent.getSerializableExtra("medicine") == null) Log.d("@@@", "intent null");
         ArrayList<Medicine> medi = (ArrayList<Medicine>) intent.getSerializableExtra("medicine");
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,

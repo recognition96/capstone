@@ -167,6 +167,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
                     dialog.show();
                 }
             });
+
             holder.chipGroup.addView(addChip);
         } else {
         }
