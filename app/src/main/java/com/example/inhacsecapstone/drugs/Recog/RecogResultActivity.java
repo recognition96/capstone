@@ -19,6 +19,7 @@ import com.example.inhacsecapstone.drugs.Drugs;
 import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class RecogResultActivity extends AppCompatActivity {
     private ViewModel mViewModel;
@@ -33,11 +34,13 @@ public class RecogResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recog_result);
         ArrayList<Medicine> arrayList = new ArrayList<Medicine>();
+        Calendar calendar = Calendar.getInstance();
+        String day = Integer.toString(calendar.get(Calendar.YEAR)) + "."+ Integer.toString(calendar.get(Calendar.MONTH)) + "." + Integer.toString(calendar.get(Calendar.DATE));
         Drugs[] drugs = (Drugs[]) getIntent().getSerializableExtra("drugs");
         for (Drugs iter : drugs) {
             String img = iter.getSmall_image().equals("null") || iter.getSmall_image().equals("") ? (iter.getPack_image().equals("null") || iter.getPack_image().equals("") ? null : iter.getPack_image()) : iter.getSmall_image();
-            arrayList.add(new Medicine(iter.getCode(), iter.getDrug_name(), -1, img, iter.getEffect(), iter.getUsages(),
-                    -1, null, -1, -1, -1)); // 카테고리, warning 해결해야함.
+            arrayList.add(new Medicine(iter.getCode(), iter.getDrug_name(), img, iter.getEffect(), iter.getUsages(), -1,
+                    null, -1, -1, -1, day)); // 카테고리, warning 해결해야함.
         }
 
         mRecyclerView = this.findViewById(R.id.recogList);
@@ -52,19 +55,20 @@ public class RecogResultActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ArrayList<Medicine> toss = new ArrayList<Medicine>();
                 for(Medicine iter : arrayList)
-                    if(iter.getAmount() == -1 || iter.getDailyDose() == -1 ||  iter.getSingleDose() == null || iter.getNumberOfDayTakens() == -1) {
+                    if(iter.getDailyDose() == -1 ||  iter.getSingleDose() == null || iter.getNumberOfDayTakens() == -1) {
                         Toast.makeText(context, "빈칸을 채워주세요.", Toast.LENGTH_SHORT).show();
                         return;
                     }
                 for (Medicine iter : arrayList)
                 {
+                    toss.add(iter);
+                    /*
                     try{
-                        db.insert(iter);
                         toss.add(iter);
                     }catch (Exception ex){
                         Toast.makeText(context, iter.getName() + "은 이미 복용중인 약입니다.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
-                    }
+                    }*/
                 }
                 Intent intent = new Intent(context, SetTimeActivity.class);
                 intent.putExtra("medicine", toss);

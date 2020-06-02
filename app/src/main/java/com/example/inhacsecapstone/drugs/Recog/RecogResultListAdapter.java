@@ -51,7 +51,6 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     showImage(curDrug.getImage());
                 }
             });
-            holder.amountView.setText(curDrug.getAmount() == -1 ? "" : Integer.toString(curDrug.getAmount()));
             holder.dailyDoseView.setText(curDrug.getDailyDose() == -1 ? "" : Integer.toString(curDrug.getDailyDose()));
             holder.nameView.setText(curDrug.getName() == null ? "" : curDrug.getName());
             holder.numberOfDayTakensView.setText(curDrug.getNumberOfDayTakens() == -1 ? "" : Integer.toString(curDrug.getNumberOfDayTakens()));
@@ -62,28 +61,6 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     Intent intent = new Intent(context, MedicineInfoActivity.class);
                     intent.putExtra("medicine", curDrug);
                     context.startActivity(intent);
-                }
-            });
-            holder.amountView.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    String str = s.toString();
-                    try {
-                        curDrug.setAmount(Integer.parseInt(str));
-                    } catch (Exception ex) {
-                        Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
-                        ex.printStackTrace();
-                    }
                 }
             });
             holder.dailyDoseView.addTextChangedListener(new TextWatcher() {
@@ -178,7 +155,6 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
     class RecogResultListHolder extends RecyclerView.ViewHolder {
         private final ImageView imageView;
         private final TextView nameView;
-        private final EditText amountView;
         private final EditText singleDoseView;
         private final EditText dailyDoseView;
         private final EditText numberOfDayTakensView;
@@ -189,7 +165,6 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
             layout = itemView.findViewById(R.id.buttonLayout);
             imageView = itemView.findViewById(R.id.drugImage);
             nameView = itemView.findViewById(R.id.drugName);
-            amountView = itemView.findViewById(R.id.Amount);
             singleDoseView = itemView.findViewById(R.id.singleDose);
             dailyDoseView = itemView.findViewById(R.id.dailyDose);
             numberOfDayTakensView = itemView.findViewById(R.id.period);
