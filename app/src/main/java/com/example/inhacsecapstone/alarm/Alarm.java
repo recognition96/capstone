@@ -20,17 +20,15 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class Alarm {
-    private Context context;
+    private Context context = null;
     private AppDatabase appDatabase;
     private AlarmManager am;
-    private int DrugAlarmId = 0;
-    private PendingIntent pintent;
+    private static PendingIntent pintent = null;
+    private int DrugAlarmId = 1;
     public Alarm(Context context) {
-
-        this.context=context;
+        this.context = context;
         appDatabase = AppDatabase.getDataBase(context);
         am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-
     }
 
     public void setDailyCheck(){
@@ -54,7 +52,14 @@ public class Alarm {
 
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.setAction(new Gson().toJson(medis));
-            pintent = PendingIntent.getBroadcast(context, DrugAlarmId, intent, 0);
+
+            if(pintent != null)
+            {
+                pintent.cancel();
+                am.cancel(pintent);
+            }
+
+            pintent = PendingIntent.getBroadcast(context, DrugAlarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             if(Build.VERSION.SDK_INT >= 23) {
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
