@@ -17,11 +17,12 @@ import androidx.legacy.content.WakefulBroadcastReceiver;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
 
-public class AlarmReceiver extends WakefulBroadcastReceiver {
+public class AlarmReceiver extends BroadcastReceiver {
     private static PowerManager.WakeLock sCpuWakeLock;
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -32,17 +33,27 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         Log.d("@@@", "Time to alert " + Long.toString(noti_cnt++));
 
         if(intent.getSerializableExtra("medicine") == null) Log.d("@@@", "intent null");
-        ArrayList<Medicine> medi = (ArrayList<Medicine>) intent.getSerializableExtra("medicine");
+        //ArrayList<Medicine> medi = (ArrayList<Medicine>) intent.getSerializableExtra("medicine");
+        String action = intent.getAction();
+        Medicine[] temp = (Medicine[]) new Gson().fromJson(action, Medicine[].class);
+        ArrayList<Medicine> medi = new ArrayList<Medicine>();
+
+        for(Medicine elem : temp){
+            medi.add(elem);
+        }
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
                 new Intent(context, MessengerActivity.class).putExtra("Code",1).putExtra("medicine", medi)
                 , PendingIntent.FLAG_CANCEL_CURRENT);
 
         NotificationManager nm = context.getSystemService(NotificationManager.class);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String channelName = "채널 " + String.valueOf(noti_cnt);
             String description = "채널 디스크립션";
             int importance = NotificationManager.IMPORTANCE_HIGH;
+
+
             NotificationChannel channel = new NotificationChannel("1", channelName, importance);
             channel.setDescription(description);
             nm.createNotificationChannel(channel);
