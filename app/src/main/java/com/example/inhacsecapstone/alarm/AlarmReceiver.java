@@ -3,49 +3,67 @@ package com.example.inhacsecapstone.alarm;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.job.JobParameters;
+import android.app.job.JobService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.legacy.content.WakefulBroadcastReceiver;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
+import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
 
-public class AlarmReceiver extends BroadcastReceiver {
+public class AlarmReceiver extends JobService {
     private static PowerManager.WakeLock sCpuWakeLock;
+
+    // 작업을 시작하면
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public boolean onStartJob(JobParameters params) {
+        PersistableBundle bd = params.getExtras();
+        Context context = getApplicationContext();
+        AppDatabase appdb = AppDatabase.getDataBase(context);
+        boolean is24 = bd.getBoolean("is24", false);
+        if(is24)
+        {
+            appdb.setTempTime();
+            return false;
+        }
+
         SharedPreferences sharedPreferences = context.getSharedPreferences("SHARE_PREF", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         int noti_cnt = sharedPreferences.getInt("noti_cnt", 0);
 
         Log.d("@@@", "Time to alert " + Long.toString(noti_cnt++));
 
-        if(intent.getSerializableExtra("medicine") == null) Log.d("@@@", "intent null");
-        //ArrayList<Medicine> medi = (ArrayList<Medicine>) intent.getSerializableExtra("medicine");
-        String action = intent.getAction();
-        Medicine[] temp = (Medicine[]) new Gson().fromJson(action, Medicine[].class);
-        ArrayList<Medicine> medi = new ArrayList<Medicine>();
+        Alarm am = new Alarm(context);
+        am.setAlarm();
 
-        for(Medicine elem : temp){
-            medi.add(elem);
+        int[] code = bd.getIntArray("medicine");
+        ArrayList<Medicine> medi = new ArrayList<>();
+
+        for(int i : code){
+            Medicine medicine =  appdb.getMedicine(i);
+            medi.add(medicine);
         }
 
         PendingIntent pIntent = PendingIntent.getActivity(context, 0,
                 new Intent(context, MessengerActivity.class).putExtra("Code",1).putExtra("medicine", medi)
                 , PendingIntent.FLAG_CANCEL_CURRENT);
-
         NotificationManager nm = context.getSystemService(NotificationManager.class);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -70,7 +88,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setAutoCancel(true);
 
         // 알림시 화면이 켜지게 하기 위함
-        if (sCpuWakeLock != null) { return; }
+        if (sCpuWakeLock != null) { return false; }
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         sCpuWakeLock = pm.newWakeLock(
                 PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
@@ -88,5 +106,12 @@ public class AlarmReceiver extends BroadcastReceiver {
         editor.commit();
 
         //        nm.cancel(1);    알림삭제
+        return false;
+    }
+
+    // 작업을 끝낼때
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        return false;
     }
 }

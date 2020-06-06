@@ -57,7 +57,13 @@ public class MedicineInfoActivity extends AppCompatActivity {
         TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                createChip(medi.getCode(), Integer.toString(hourOfDay) + ":" + Integer.toString(minute), chipGroup);
+                String str = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
+                appDatabase.insertTempTake(medi.getCode(), str);
+                appDatabase.insertWillTake(medi.getCode(), str);
+
+                chipGroup.removeView(addChip);
+                createChip(medi.getCode(), str, chipGroup);
+                chipGroup.addView(addChip);
             }
         };
         addChip.setOnClickListener(new View.OnClickListener() {
@@ -109,27 +115,22 @@ public class MedicineInfoActivity extends AppCompatActivity {
                 alarm.setAlarm();
             }
         });
-        TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
-                appDatabase.insertWillTake(code, time);
-                appDatabase.insertTempTake(code, time);
-                chip.setText(time);
-                alarm.setAlarm();
-            }
-        };
-
         chip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TextView textView = (TextView) v;
-                String time = (String)textView.getText();
-                appDatabase.deleteWillTake(code, time);
-                appDatabase.deleteTempTake(code, time);
-
-                String hour_min[] = time.split(":");
-                TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, listener, Integer.parseInt(hour_min[0]), Integer.parseInt(hour_min[1]), true);
+                String pre = (String)textView.getText();
+                String hour_min[] = pre.split(":");
+                TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
+                        appDatabase.updateWillTake(code, time, pre);
+                        appDatabase.updateTempTake(code, time, pre);
+                        chip.setText(time);
+                        alarm.setAlarm();
+                    }
+                }, Integer.parseInt(hour_min[0]), Integer.parseInt(hour_min[1]), true);
                 dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
             }

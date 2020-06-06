@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.strictmode.SqliteObjectLeakedViolation;
+import android.util.Log;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.Entity.Takes;
@@ -70,7 +71,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM temp_time");
 
         Medicine medi = new Medicine(11111111, "포크랄시럽", "https://www.health.kr/images/ext_images/pack_img/P_A11AGGGGA5864_01.jpg", "불면증, 수술 전 진정", "1일 1회 복용"
-                , 0, "1개", 3, 10, 0, "2020.6.11");
+                , 0, "1개", 3, 10, 0, "2020.6.6");
         Takes take = new Takes(11111111, "2020.5.9", "12:10");
         insert(medi);
         insert(take);
@@ -153,6 +154,29 @@ public class AppDatabase extends SQLiteOpenHelper {
         }
         return result;
     }
+    public Medicine getMedicine(int code){
+        SQLiteDatabase db = getReadableDatabase();
+        try {
+            Cursor cursor = db.rawQuery("SELECT * FROM medicine_list WHERE code = " + code + "", null);
+            while (cursor.moveToNext()) {
+                Medicine current = new Medicine(cursor.getInt(cursor.getColumnIndex("code")),
+                        cursor.getString(cursor.getColumnIndex("name")),
+                        cursor.getString(cursor.getColumnIndex("image")),
+                        cursor.getString(cursor.getColumnIndex("effect")),
+                        cursor.getString(cursor.getColumnIndex("usage")),
+                        cursor.getInt(cursor.getColumnIndex("category")),
+                        cursor.getString(cursor.getColumnIndex("single_dose")),
+                        cursor.getInt(cursor.getColumnIndex("daily_dose")),
+                        cursor.getInt(cursor.getColumnIndex("number_of_day_takens")),
+                        cursor.getInt(cursor.getColumnIndex("warning")),
+                        cursor.getString(cursor.getColumnIndex("start_day")));
+                return current;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 
     // take 관련 함수들
     public void insert(Takes take) {
@@ -205,7 +229,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         ArrayList<String> result = new ArrayList<String>();
         try {
-            Cursor cursor = db.rawQuery("SELECT * FROM will_take WHERE code=" + code, null);
+            Cursor cursor = db.rawQuery("SELECT * FROM will_take WHERE code=" + code + " ORDER BY time ASC", null);
             while (cursor.moveToNext()) {
                 result.add(cursor.getString(cursor.getColumnIndex("time")));
             }
@@ -219,9 +243,9 @@ public class AppDatabase extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO will_take VALUES("+ code + ", '" + time  +"')");
         db.close();
     }
-    public void updateWillTake(int code, String time){
+    public void updateWillTake(int code, String time, String pre){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("UPDATE will_take SET time = '" + time + "' WHERE code = " + code + " AND time = '" + time +"'");
+        db.execSQL("UPDATE will_take SET time = '" + time + "' WHERE code = " + code + " AND time = '" + pre +"'");
         db.close();
     }
     public void deleteWillTake(int code, String time){
@@ -239,6 +263,15 @@ public class AppDatabase extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO temp_time VALUES("+ code + ", '" + day + "', '" + time  +"')");
         db.close();
     }
+    public void updateTempTake(int code, String time, String pre){
+        SQLiteDatabase db = getWritableDatabase();
+        Calendar calendar = Calendar.getInstance();
+
+        String day = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
+        db.execSQL("UPDATE temp_time SET time = '"+ time + "' WHERE code = " + code + " AND time = '" + pre + "' AND day = '" + day + "'");
+        db.close();
+    }
+
     public void deleteTempTake(int code, String time){
         SQLiteDatabase db = getWritableDatabase();
         Calendar calendar = Calendar.getInstance();
@@ -248,7 +281,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void setTempTable()
+    public void setTempTime()
     {
         SQLiteDatabase dbwrite = getWritableDatabase();
         SQLiteDatabase dbread = getReadableDatabase();
@@ -260,7 +293,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         String str = Integer.toString(year) + "." + Integer.toString(month) + "." + Integer.toString(date);
         try{
             dbwrite.execSQL("DELETE FROM temp_time");
-            Cursor cursor = dbread.rawQuery("SELECT * FROM medicine_list INNER JOIN will_take", null);
+            Cursor cursor = dbread.rawQuery("SELECT * FROM medicine_list A INNER JOIN will_take B ON A.code = B.code", null);
             while(cursor.moveToNext())
             {
                 int code = cursor.getInt(cursor.getColumnIndex("code"));
@@ -270,23 +303,21 @@ public class AppDatabase extends SQLiteOpenHelper {
                 String cursor_day_str[] = cursor_day.split("\\.");
                 Calendar calendar = Calendar.getInstance();
 
-                calendar.set(Integer.parseInt(cursor_day_str[0]), Integer.parseInt(cursor_day_str[1]), Integer.parseInt(cursor_day_str[2]), 0, 0, 0);
+                calendar.set(Integer.parseInt(cursor_day_str[0]), Integer.parseInt(cursor_day_str[1])-1, Integer.parseInt(cursor_day_str[2]), 0, 0, 0);
                 calendar.add(Calendar.DATE, number_of_takens);
-
                 int result = calendar.compareTo(current);
                 if(result > 0)
                     dbwrite.execSQL("INSERT INTO temp_time VALUES(" + code + ", '"+ str + "', '" + time +"')");
             }
-
         }catch(Exception ex){
             ex.printStackTrace();
         }
     }
 
-    public HashMap<String, ArrayList<Medicine>> getRecentAlarmInfo()
+    public HashMap<String, ArrayList<Integer>> getRecentAlarmInfo()
     {
         SQLiteDatabase db = getReadableDatabase();
-        HashMap<String, ArrayList<Medicine>> result = new HashMap<String, ArrayList<Medicine>>();
+        HashMap<String, ArrayList<Integer>> result = new HashMap<String, ArrayList<Integer>>();
 
         Calendar calendar = Calendar.getInstance();
         int check = -1;
@@ -296,36 +327,25 @@ public class AppDatabase extends SQLiteOpenHelper {
             Cursor cursor = db.rawQuery("SELECT * FROM medicine_list A INNER JOIN temp_time B ON A.code = B.code ORDER BY time ASC", null);
             while(cursor.moveToNext())
             {
+                int code = cursor.getInt(cursor.getColumnIndex("code"));
                 String time = cursor.getString(cursor.getColumnIndex("time"));
                 String hour_min[] = time.split(":");
                 int prior = Integer.parseInt(hour_min[0])*100 + Integer.parseInt(hour_min[1]);
 
                 if(criterion < prior)
                 {
-                    Medicine medi = new Medicine(cursor.getInt(cursor.getColumnIndex("code")),
-                            cursor.getString(cursor.getColumnIndex("name")),
-                            cursor.getString(cursor.getColumnIndex("image")),
-                            cursor.getString(cursor.getColumnIndex("effect")),
-                            cursor.getString(cursor.getColumnIndex("usage")),
-                            cursor.getInt(cursor.getColumnIndex("category")),
-                            cursor.getString(cursor.getColumnIndex("single_dose")),
-                            cursor.getInt(cursor.getColumnIndex("daily_dose")),
-                            cursor.getInt(cursor.getColumnIndex("number_of_day_takens")),
-                            cursor.getInt(cursor.getColumnIndex("warning")),
-                            cursor.getString(cursor.getColumnIndex("start_day")));
 
                     if(prior != check && check != -1)
-                    {
-                        check = prior;
                         break;
-                    }
+
                     if(result.isEmpty())
                     {
-                        result.put(time, new ArrayList<Medicine>());
-                        result.get(time).add(medi);
+                        check = prior;
+                        result.put(time, new ArrayList<Integer>());
+                        result.get(time).add(code);
                     }
                     else
-                        result.get(time).add(medi);
+                        result.get(time).add(code);
                 }
             }
         }catch (Exception ex){
@@ -334,76 +354,4 @@ public class AppDatabase extends SQLiteOpenHelper {
 
         return result;
     }
-
-    /*
-
-    public HashMap<Calendar, ArrayList<Medicine>> getWillTakeAtDay(){
-        HashMap<Calendar, ArrayList<Medicine>> result = new HashMap<Calendar, ArrayList<Medicine>>();
-        SQLiteDatabase db = getReadableDatabase();
-        Calendar curTime = Calendar.getInstance();
-
-        try{
-            Cursor cursor = db.rawQuery("SELECT * FROM medicine_list INNER JOIN will_take ORDER BY time ASC", null);
-            while(cursor.moveToNext()){
-
-
-                String cursor_day = cursor.getString(cursor.getColumnIndex("start_day"));
-                String cursor_time = cursor.getString(cursor.getColumnIndex("time"));
-                String cur_time_str[] = cursor_time.split(":");
-
-                Calendar calTemp = Calendar.getInstance();
-                calTemp.set(Calendar.HOUR, Integer.parseInt(cur_time_str[0]));
-                calTemp.set(Calendar.MINUTE, Integer.parseInt(cur_time_str[1]));
-
-                Calendar calTemp2 = Calendar.getInstance();
-                calTemp2.set(Integer.parseInt(cur_day_str[0]), Integer.parseInt(cur_day_str[1]), Integer.parseInt(cur_day_str[2]), 0, 0, 0);
-                calTemp2.add(Calendar.DATE, cursor.getInt(cursor.getColumnIndex("number_of_day_takens")));
-                calTemp2.add(Calendar.DATE, 1);
-
-                if(curTime.getTimeInMillis() < calTemp.getTimeInMillis()){
-
-                }
-            }
-        } catch(Exception ex){
-            ex.printStackTrace();
-        }
-        return result;
-    }
-    public ArrayList<Medicine> getMedisAtDayAndTime(String day, String time){
-        ArrayList<Medicine> result = new ArrayList<Medicine>();
-        SQLiteDatabase db = getReadableDatabase();
-
-        String str[] = day.split("\\.");
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Integer.parseInt(str[0]), Integer.parseInt(str[1]), Integer.parseInt(str[2]), 0, 0, 0);
-        try{
-            Cursor cursor = db.rawQuery("SELECT * FROM medicine_list A INNER JOIN will_take B ON A.code = B.code WHERE B.time = '" + time + "'" , null);
-            while(cursor.moveToNext()){
-                String cursor_day = cursor.getString(cursor.getColumnIndex("start_day"));
-                String cursor_time = cursor.getString(cursor.getColumnIndex("time"));
-                String cur_day_str[] = cursor_day.split("\\.");
-                Calendar calTemp = Calendar.getInstance();
-                calTemp.set(Integer.parseInt(cur_day_str[0]), Integer.parseInt(cur_day_str[1]), Integer.parseInt(cur_day_str[2]), 0, 0, 0);
-                calTemp.add(Calendar.DATE, cursor.getInt(cursor.getColumnIndex("number_of_day_takens")));
-
-                if(calendar.getTimeInMillis() < calTemp.getTimeInMillis()){
-                    Medicine medi = new Medicine(cursor.getInt(cursor.getColumnIndex("code")),
-                            cursor.getString(cursor.getColumnIndex("name")),
-                            cursor.getString(cursor.getColumnIndex("image")),
-                            cursor.getString(cursor.getColumnIndex("effect")),
-                            cursor.getString(cursor.getColumnIndex("usage")),
-                            cursor.getInt(cursor.getColumnIndex("category")),
-                            cursor.getString(cursor.getColumnIndex("single_dose")),
-                            cursor.getInt(cursor.getColumnIndex("daily_dose")),
-                            cursor.getInt(cursor.getColumnIndex("number_of_day_takens")),
-                            cursor.getInt(cursor.getColumnIndex("warning")),
-                            cursor.getString(cursor.getColumnIndex("start_day")));
-                    result.add(medi);
-                }
-            }
-        } catch(Exception ex){
-            ex.printStackTrace();
-        }
-        return result;
-    }*/
 }
