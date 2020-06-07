@@ -39,12 +39,6 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
                     break;
                 case R.id.camera:
-                    if(curFragment == 1) {
-                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
-                    }
-                    else if(curFragment == 3){
-                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
-                    }
                     startActivity(new Intent(MainActivity.this, CameraActivity.class));
                     break;
                 case R.id.userdrug:

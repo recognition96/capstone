@@ -1,14 +1,20 @@
 package com.example.inhacsecapstone.cameras;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +25,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.Drugs;
@@ -27,7 +34,9 @@ import com.example.inhacsecapstone.serverconnect.HttpConnection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.otaliastudios.cameraview.BitmapCallback;
 import com.otaliastudios.cameraview.PictureResult;
 
@@ -115,7 +124,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     protected void onDestroy() {
         super.onDestroy();
         mbitmap.recycle();
-        mbitmap=null;
+        mbitmap = null;
         if (!isChangingConfigurations()) {
             setPictureResult(null);
         }
@@ -160,26 +169,77 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
 
     Handler handler = new Handler(new Handler.Callback() {
         @Override
-        public boolean handleMessage(@NonNull android.os.Message msg) {
-            Log.d("@@@", "msg.what : " + String.valueOf(msg.what));
+        public boolean handleMessage(@NonNull android.os.Message msg) throws JsonIOException, JsonSyntaxException {
+            String notiTitle = null;
+            String notiText = null;
+            Intent intent = new Intent(PicturePreviewActivity.this, RecogResultActivity.class);
 
-            if(msg.what == 1){
-                String OCR_Result = (String)msg.obj;
+            if (msg.what == 1) {
+                String OCR_Result = (String) msg.obj;
                 Gson gson = new GsonBuilder().create();
                 JsonParser parser = new JsonParser();
-                JsonElement rootObject = parser.parse(OCR_Result)
-                        .getAsJsonObject().get("drugs");
-                Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
-                for (int i = 0; i < drugs.length; i++) {
-                    System.out.println(drugs[i].printres());
+                try {
+                    JsonElement rootObject = parser.parse(OCR_Result)
+                            .getAsJsonObject().get("drugs");
+                    Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
+                    for (int i = 0; i < drugs.length; i++) {
+                        System.out.println(drugs[i].printres());
+                    }
+                    intent.putExtra("drugs", drugs);
+                    notiTitle = "처방전 결과가 도착했습니다!";
+                    notiText = "알림을 눌러 결과를 확인하실 수 있습니다.";
                 }
-                Intent intent = new Intent(PicturePreviewActivity.this, RecogResultActivity.class);
-                intent.putExtra("drugs", drugs);
-                startActivity(intent);
-                return true;
+                catch(Exception e) {
+                    e.printStackTrace();
+                    notiTitle = "처방전 인식을 실패했습니다.";
+                    notiText = "다시 시도해주세요.";
+                }
             }
-            Toast.makeText(getApplicationContext(), "연결에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show();
-            return false;
+            else {
+                notiTitle = "서버 연결에 실패했습니다.";
+                notiText = "다시 시도해주세요.";
+            }
+
+            PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                    intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            NotificationManager nm = getApplicationContext().getSystemService(NotificationManager.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                String channelName = "채널";
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                NotificationChannel channel = new NotificationChannel("result", channelName, importance);
+                nm.createNotificationChannel(channel);
+            }
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "result");
+            builder.setSmallIcon(R.drawable.ic_alarm_add_black_48dp)
+                    .setContentTitle(notiTitle)
+                    .setContentText(notiText)
+                    .setWhen(System.currentTimeMillis())
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
+                    .setContentIntent(pIntent)
+                    .setAutoCancel(true);
+            if (intent.getSerializableExtra("drugs") == null) Log.d("@@@", "already null");
+
+            PowerManager.WakeLock sCpuWakeLock = null;
+            if (sCpuWakeLock != null) { return false; }
+            PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+            sCpuWakeLock = pm.newWakeLock(
+                    PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
+                            PowerManager.ACQUIRE_CAUSES_WAKEUP |
+                            PowerManager.ON_AFTER_RELEASE, "Tag: for PowerManager");
+            sCpuWakeLock.acquire(60 * 1000L /*1 minutes*/);
+            if (sCpuWakeLock != null) {
+                sCpuWakeLock.release();
+                sCpuWakeLock = null;
+            }
+
+            if (msg.what == 1) {
+                nm.notify(-1, builder.build());
+                return true;
+            } else {
+                nm.notify(-1, builder.build());
+                return false;
+            }
         }
     });
 
