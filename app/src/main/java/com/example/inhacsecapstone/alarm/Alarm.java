@@ -24,7 +24,6 @@ public class Alarm {
     private int DrugAlarmId = 1000;
     private PendingIntent pintent;
     public Alarm(Context context) {
-
         this.context=context;
         appDatabase = AppDatabase.getDataBase(context);
         am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
@@ -52,7 +51,12 @@ public class Alarm {
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.putExtra("medicine", medis);
 
-            pintent = PendingIntent.getBroadcast(context, DrugAlarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            pintent = PendingIntent.getBroadcast(context, DrugAlarmId, intent, PendingIntent.FLAG_NO_CREATE);
+            if(pintent == null) {
+
+            } else {
+
+            }
             //am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pintent);
             am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pintent);
         }
