@@ -2,6 +2,7 @@ package com.example.inhacsecapstone.drugs.Recog;
 
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.ConsumerIrManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -12,28 +13,32 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.inhacsecapstone.Entity.Medicine;
+import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.cameras.CameraActivity;
+import com.example.inhacsecapstone.chatbot.MessengerActivity;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.Drugs;
 import com.example.inhacsecapstone.drugs.RecyclerViewDecorator;
+import com.example.inhacsecapstone.initial.InformationSetting;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
 public class RecogResultActivity extends AppCompatActivity {
-    private ViewModel mViewModel;
     private RecyclerView mRecyclerView;
     private RecogResultListAdapter adapter;
     private Context context;
     private AppDatabase db;
-
+    private int REQUEST_CODE = 1;
+    private ArrayList<Medicine> arrayList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         context = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recog_result);
-        ArrayList<Medicine> arrayList = new ArrayList<Medicine>();
+        arrayList = new ArrayList<Medicine>();
         Calendar calendar = Calendar.getInstance();
         String day = Integer.toString(calendar.get(Calendar.YEAR)) + "."+ Integer.toString(calendar.get(Calendar.MONTH)) + "." + Integer.toString(calendar.get(Calendar.DATE));
         Drugs[] drugs = (Drugs[]) getIntent().getSerializableExtra("drugs");
@@ -49,6 +54,9 @@ public class RecogResultActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         db = AppDatabase.getDataBase(getApplicationContext());
         mRecyclerView.addItemDecoration(new RecyclerViewDecorator(30));
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(this::floatingonClick);
+
 
         findViewById(R.id.submit).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,5 +96,24 @@ public class RecogResultActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE)
+        {
+            if(resultCode == RESULT_OK)
+            {
+                Medicine medi = (Medicine)data.getSerializableExtra("medicine");
+                arrayList.add(medi);
+            }
+            else{
+                Toast.makeText(this, "약 추가에 실패했습니다", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    public void floatingonClick(View v) {
+        Intent intent = new Intent(RecogResultActivity.this,  AddMedicineActivity.class);
+        startActivityForResult(intent, REQUEST_CODE);
     }
 }

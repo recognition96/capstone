@@ -1,11 +1,14 @@
 package com.example.inhacsecapstone.drugs;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.strictmode.SqliteObjectLeakedViolation;
 import android.util.Log;
+
+import androidx.core.content.ContextCompat;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.Entity.Takes;
@@ -28,10 +31,10 @@ public class AppDatabase extends SQLiteOpenHelper {
     }
 
     public static AppDatabase getDataBase(Context context) {
-        if (INSTANCE == null) {
-            synchronized (AppDatabase.class) {
-                INSTANCE = new AppDatabase(context);
-            }
+                if (INSTANCE == null) {
+                        synchronized (AppDatabase.class) {
+                            INSTANCE = new AppDatabase(context);
+                        }
         }
         return INSTANCE;
     }
@@ -83,9 +86,9 @@ public class AppDatabase extends SQLiteOpenHelper {
         Takes take = new Takes(11111111, "2020.5.9", "12:10");
         insert(medi);
         insert(take);
-        insertWillTake(11111111, "12:10");
+        insertWillTake(11111111, "14:32");
         insertWillTake(11111111, "19:10");
-        insertTempTake(11111111, "12:10");
+        insertTempTake(11111111, "14:32");
         insertTempTake(11111111, "19:10");
     }
 
@@ -94,22 +97,28 @@ public class AppDatabase extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
-
     // Medicine 관련 함수들
     public void insert(Medicine medicine) {
         SQLiteDatabase db = getWritableDatabase();
-
         db.execSQL("INSERT INTO medicine_list VALUES(" + medicine.getCode() + ", '" +
-                medicine.getName() + "','" +
-                medicine.getImage() + "','" +
-                medicine.getEffect() + "','" +
-                medicine.getUsage() + "'," +
-                medicine.getCategory() + ",'" +
-                medicine.getSingleDose() + "'," +
-                medicine.getDailyDose() + "," +
-                medicine.getNumberOfDayTakens() + "," +
-                medicine.getWarning() + ",'" +
-                medicine.getStartDay() + "')");
+                    medicine.getName() + "','" +
+                    medicine.getImage() + "','" +
+                    medicine.getEffect() + "','" +
+                    medicine.getUsage() + "'," +
+                    medicine.getCategory() + ",'" +
+                    medicine.getSingleDose() + "'," +
+                    medicine.getDailyDose() + "," +
+                    medicine.getNumberOfDayTakens() + "," +
+                    medicine.getWarning() + ",'" +
+                    medicine.getStartDay() + "')");
+        db.close();
+    }
+    public void deleteAllForCode(int code){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM medicine_list WHERE code = " + code);
+        db.execSQL("DELETE FROM taked WHERE code = " + code);
+        db.execSQL("DELETE FROM will_take WHERE code = " + code);
+        db.execSQL("DELETE FROM temp_time WHERE code = " + code);
         db.close();
     }
     public ArrayList<Medicine> getAllMedicine() {

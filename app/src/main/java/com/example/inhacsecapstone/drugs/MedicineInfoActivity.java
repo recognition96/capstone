@@ -4,9 +4,11 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -32,6 +34,7 @@ public class MedicineInfoActivity extends AppCompatActivity {
         Medicine medi = (Medicine) getIntent().getSerializableExtra("medicine");
         TextView text1 = findViewById(R.id.effect);
         TextView text2 = findViewById(R.id.usage);
+        Button deleteButton = findViewById(R.id.deleteButton);
         ImageView img = findViewById(R.id.image);
         ChipGroup chipGroup = findViewById(R.id.will_takes);
         appDatabase = AppDatabase.getDataBase(this);
@@ -42,6 +45,18 @@ public class MedicineInfoActivity extends AppCompatActivity {
         text1.setText(medi.getEffect());
         text2.setText(medi.getUsage());
         text2.setVisibility(View.INVISIBLE);
+        deleteButton.setVisibility(View.INVISIBLE);
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                appDatabase.deleteAllForCode(medi.getCode());
+                alarm.setAlarm();
+                Toast.makeText(context, medi.getName() + "이 삭제되었습니다.", Toast.LENGTH_SHORT);
+                finish();
+            }
+        });
+
 
         ArrayList<String> will_takes = appDatabase.getWillTakeAtMedi(medi.getCode());
         for(int i = 0; i < will_takes.size(); i++){
@@ -140,15 +155,23 @@ public class MedicineInfoActivity extends AppCompatActivity {
     private void changeView(int index) {
         TextView textView1 = findViewById(R.id.effect);
         TextView textView2 = findViewById(R.id.usage);
+        Button deleteButton = findViewById(R.id.deleteButton);
 
         switch (index) {
             case 0:
                 textView1.setVisibility(View.VISIBLE);
                 textView2.setVisibility(View.INVISIBLE);
+                deleteButton.setVisibility(View.INVISIBLE);
                 break;
             case 1:
                 textView1.setVisibility(View.INVISIBLE);
                 textView2.setVisibility(View.VISIBLE);
+                deleteButton.setVisibility(View.INVISIBLE);
+                break;
+            case 2:
+                textView1.setVisibility(View.INVISIBLE);
+                textView2.setVisibility(View.INVISIBLE);
+                deleteButton.setVisibility(View.VISIBLE);
                 break;
         }
     }
