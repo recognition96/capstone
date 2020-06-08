@@ -7,39 +7,43 @@
     tools:context=".calendars.Calendars">
 
 
-    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-        android:id="@+id/calendarView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/calendarlinearlayout"
-        android:textAlignment="center"
-        app:mcv_allowClickDaysOutsideCurrentMonth="false"
-        app:mcv_dateTextAppearance="@style/TextAppearance.AppCompat"
-        app:mcv_selectionColor="#00F"
-        app:mcv_showOtherDates="defaults"
-        tools:layout_editor_absoluteY="74dp" />
-
     <LinearLayout
         android:id="@+id/calendarlinearlayout"
-        app:layout_constraintTop_toBottomOf="@id/calendarView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="470dp">
+        android:orientation="vertical">
+
+        <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+            android:id="@+id/calendarView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAlignment="center"
+
+            app:mcv_allowClickDaysOutsideCurrentMonth="false"
+            app:mcv_dateTextAppearance="@style/TextAppearance.AppCompat"
+            app:mcv_selectionColor="#00F"
+            android:layout_weight="2"
+            app:mcv_showOtherDates="defaults">
+
+        </com.prolificinteractive.materialcalendarview.MaterialCalendarView>
+
 
         <ListView
+            android:layout_weight="2"
             android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp" />
+            />
 
-        <Button
-            android:id="@+id/deleteAll"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="56dp"
-            android:text="deleteAll" />
-    </LinearLayout>
+<!--        <Button-->
+<!--            -->
+<!--            android:id="@+id/deleteAll"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="56dp"-->
+<!--            android:text="deleteAll" />-->
+
+        </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

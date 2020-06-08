@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.inhacsecapstone.Entity.Medicine;
+import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
@@ -17,7 +18,7 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 
-import java.util.List;
+import java.util.ArrayList;
 
 
 public class Calendars extends Fragment {
@@ -53,19 +54,21 @@ public class Calendars extends Fragment {
                 String target = year+"."+month+"."+day;
                 db = AppDatabase.getDataBase(inflater.getContext());
                 ListView mListView = (ListView) getView().findViewById(R.id.listView);
-                List<Medicine> list = db.getMedicineAtDay(target);
-                ListViewAdapter adapter = new ListViewAdapter(list);
+                ArrayList<Medicine> medis = db.getMedicineAtDay(target);
+                ArrayList<Takes> takes= db.gettakesAtDay(target);
+                ListViewAdapter adapter = new ListViewAdapter(medis, takes);
                 mListView.setAdapter(adapter);
+
             }
         });
         // DeleteAll 추가 부분
-        rootView.findViewById(R.id.deleteAll).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AppDatabase db = AppDatabase.getDataBase(getActivity());
-                db.init();
-            }
-        });
+//        rootView.findViewById(R.id.deleteAll).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                AppDatabase db = AppDatabase.getDataBase(getActivity());
+//                db.init();
+//            }
+//        });
         return rootView;
     }
 }
