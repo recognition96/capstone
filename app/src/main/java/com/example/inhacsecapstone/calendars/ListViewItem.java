@@ -4,6 +4,10 @@ public class ListViewItem {
     private String titleStr ;
     private String descStr ;
 
+    ListViewItem() {
+    }
+
+
     public void setTitle(String title) {
         titleStr = title ;
     }

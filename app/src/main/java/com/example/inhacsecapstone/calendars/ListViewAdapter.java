@@ -9,16 +9,23 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class ListViewAdapter extends BaseAdapter {
     private ArrayList<ListViewItem> listViewItemList = new ArrayList<ListViewItem>() ;
 
     // ListViewAdapter의 생성자
-    public ListViewAdapter() {
-
+    public ListViewAdapter(List<Medicine> medi) {
+        for(int i=0; i<medi.size(); i++) {
+            String title = medi.get(i).getName(), code = Integer.toString(medi.get(i).getCode());
+            addItem(title, code);
+        }
     }
 
     // Adapter에 사용되는 데이터의 개수를 리턴. : 필수 구현
@@ -40,16 +47,13 @@ public class ListViewAdapter extends BaseAdapter {
         }
 
         // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
-        TextView titleTextView = (TextView) convertView.findViewById(R.id.textView1) ;
-        TextView descTextView = (TextView) convertView.findViewById(R.id.textView2) ;
-
+        TextView titleTextView = (TextView) convertView.findViewById(R.id.listdrugname) ;
+        TextView timeTextView = (TextView) convertView.findViewById(R.id.listtaketime);
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         ListViewItem listViewItem = listViewItemList.get(position);
-
         // 아이템 내 각 위젯에 데이터 반영
         titleTextView.setText(listViewItem.getTitle());
-        descTextView.setText(listViewItem.getDesc());
-
+        // timeTextView.setText(); 복용 시간
         return convertView;
     }
 
@@ -66,7 +70,7 @@ public class ListViewAdapter extends BaseAdapter {
     }
 
     // 아이템 데이터 추가를 위한 함수. 개발자가 원하는대로 작성 가능.
-    public void addItem(Drawable icon, String title, String desc) {
+    public void addItem(String title, String desc) {
         ListViewItem item = new ListViewItem();
 
         item.setTitle(title);
