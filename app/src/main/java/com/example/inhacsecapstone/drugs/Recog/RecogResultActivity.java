@@ -45,7 +45,7 @@ public class RecogResultActivity extends AppCompatActivity {
         for (Drugs iter : drugs) {
             String img = iter.getSmall_image().equals("null") || iter.getSmall_image().equals("") ? (iter.getPack_image().equals("null") || iter.getPack_image().equals("") ? null : iter.getPack_image()) : iter.getSmall_image();
             arrayList.add(new Medicine(iter.getCode(), iter.getDrug_name(), img, iter.getEffect(), iter.getUsages(), -1,
-                    null, -1, -1, -1, day)); // 카테고리, warning 해결해야함.
+                    iter.getSingle_dose(), iter.getDaily_dose(), iter.getTotal_dose(), -1, day)); // 카테고리, warning 해결해야함.
         }
 
         mRecyclerView = this.findViewById(R.id.recogList);
@@ -64,11 +64,11 @@ public class RecogResultActivity extends AppCompatActivity {
                 ArrayList<Medicine> toss = new ArrayList<Medicine>();
                 for(Medicine iter : arrayList)
                 {
-                    if(iter.getDailyDose() == -1 ||  iter.getSingleDose() == null || iter.getNumberOfDayTakens() == -1) {
+                    if(iter.getDailyDose() == -1 ||  iter.getSingleDose() == -1 || iter.getNumberOfDayTakens() == -1) {
                         Toast.makeText(context, "빈칸을 채워주세요.", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    else if(iter.getDailyDose() == 0 ||  Integer.parseInt(iter.getSingleDose()) == 0 || iter.getNumberOfDayTakens() == 0)
+                    else if(iter.getDailyDose() == 0 ||  iter.getSingleDose() == 0 || iter.getNumberOfDayTakens() == 0)
                     {
                         Toast.makeText(context, "각 칸에 0을 입력할 수는 없습니다.", Toast.LENGTH_SHORT).show();
                         return;

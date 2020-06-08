@@ -9,13 +9,13 @@ public class Medicine implements Serializable {
     private String effect;
     private String usage;
     private int category;
-    private String singleDose;
+    private float singleDose;
     private int dailyDose;
     private int numberOfDayTakens;
     private int warning;
     private String startDay;
 
-    public Medicine(int code, String name, String image, String effect, String usage, int category, String singleDose, int dailyDose, int numberOfDayTakens, int warning, String startDay) {
+    public Medicine(int code, String name, String image, String effect, String usage, int category, float singleDose, int dailyDose, int numberOfDayTakens, int warning, String startDay) {
         this.code = code;
         this.name = name;
         this.image = image;
@@ -61,11 +61,11 @@ public class Medicine implements Serializable {
         this.category = category;
     }
 
-    public String getSingleDose() {
+    public float getSingleDose() {
         return this.singleDose;
     }
 
-    public void setSingleDose(String singleDose) {
+    public void setSingleDose(float singleDose) {
         this.singleDose = singleDose;
     }
 

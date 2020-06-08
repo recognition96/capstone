@@ -80,7 +80,7 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
             holder.dailyDoseView.setText(Integer.toString(curDrug.getDailyDose()));
             holder.nameView.setText(curDrug.getName());
             holder.numberOfDayTakensView.setText(Integer.toString(curDrug.getNumberOfDayTakens()));
-            holder.singleDoseView.setText(curDrug.getSingleDose());
+            holder.singleDoseView.setText(Float.toString(curDrug.getSingleDose()));
         } else {
         }
     }

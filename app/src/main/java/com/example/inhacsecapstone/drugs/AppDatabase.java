@@ -48,7 +48,7 @@ public class AppDatabase extends SQLiteOpenHelper {
                 "effect TEXT," +
                 "usage TEXT," +
                 "category INTEGER," +
-                "single_dose TEXT," +
+                "single_dose FLOAT," +
                 "daily_dose INTEGER," +
                 "number_of_day_takens INTEGER," +
                 "warning INTEGER, "+
@@ -82,7 +82,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         String cur = Integer.toString(year) + "." + Integer.toString(month) + "." + Integer.toString(date);
 
         Medicine medi = new Medicine(11111111, "포크랄시럽", "https://www.health.kr/images/ext_images/pack_img/P_A11AGGGGA5864_01.jpg", "불면증, 수술 전 진정", "1일 1회 복용"
-                , 0, "1개", 3, 10, 0, cur);
+                , 0, 1, 3, 10, 0, cur);
         Takes take = new Takes(11111111, "2020.5.9", "12:10");
         insert(medi);
         insert(take);
@@ -134,7 +134,7 @@ public class AppDatabase extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndex("effect")),
                         cursor.getString(cursor.getColumnIndex("usage")),
                         cursor.getInt(cursor.getColumnIndex("category")),
-                        cursor.getString(cursor.getColumnIndex("single_dose")),
+                        cursor.getFloat(cursor.getColumnIndex("single_dose")),
                         cursor.getInt(cursor.getColumnIndex("daily_dose")),
                         cursor.getInt(cursor.getColumnIndex("number_of_day_takens")),
                         cursor.getInt(cursor.getColumnIndex("warning")),
@@ -159,7 +159,7 @@ public class AppDatabase extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndex("effect")),
                         cursor.getString(cursor.getColumnIndex("usage")),
                         cursor.getInt(cursor.getColumnIndex("category")),
-                        cursor.getString(cursor.getColumnIndex("single_dose")),
+                        cursor.getFloat(cursor.getColumnIndex("single_dose")),
                         cursor.getInt(cursor.getColumnIndex("daily_dose")),
                         cursor.getInt(cursor.getColumnIndex("number_of_day_takens")),
                         cursor.getInt(cursor.getColumnIndex("warning")),
@@ -198,7 +198,7 @@ public class AppDatabase extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndex("effect")),
                         cursor.getString(cursor.getColumnIndex("usage")),
                         cursor.getInt(cursor.getColumnIndex("category")),
-                        cursor.getString(cursor.getColumnIndex("single_dose")),
+                        cursor.getFloat(cursor.getColumnIndex("single_dose")),
                         cursor.getInt(cursor.getColumnIndex("daily_dose")),
                         cursor.getInt(cursor.getColumnIndex("number_of_day_takens")),
                         cursor.getInt(cursor.getColumnIndex("warning")),

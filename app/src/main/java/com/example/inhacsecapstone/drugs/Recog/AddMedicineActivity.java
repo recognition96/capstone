@@ -52,7 +52,7 @@ public class AddMedicineActivity extends AppCompatActivity {
         sharedPreferences.edit().putInt("drugTempId", code+1).commit();
         String cur_str = Integer.toString(year) + "." + Integer.toString(month) + "." + Integer.toString(date);
         Medicine medi = new Medicine(code, drugName_str, null, null, null, -1,
-                singDose_str, Integer.parseInt(dailyDose_str),Integer.parseInt(numberOfDayTakens_str),-1, cur_str);
+                Float.parseFloat(singDose_str), Integer.parseInt(dailyDose_str),Integer.parseInt(numberOfDayTakens_str),-1, cur_str);
 
         Intent intent = new Intent();
         intent.putExtra("medicine", medi);

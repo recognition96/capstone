@@ -54,7 +54,7 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
             holder.dailyDoseView.setText(curDrug.getDailyDose() == -1 ? "" : Integer.toString(curDrug.getDailyDose()));
             holder.nameView.setText(curDrug.getName() == null ? "" : curDrug.getName());
             holder.numberOfDayTakensView.setText(curDrug.getNumberOfDayTakens() == -1 ? "" : Integer.toString(curDrug.getNumberOfDayTakens()));
-            holder.singleDoseView.setText(curDrug.getSingleDose() == null ? "" : curDrug.getSingleDose());
+            holder.singleDoseView.setText(curDrug.getSingleDose() == -1 ? "" : Float.toString(curDrug.getSingleDose()) );
             holder.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -125,7 +125,7 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                 public void afterTextChanged(Editable s) {
                     String str = s.toString();
                     try {
-                        curDrug.setSingleDose(str);
+                        curDrug.setSingleDose(Float.parseFloat(str));
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
