@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".drugs.Recog.AddMedicineActivity">
+
+    <LinearLayout
+        android:layout_width="379dp"
+        android:layout_height="607dp"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+        android:padding="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
+
+        <TextView
+            android:id="@+id/userNameTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:drawablePadding="10dp"
+            android:drawableTint="@color/colorAccent"
+            android:text="약 이름"
+            android:textSize="20dp" />
+
+        <EditText
+            android:id="@+id/drugName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="8dp"
+            android:ems="10"
+            android:fontFamily="@font/nanumsquare_acb"
+            android:hint="아스피린"
+            android:inputType="text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/userNameTitle" />
+
+        <TextView
+            android:id="@+id/userBirthTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:drawablePadding="10dp"
+            android:drawableTint="@color/colorAccent"
+            android:text="1회 투여량"
+            android:textSize="20dp" />
+
+        <EditText
+            android:id="@+id/singleDose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="8dp"
+            android:ems="10"
+            android:fontFamily="@font/nanumsquare_acb"
+            android:hint="1"
+            android:inputType="number" />
+
+        <TextView
+            android:id="@+id/userBirthTitle4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:drawablePadding="10dp"
+            android:drawableTint="@color/colorAccent"
+            android:text="일일 투여 횟수"
+            android:textSize="20dp" />
+
+        <EditText
+            android:id="@+id/dailyDose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="8dp"
+            android:ems="10"
+            android:fontFamily="@font/nanumsquare_acb"
+            android:hint="3"
+            android:inputType="number" />
+
+        <TextView
+            android:id="@+id/userBirthTitle5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:drawablePadding="10dp"
+            android:drawableTint="@color/colorAccent"
+            android:text="총 투약일수"
+            android:textSize="20dp" />
+
+        <EditText
+            android:id="@+id/numberOfDayTakens"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="8dp"
+            android:ems="10"
+            android:fontFamily="@font/nanumsquare_acb"
+            android:hint="3"
+            android:inputType="number" />
+
+        <Button
+            android:id="@+id/addButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:backgroundTint="@color/colorAccent"
+            android:text="추가하기"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinner" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@color/colorPrimary"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="18dp"
+            android:text="복용 약의 정보를 추가해주세요"
+            android:textColor="@color/white"
+            android:textSize="25dp"
+            android:textStyle="bold"></TextView>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

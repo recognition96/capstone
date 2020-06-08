@@ -16,16 +16,6 @@ public class BootReceiver extends BroadcastReceiver {
             Alarm am = new Alarm(context);
             am.setDailyCheck();
         }
-        /*
-        AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent myIntent = new Intent(context, AlarmReceiver.class);
-        PendingIntent pIntent = PendingIntent.getBroadcast(context, 0, myIntent, 0);
-
-        long period = 1000 * 60 * 3;
-
-        // 알람 예약
-        // am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
-        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, period, pIntent);*/
     }
 
     public void setStartTime(long time) {

@@ -164,7 +164,9 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
         multipartBodyBuilder.addFormDataPart("image", "Android_Flask_" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
 
         RequestBody postBodyImage = multipartBodyBuilder.build();
+        Toast.makeText(this, "사진이 처리될 때 까지 잠시만 기다려주세요.", Toast.LENGTH_LONG).show();
         postRequest(postUrl, postBodyImage);
+
     }
 
     Handler handler = new Handler(new Handler.Callback() {
@@ -245,7 +247,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
 
     void postRequest(String postUrl, RequestBody postBody) {
         OkHttpClient client = new OkHttpClient.Builder()
-                .readTimeout(10, TimeUnit.MINUTES)
+                .readTimeout(20, TimeUnit.MINUTES)
                 .build();
         okhttp3.Request request = new Request.Builder()
                 .url(postUrl)

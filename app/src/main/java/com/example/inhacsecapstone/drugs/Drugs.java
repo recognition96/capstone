@@ -9,15 +9,21 @@ public class Drugs implements Serializable {
     private String pack_image;
     private String usages;
     private String effect;
+    private float single_dose;
     private int daily_dose;
-    private int single_dose;
     private int total_dose;
 
-    public int getDaily_dose() { return daily_dose; }
+    public float getSingle_dose() {
+        return single_dose;
+    }
 
-    public int getSingle_dose() { return single_dose; }
+    public int getDaily_dose() {
+        return daily_dose;
+    }
 
-    public int getTotal_dose() { return total_dose; }
+    public int getTotal_dose() {
+        return total_dose;
+    }
 
     public String getUsages() { return usages; }
 
@@ -40,6 +46,7 @@ public class Drugs implements Serializable {
     }
 
     public String printres() {
-        return Integer.toString(code) + " , " + drug_name + " , " + small_image + " , " + pack_image ;
+        return Integer.toString(code) + " , " + drug_name + " , " + small_image + " , " + pack_image
+               + " " +Float.toString(single_dose) + " " +Integer.toString(daily_dose) + " " +Integer.toString(total_dose);
     }
 }

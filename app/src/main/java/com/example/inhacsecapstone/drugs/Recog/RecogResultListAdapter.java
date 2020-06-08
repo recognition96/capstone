@@ -54,15 +54,17 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
             holder.dailyDoseView.setText(curDrug.getDailyDose() == -1 ? "" : Integer.toString(curDrug.getDailyDose()));
             holder.nameView.setText(curDrug.getName() == null ? "" : curDrug.getName());
             holder.numberOfDayTakensView.setText(curDrug.getNumberOfDayTakens() == -1 ? "" : Integer.toString(curDrug.getNumberOfDayTakens()));
-            holder.singleDoseView.setText(curDrug.getSingleDose() == null ? "" : curDrug.getSingleDose());
+            holder.singleDoseView.setText(curDrug.getSingleDose() == -1 ? "" : Float.toString(curDrug.getSingleDose()) );
             holder.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, MedicineInfoActivity.class);
+                    intent.putExtra("isBeforeAdd", true);
                     intent.putExtra("medicine", curDrug);
                     context.startActivity(intent);
                 }
             });
+
             holder.dailyDoseView.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -80,7 +82,7 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     try {
                         curDrug.setDailyDose(Integer.parseInt(str));
                     } catch (Exception ex) {
-                        Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
                     }
 
@@ -103,7 +105,6 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     try {
                         curDrug.setNumberOfDayTakens(Integer.parseInt(str));
                     } catch (Exception ex) {
-                        Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
                     }
                 }
@@ -124,9 +125,8 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                 public void afterTextChanged(Editable s) {
                     String str = s.toString();
                     try {
-                        curDrug.setSingleDose(str);
+                        curDrug.setSingleDose(Float.parseFloat(str));
                     } catch (Exception ex) {
-                        Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
                     }
                 }
