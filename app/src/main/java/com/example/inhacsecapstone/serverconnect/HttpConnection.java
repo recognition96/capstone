@@ -31,5 +31,5 @@ public class HttpConnection {
 
     public String getUrl(String url) {
         return "http://" + ipv4Address + ":" + portNumber + "/"+url;
-    }
-}
+        }
+        }
