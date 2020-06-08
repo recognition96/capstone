@@ -73,33 +73,6 @@ public class Alarm {
             int [] code_arr = new int[code.size()];
             for(int i = 0; i < code.size(); i++)
                 code_arr[i] = code.get(i);
-            ArrayList<Medicine> medis = info.get(iter);
-            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hour_min[0]));
-            calendar.set(Calendar.MINUTE, Integer.parseInt(hour_min[1]));
-            calendar.set(Calendar.SECOND, 0);
-
-            Intent intent = new Intent(context, AlarmReceiver.class);
-            intent.putExtra("medicine", medis);
-
-            pintent = PendingIntent.getBroadcast(context, DrugAlarmId, intent, PendingIntent.FLAG_NO_CREATE);
-            if(pintent == null) {
-
-            } else {
-
-            }
-            //am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pintent);
-            am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pintent);
-        }
-    }
-
-    /*
-    public void refresh(String time){
-        Calendar calendar = Calendar.getInstance();
-
-        String day = Integer.toString(calendar.get(Calendar.YEAR)) + "."+  Integer.toString(calendar.get(Calendar.MONTH)) + "."+ Integer.toString(calendar.get(Calendar.DATE));
-        ArrayList<Medicine> medis = appDatabase.getMedisAtDayAndTime(day, time);
-        String hour_min[] = time.split(":");
-        int alramId = Integer.parseInt(hour_min[0])*100 + Integer.parseInt(hour_min[1]);
 
             calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hour_min[0]));
             calendar.set(Calendar.MINUTE, Integer.parseInt(hour_min[1]));
