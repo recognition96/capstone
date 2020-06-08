@@ -4,7 +4,9 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -62,8 +64,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // 처음 앱을 깔고 실행 할때
-        Alarm am = new Alarm(this);
-        am.setDailyCheck();
+        SharedPreferences sharedPreferences = getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
+        if(sharedPreferences.getBoolean("is_first_run", true)){
+            sharedPreferences.edit().putBoolean("is_first_run", false).commit();
+            Alarm am = new Alarm(this);
+            am.setDailyCheck();
+        }
+
         // Floating Action Bar Setting
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
         fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);

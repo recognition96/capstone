@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.Entity.Takes;
+import com.example.inhacsecapstone.cameras.CameraActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -70,8 +71,15 @@ public class AppDatabase extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM will_take");
         db.execSQL("DELETE FROM temp_time");
 
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH)+1;
+        int date = calendar.get(Calendar.DATE);
+
+        String cur = Integer.toString(year) + "." + Integer.toString(month) + "." + Integer.toString(date);
+
         Medicine medi = new Medicine(11111111, "포크랄시럽", "https://www.health.kr/images/ext_images/pack_img/P_A11AGGGGA5864_01.jpg", "불면증, 수술 전 진정", "1일 1회 복용"
-                , 0, "1개", 3, 10, 0, "2020.6.6");
+                , 0, "1개", 3, 10, 0, cur);
         Takes take = new Takes(11111111, "2020.5.9", "12:10");
         insert(medi);
         insert(take);

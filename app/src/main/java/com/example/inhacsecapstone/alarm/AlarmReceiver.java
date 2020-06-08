@@ -41,6 +41,8 @@ public class AlarmReceiver extends JobService {
         if(is24)
         {
             appdb.setTempTime();
+            Alarm alarm = new Alarm(this);
+            alarm.setAlarm();
             return false;
         }
 
