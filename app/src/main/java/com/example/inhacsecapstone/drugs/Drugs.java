@@ -9,6 +9,15 @@ public class Drugs implements Serializable {
     private String pack_image;
     private String usages;
     private String effect;
+    private int daily_dose;
+    private int single_dose;
+    private int total_dose;
+
+    public int getDaily_dose() { return daily_dose; }
+
+    public int getSingle_dose() { return single_dose; }
+
+    public int getTotal_dose() { return total_dose; }
 
     public String getUsages() { return usages; }
 

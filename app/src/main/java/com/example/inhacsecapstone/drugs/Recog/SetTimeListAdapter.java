@@ -55,7 +55,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
                     showImage(curDrug.getImage());
                 }
             });*/
-            holder.amountView.setText(Integer.toString(curDrug.getAmount()));
+            holder.amountView.setText(Integer.toString(curDrug.getDailyDose() * curDrug.getNumberOfDayTakens()));
             holder.nameView.setText(curDrug.getName() == null ? "" : curDrug.getName());
             holder.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -167,6 +167,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
                     dialog.show();
                 }
             });
+
             holder.chipGroup.addView(addChip);
         } else {
         }

@@ -5,7 +5,6 @@ import java.io.Serializable;
 public class Medicine implements Serializable {
     private int code;
     private String name;
-    private int amount;
     private String image;
     private String effect;
     private String usage;
@@ -14,11 +13,11 @@ public class Medicine implements Serializable {
     private int dailyDose;
     private int numberOfDayTakens;
     private int warning;
+    private String startDay;
 
-    public Medicine(int code, String name, int amount, String image, String effect, String usage, int category, String singleDose, int dailyDose, int numberOfDayTakens, int warning) {
+    public Medicine(int code, String name, String image, String effect, String usage, int category, String singleDose, int dailyDose, int numberOfDayTakens, int warning, String startDay) {
         this.code = code;
         this.name = name;
-        this.amount = amount;
         this.image = image;
         this.category = category;
         this.singleDose = singleDose;
@@ -27,6 +26,7 @@ public class Medicine implements Serializable {
         this.warning = warning;
         this.effect = effect;
         this.usage = usage;
+        this.startDay = startDay;
     }
 
     public int getCode() {
@@ -43,14 +43,6 @@ public class Medicine implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getAmount() {
-        return this.amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
     }
 
     public String getImage() {
@@ -115,5 +107,11 @@ public class Medicine implements Serializable {
 
     public void setNumberOfDayTakens(int numberOfDayTakens) {
         this.numberOfDayTakens = numberOfDayTakens;
+    }
+    public void setStartDay(String startDay){
+        this.startDay = startDay;
+    }
+    public String getStartDay(){
+        return startDay;
     }
 }

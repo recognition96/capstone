@@ -38,15 +38,15 @@ public class Calendars extends Fragment {
         materialCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
-                    int Year = date.getYear();
-                    int Month = date.getMonth() + 1;
-                    int Day = date.getDay();
+                int Year = date.getYear();
+                int Month = date.getMonth() + 1;
+                int Day = date.getDay();
 
-                    Intent intent = new Intent(getActivity(), DayDrugActivity.class);
-                    intent.putExtra("year", Year);
-                    intent.putExtra("month", Month);
-                    intent.putExtra("day", Day);
-                    startActivity(intent);
+                Intent intent = new Intent(getActivity(), DayDrugActivity.class);
+                intent.putExtra("year", Year);
+                intent.putExtra("month", Month);
+                intent.putExtra("day", Day);
+                startActivity(intent);
             }
         });
         // DeleteAll 추가 부분
