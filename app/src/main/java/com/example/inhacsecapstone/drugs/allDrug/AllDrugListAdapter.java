@@ -1,5 +1,6 @@
 package com.example.inhacsecapstone.drugs.allDrug;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 
 import java.util.ArrayList;
@@ -24,15 +26,18 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
 
     private final LayoutInflater mInflater;
     private Context context;
-    private ArrayList<Medicine> mdrugs;
-    private ArrayList<Takes> mtakes;
+    public ArrayList<Medicine> mdrugs;
+    public ArrayList<Takes> mtakes;
+    private AppDatabase appDatabase;
+    private int MEDICINE_INFO_REQUEST =  1;
     public AllDrugListAdapter(Context context, ArrayList<Medicine> mdrugs, ArrayList<Takes> mtakes) {
         this.mdrugs = mdrugs;
         this.mtakes = mtakes;
-
+        this.appDatabase = AppDatabase.getDataBase(context);
         mInflater = LayoutInflater.from(context);
         this.context = context;
     }
+
 
     @Override
     public AllDrugListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -47,12 +52,20 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
             int amount = curDrug.getDailyDose() * curDrug.getNumberOfDayTakens();
             Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
 
-            /*holder.imageView.setOnClickListener(new View.OnClickListener() {
+            holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                   showImage(curDrug.getImage());
                 }
-            });*/
+            });
+            holder.layout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, MedicineInfoActivity.class);
+                    intent.putExtra("medicine", curDrug);
+                    ((Activity)context).startActivityForResult(intent, MEDICINE_INFO_REQUEST);
+                }
+            });
 
             int cnt = 0;
             if (mtakes != null) {
@@ -62,14 +75,6 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
                 }
             }
 
-            holder.layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(context, MedicineInfoActivity.class);
-                    intent.putExtra("medicine", curDrug);
-                    context.startActivity(intent);
-                }
-            });
             holder.progressBarView.setProgress(cnt * 100 / amount);
             holder.amountView.setText(Integer.toString(amount));
             holder.dailyDoseView.setText(Integer.toString(curDrug.getDailyDose()));
@@ -117,8 +122,11 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
             numberOfDayTakensView = itemView.findViewById(R.id.period);
             progressBarView = itemView.findViewById(R.id.progressBar);
             layout = itemView.findViewById(R.id.buttonLayout);
-
-
         }
+    }
+    public void refresh(){
+        mdrugs = appDatabase.getAllMedicine();
+        mtakes = appDatabase.getAllTakes();
+        notifyDataSetChanged();
     }
 }

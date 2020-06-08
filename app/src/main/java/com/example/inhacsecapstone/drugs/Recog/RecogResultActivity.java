@@ -31,7 +31,7 @@ public class RecogResultActivity extends AppCompatActivity {
     private RecogResultListAdapter adapter;
     private Context context;
     private AppDatabase db;
-    private int REQUEST_CODE = 1;
+    private int ADD_MEDICINE_REQUEST = 2;
     private ArrayList<Medicine> arrayList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,20 +63,22 @@ public class RecogResultActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ArrayList<Medicine> toss = new ArrayList<Medicine>();
                 for(Medicine iter : arrayList)
+                {
                     if(iter.getDailyDose() == -1 ||  iter.getSingleDose() == null || iter.getNumberOfDayTakens() == -1) {
                         Toast.makeText(context, "빈칸을 채워주세요.", Toast.LENGTH_SHORT).show();
                         return;
                     }
+                    else if(iter.getDailyDose() == 0 ||  Integer.parseInt(iter.getSingleDose()) == 0 || iter.getNumberOfDayTakens() == 0)
+                    {
+                        Toast.makeText(context, "각 칸에 0을 입력할 수는 없습니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
+
                 for (Medicine iter : arrayList)
                 {
                     toss.add(iter);
-                    /*
-                    try{
-                        toss.add(iter);
-                    }catch (Exception ex){
-                        Toast.makeText(context, iter.getName() + "은 이미 복용중인 약입니다.", Toast.LENGTH_SHORT).show();
-                        ex.printStackTrace();
-                    }*/
                 }
                 Intent intent = new Intent(context, SetTimeActivity.class);
                 intent.putExtra("medicine", toss);
@@ -100,12 +102,13 @@ public class RecogResultActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_CODE)
+        if(requestCode == ADD_MEDICINE_REQUEST)
         {
             if(resultCode == RESULT_OK)
             {
                 Medicine medi = (Medicine)data.getSerializableExtra("medicine");
                 arrayList.add(medi);
+                adapter.notifyDataSetChanged();
             }
             else{
                 Toast.makeText(this, "약 추가에 실패했습니다", Toast.LENGTH_SHORT).show();
@@ -114,6 +117,6 @@ public class RecogResultActivity extends AppCompatActivity {
     }
     public void floatingonClick(View v) {
         Intent intent = new Intent(RecogResultActivity.this,  AddMedicineActivity.class);
-        startActivityForResult(intent, REQUEST_CODE);
+        startActivityForResult(intent, ADD_MEDICINE_REQUEST);
     }
 }

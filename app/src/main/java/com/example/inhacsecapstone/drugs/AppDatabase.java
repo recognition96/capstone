@@ -171,6 +171,22 @@ public class AppDatabase extends SQLiteOpenHelper {
         }
         return result;
     }
+    public void update(Medicine medi){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("UPDATE medicine_list SET name = '"+ medi.getName() + "'," +
+                "image = '"+ medi.getImage()+ "',"+
+                "effect = '"+ medi.getEffect()+ "',"+
+                "usage = '"+ medi.getUsage()+ "',"+
+                "category = '"+ medi.getCategory()+ "',"+
+                "single_dose = '"+ medi.getSingleDose()+ "',"+
+                "daily_dose = '"+ medi.getDailyDose()+ "',"+
+                "number_of_day_takens = '"+ medi.getNumberOfDayTakens()+ "',"+
+                "warning = '"+ medi.getWarning()+ "',"+
+                "start_day = '"+ medi.getStartDay()+ "'"+
+                "WHERE code = " + medi.getCode());
+
+        db.close();
+    }
     public Medicine getMedicine(int code){
         SQLiteDatabase db = getReadableDatabase();
         try {

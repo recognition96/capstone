@@ -1,7 +1,9 @@
 package com.example.inhacsecapstone.drugs;
 
+import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -37,9 +39,16 @@ public class MedicineInfoActivity extends AppCompatActivity {
         Button deleteButton = findViewById(R.id.deleteButton);
         ImageView img = findViewById(R.id.image);
         ChipGroup chipGroup = findViewById(R.id.will_takes);
+
         appDatabase = AppDatabase.getDataBase(this);
         alarm = new Alarm(this);
         context = this;
+
+        if(getIntent().getBooleanExtra("isBeforeAdd", false))
+        {
+            t.removeTabAt(2);
+            chipGroup.setVisibility(View.GONE);
+        }
 
         Glide.with(this).load(medi.getImage()).into(img);
         text1.setText(medi.getEffect());
@@ -52,6 +61,8 @@ public class MedicineInfoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 appDatabase.deleteAllForCode(medi.getCode());
                 alarm.setAlarm();
+                Intent intent = new Intent();
+                setResult(RESULT_OK, intent);
                 Toast.makeText(context, medi.getName() + "이 삭제되었습니다.", Toast.LENGTH_SHORT);
                 finish();
             }

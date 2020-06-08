@@ -59,10 +59,12 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, MedicineInfoActivity.class);
+                    intent.putExtra("isBeforeAdd", true);
                     intent.putExtra("medicine", curDrug);
                     context.startActivity(intent);
                 }
             });
+
             holder.dailyDoseView.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -80,7 +82,7 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     try {
                         curDrug.setDailyDose(Integer.parseInt(str));
                     } catch (Exception ex) {
-                        Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
                     }
 
@@ -103,7 +105,6 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     try {
                         curDrug.setNumberOfDayTakens(Integer.parseInt(str));
                     } catch (Exception ex) {
-                        Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
                     }
                 }
@@ -126,7 +127,6 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
                     try {
                         curDrug.setSingleDose(str);
                     } catch (Exception ex) {
-                        Toast.makeText(context, "양식에 맞게 써주세요.", Toast.LENGTH_SHORT).show();
                         ex.printStackTrace();
                     }
                 }

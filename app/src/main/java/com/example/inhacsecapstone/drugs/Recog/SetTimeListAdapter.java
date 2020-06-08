@@ -1,5 +1,6 @@
 package com.example.inhacsecapstone.drugs.Recog;
 
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -48,19 +49,20 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
             holder.medi = curDrug;
             Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
             holder.will_takes = times.get(curDrug.getCode());
-
-            /*holder.imageView.setOnClickListener(new View.OnClickListener() {
+            holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     showImage(curDrug.getImage());
                 }
-            });*/
+            });
+
             holder.amountView.setText(Integer.toString(curDrug.getDailyDose() * curDrug.getNumberOfDayTakens()));
             holder.nameView.setText(curDrug.getName() == null ? "" : curDrug.getName());
             holder.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, MedicineInfoActivity.class);
+                    intent.putExtra("isBeforeAdd", true);
                     intent.putExtra("medicine", curDrug);
                     context.startActivity(intent);
                 }
@@ -69,42 +71,8 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
             for(int i = 0; i < curDrug.getDailyDose(); i++){
                 int gap = 14*60/curDrug.getDailyDose();
                 int cur = gap*i + 8*60;
-
-                Chip chip = new Chip(context);
-                chip.setTextSize(20);
-                chip.setCloseIconSize(60);
-                chip.setText(Integer.toString(cur/60) + ":" +  Integer.toString(cur%60));
-                chip.setCloseIconVisible(true);
-                int index = i;
-                chip.setOnCloseIconClickListener(new Chip.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        holder.chipGroup.removeView(chip);
-                        holder.will_takes.remove(index);
-                    }
-                });
-                TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        holder.will_takes.set(index, Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
-                        chip.setText(Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
-                    }
-                };
-
-                chip.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        TextView textView = (TextView) v;
-                        int hour = Integer.parseInt(textView.getText().toString().split(":")[0]);
-                        int minuite = Integer.parseInt(textView.getText().toString().split(":")[1]);
-                        TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, listener, hour, minuite, true);
-                        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                        dialog.show();
-                    }
-                });
-
-                holder.chipGroup.addView(chip);
-                holder.will_takes.add(Integer.toString(cur/60) + ":" +  Integer.toString(cur%60));
+                String time = Integer.toString(cur/60) + ":" +  Integer.toString(cur%60);
+                createChip(holder.will_takes, i, holder.chipGroup, time);
             }
             Chip addChip = new Chip(context);
             addChip.setTextSize(25);
@@ -113,61 +81,22 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
             TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
                 @Override
                 public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    Chip target = new Chip(context);
-                    target.setTextSize(20);
-                    target.setCloseIconSize(60);
-                    target.setText(Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
-                    target.setCloseIconVisible(true);
+                    String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
 
-                    holder.will_takes.add(Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
                     holder.chipGroup.removeView(addChip);
-                    holder.chipGroup.addView(target);
+                    createChip(holder.will_takes, holder.will_takes.size() - 1,holder.chipGroup, time);
                     holder.chipGroup.addView(addChip);
-                    int index = holder.will_takes.size() - 1;
-
-                    TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-                        @Override
-                        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                            holder.will_takes.set(index, Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
-                            String m = new String();
-                            if(minute < 10)
-                                m = "0" + Integer.toString(minute);
-                            else
-                                m = Integer.toString(minute);
-                            target.setText(Integer.toString(hourOfDay) + ":" + m);
-                        }
-                    };
-                    target.setOnCloseIconClickListener(new Chip.OnClickListener(){
-                        @Override
-                        public void onClick(View v) {
-                            holder.chipGroup.removeView(target);
-                            holder.will_takes.remove(index);
-                        }
-                    });
-                    target.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            TextView textView = (TextView) v;
-                            int hour = Integer.parseInt(textView.getText().toString().split(":")[0]);
-                            int minuite = Integer.parseInt(textView.getText().toString().split(":")[1]);
-                            TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, listener, hour, minuite, true);
-                            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                            dialog.show();
-                        }
-                    });
                 }
             };
 
             addChip.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    TextView textView = (TextView) v;
                     TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, listener, 0, 0, true);
                     dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                     dialog.show();
                 }
             });
-
             holder.chipGroup.addView(addChip);
         } else {
         }
@@ -180,7 +109,45 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
         else return 0;
     }
 
-    /*
+
+    public void createChip(ArrayList<String> will_takes, int index, ChipGroup chipGroup, String str){
+        Chip chip = new Chip(context);
+        chip.setTextSize(20);
+        chip.setCloseIconSize(60);
+        chip.setText(str);
+        chip.setCloseIconVisible(true);
+        chip.setOnCloseIconClickListener(new Chip.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                chipGroup.removeView(chip);
+                will_takes.remove(index);
+            }
+        });
+        TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
+                will_takes.set(index, time);
+                chip.setText(time);
+            }
+        };
+
+        chip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView textView = (TextView) v;
+                String hour_min[] = textView.getText().toString().split(":");
+                int hour = Integer.parseInt(hour_min[0]);
+                int minuite = Integer.parseInt(hour_min[1]);
+                TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, listener, hour, minuite, true);
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+            }
+        });
+        chipGroup.addView(chip);
+        will_takes.add(str);
+    }
+
     public void showImage(String url) {
         LayoutInflater factory = LayoutInflater.from(context);
         final View view = factory.inflate(R.layout.myphoto_layout, null);
@@ -189,7 +156,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
         Glide.with(context).load(url).into(iv);
         dialog.setContentView(view);
         dialog.show();
-    }*/
+    }
 
     class SetTimeListHolders extends RecyclerView.ViewHolder {
         private final ImageView imageView;

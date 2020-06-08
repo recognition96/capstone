@@ -1,5 +1,6 @@
 package com.example.inhacsecapstone.drugs.dayDrug;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -33,6 +34,7 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
     private ArrayList<Medicine> mdrugs; // Cached copy of words
     private ArrayList<Takes> mtakes;
     private AppDatabase db;
+    private int MEDICINE_INFO_REQUEST = 1;
     public DayDrugListAdapter(Context context, ArrayList<Medicine> mediList, ArrayList<Takes> takesList) {
         mdrugs = mediList;
         mtakes = takesList;
@@ -56,12 +58,19 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
                     holder.takes.add(elem);
 
             Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
+            holder.imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showImage(curDrug.getImage());
+                }
+            });
+
             holder.layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, MedicineInfoActivity.class);
                     intent.putExtra("medicine", curDrug);
-                    context.startActivity(intent);
+                    ((Activity)context).startActivityForResult(intent, MEDICINE_INFO_REQUEST);
                 }
             });
             int amount = curDrug.getDailyDose() * curDrug.getNumberOfDayTakens();
@@ -126,6 +135,12 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
         else return 0;
     }
 
+    public void refresh(String time){
+        mdrugs = db.getMedicineAtDay(time);
+        mtakes = db.gettakesAtDay(time);
+        notifyDataSetChanged();
+    }
+
     public void showImage(String url) {
         LayoutInflater factory = LayoutInflater.from(context);
         final View view = factory.inflate(R.layout.myphoto_layout, null);
@@ -158,4 +173,5 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
             return takes;
         }
     }
+
 }

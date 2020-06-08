@@ -34,11 +34,13 @@ public class MainActivity extends AppCompatActivity {
     private Animation fab_open, fab_close;
     private Boolean isFabOpen = false;
     private FloatingActionButton fab, fab1, fab2;
+    private Fragment selectedFragment = null;
+    private int MEDICINE_INFO_REQUEST = 1;
     // Bottom Navigation의 3 메뉴 클릭을 item.getItemId를 기준으로 판단하여 Fragment Replace or Activity Start 실행
     private BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            Fragment selectedFragment = null;
+
             switch (item.getItemId()) {
                 case R.id.calendar:
                     selectedFragment = new Calendars();
@@ -57,6 +59,19 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     };
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == MEDICINE_INFO_REQUEST)
+        {
+            if(resultCode == RESULT_OK)
+            {
+                ((AllMedicineList)selectedFragment).notifyDataSetChanged();
+            }
+            else{
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
