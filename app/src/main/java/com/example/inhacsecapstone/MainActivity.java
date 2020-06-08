@@ -1,18 +1,24 @@
 package com.example.inhacsecapstone;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
+import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.inhacsecapstone.alarm.Alarm;
+import com.example.inhacsecapstone.alarm.AlarmReceiver;
 import com.example.inhacsecapstone.calendars.Calendars;
 import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
@@ -21,12 +27,13 @@ import com.example.inhacsecapstone.initial.InformationSetting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Calendar;
+
 public class MainActivity extends AppCompatActivity {
 
     private Animation fab_open, fab_close;
     private Boolean isFabOpen = false;
     private FloatingActionButton fab, fab1, fab2;
-    private int curFragment;
     // Bottom Navigation의 3 메뉴 클릭을 item.getItemId를 기준으로 판단하여 Fragment Replace or Activity Start 실행
     private BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
@@ -35,15 +42,14 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.calendar:
                     selectedFragment = new Calendars();
-                    curFragment = 1;
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
                     break;
                 case R.id.camera:
                     startActivity(new Intent(MainActivity.this, CameraActivity.class));
+                    //overridePendingTransition(0,0);
                     break;
                 case R.id.userdrug:
                     selectedFragment = new AllMedicineList();
-                    curFragment = 3;
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
                     break;
 
@@ -53,31 +59,18 @@ public class MainActivity extends AppCompatActivity {
     };
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        setContentView(R.layout.activity_main);
-
-        // Floating Action Bar Setting
-        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
-        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
-
-        fab = findViewById(R.id.fab);
-        fab1 = findViewById(R.id.chatbotbtn);
-        fab2 = findViewById(R.id.userinfobtn);
-        //
-
-        // Bottom Navigation View Setting
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
-        //
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 처음 앱을 깔고 실행 할때
+        SharedPreferences sharedPreferences = getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
+        if(sharedPreferences.getBoolean("is_first_run", true)){
+            sharedPreferences.edit().putBoolean("is_first_run", false).commit();
+            Alarm am = new Alarm(this);
+            am.setDailyCheck();
+        }
+
         // Floating Action Bar Setting
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
         fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
@@ -94,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
         //
     }
+
 
     public void floatingonClick(View v) {
         int id = v.getId();
