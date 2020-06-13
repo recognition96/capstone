@@ -73,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
         // 처음 앱을 깔고 실행 할때
         SharedPreferences sharedPreferences = getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
         if(sharedPreferences.getBoolean("is_first_run", true)){
-            sharedPreferences.edit().putBoolean("is_first_run", false).commit();
             Alarm am = new Alarm(this);
             am.setDailyCheck();
+            sharedPreferences.edit().putBoolean("is_first_run", false).commit();
         }
 
         // Floating Action Bar Setting

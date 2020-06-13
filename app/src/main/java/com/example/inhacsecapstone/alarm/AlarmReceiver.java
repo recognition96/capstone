@@ -43,6 +43,7 @@ public class AlarmReceiver extends JobService {
             appdb.setTempTime();
             Alarm alarm = new Alarm(this);
             alarm.setAlarm();
+            alarm.setDailyCheck();
             return false;
         }
 
