@@ -25,8 +25,6 @@ import java.util.EventListener;
 
 public class MedicineMemoActivity extends AppCompatActivity implements EventListener {
     private AppDatabase appDatabase;
-    private ArrayList<Medicine> medis;
-    private ArrayList<Takes> takes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +34,7 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
         Medicine medi = (Medicine) getIntent().getSerializableExtra("medicine");
         String day = getIntent().getStringExtra("day");
         String time = getIntent().getStringExtra("time");
+        String memo = getIntent().getStringExtra("memo");
         ArrayList<Takes> takenAll = appDatabase.getAllTakes();
 
         Log.d("@@@", " --> " + day + " " + time);
@@ -44,22 +43,26 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
         TextView txtv_time = findViewById(R.id.takedTime);
         TextView txtv_memo = findViewById(R.id.memo_contents);
 
-        int cnt = 0;
-        int amount = medi.getDailyDose() * medi.getNumberOfDayTakens();
-        for (Takes mediTaken : takenAll) {
-            if (medi.getCode() == mediTaken.getCode()) cnt++;
-        }
-
         Glide.with(this).load(medi.getImage()).into(img);
         txtv_name.setText(medi.getName());
-        txtv_time.setText(time);
-
+        txtv_time.setText(changeTime(time));
+        if(memo != null)
+            txtv_memo.setText(memo);
         String[] h_m = time.split(":");
+
         TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                appDatabase.update(new Takes(medi.getCode(), day, hourOfDay + ":" + minute), h_m[0] + ":" + h_m[1]);
-                txtv_time.setText(hourOfDay + ":" + minute);
+                String texts = null;
+                if(!txtv_memo.getText().equals(null)) {
+                    texts = txtv_memo.getText().toString();
+                }
+
+                String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
+                appDatabase.update(new Takes(medi.getCode(), day, time, texts), h_m[0] + ":" + h_m[1]);
+                txtv_time.setText(changeTime(time));
+                h_m[0] = Integer.toString(hourOfDay);
+                h_m[1] = Integer.toString(minute);
             }
         };
 
@@ -93,7 +96,11 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
                     public void onClick(DialogInterface dialog, int which) {
                         txtv_memo.setText(et.getText());
                         // 디비에 내용 업데이트
-
+                        String texts = null;
+                        if(!txtv_memo.getText().equals(null)) {
+                            texts = txtv_memo.getText().toString();
+                        }
+                        appDatabase.update(new Takes(medi.getCode(), day, h_m[0] + ":" + h_m[1], texts), h_m[0] + ":" + h_m[1]);
                         dialog.dismiss();     //닫기
                     }
                 });
@@ -108,5 +115,11 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
                 ad.show();
             }
         });
+    }
+    public String changeTime(String time) {
+        String[] h_m = time.split(":");
+        if (h_m[0].length() == 1) h_m[0] = "0" + h_m[0];
+        if (h_m[1].length() == 1) h_m[1] = "0" + h_m[1];
+        return h_m[0] + ":" + h_m[1];
     }
 }

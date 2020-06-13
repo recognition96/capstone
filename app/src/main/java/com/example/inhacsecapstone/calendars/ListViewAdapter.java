@@ -64,6 +64,7 @@ public class ListViewAdapter extends BaseAdapter {
                 intent.putExtra("medicine", curDrug);
                 intent.putExtra("day", taked.getDay());
                 intent.putExtra("time", taked.getTime());
+                intent.putExtra("memo", taked.getMemo());
                 context.startActivity(intent);
             }
         });
