@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".drugs.dayDrug.MedicineMemoActivity">
+
+    <TextView
+        android:id="@+id/drugName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="Drug Name"
+        android:textColor="#000000"
+        android:textSize="24dp"
+        app:layout_constraintBottom_toTopOf="@id/drugImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.466" />
+
+    <ImageView
+        android:id="@+id/drugImage"
+        android:layout_width="match_parent"
+        android:layout_height="210dp"
+        android:layout_margin="5dp"
+        android:contentDescription="@string/todo"
+        android:scaleType="fitXY"
+        app:layout_constraintTop_toBottomOf="@id/drugName"
+        tools:srcCompat="@drawable/example1" />
+
+    <LinearLayout
+        android:id="@+id/info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:weightSum="6"
+        app:layout_constraintTop_toBottomOf="@+id/drugImage">
+
+        <TextView
+            android:id="@+id/takedTime"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:text="New Text"
+            android:textAlignment="center"
+            android:textColor="#666666"
+            android:textSize="16dp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/info"
+        app:tabGravity="start">
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/memo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="메모" />
+
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabs">
+
+        <TextView
+            android:id="@+id/memo_contents"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="20dp"
+            android:hint="메모를 기록해보세요."
+            android:scrollbars="vertical" />
+
+    </FrameLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

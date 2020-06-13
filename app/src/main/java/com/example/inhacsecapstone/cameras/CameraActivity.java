@@ -172,7 +172,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }
         mCaptureTime = System.currentTimeMillis();
         message("사진을 확인하세요", false);
-        camera.takePictureSnapshot();
+        camera.takePicture();
     }
 
     @Override

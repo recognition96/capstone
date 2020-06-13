@@ -47,13 +47,13 @@ public class Calendars extends Fragment {
                 int day = date.getDay();
 
 //                Intent intent = new Intent(getActivity(), DayDrugActivity.class);
-//                intent.putExtra("year", Year);
-//                intent.putExtra("month", Month);
-//                intent.putExtra("day", Day);
+//                intent.putExtra("year", year);
+//                intent.putExtra("month", month);
+//                intent.putExtra("day", day);
 //                startActivity(intent);
                 String target = year+"."+month+"."+day;
                 db = AppDatabase.getDataBase(inflater.getContext());
-                ListView mListView = (ListView) getView().findViewById(R.id.listView);
+                ListView mListView = getView().findViewById(R.id.listView);
                 ArrayList<Medicine> medis = db.getMedicineAtDay(target);
                 ArrayList<Takes> takes= db.gettakesAtDay(target);
                 ListViewAdapter adapter = new ListViewAdapter(medis, takes);

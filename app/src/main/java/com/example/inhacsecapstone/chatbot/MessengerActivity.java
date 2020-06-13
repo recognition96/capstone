@@ -35,6 +35,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.Entity.Takes;
+import com.example.inhacsecapstone.MainActivity;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.alarm.AlarmReceiver;
 import com.example.inhacsecapstone.drugs.AppDatabase;
@@ -338,7 +339,7 @@ public class MessengerActivity extends Activity {
             while (matcher.find()) {
                 String temp = matcher.group();
                 temp = temp.replace("분에", "시"); temp = temp.replace("분으로", "시");
-                String hr[] = temp.split("시");
+                String[] hr = temp.split("시");
                 hr[0] = hr[0].trim();
                 hr[1] = hr[1].trim();
                 ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
@@ -346,18 +347,15 @@ public class MessengerActivity extends Activity {
                     for (int i = 0; i < medi.size(); i++) {
                         Integer code = medi.get(i).getCode();
                         Calendar calendar = Calendar.getInstance();
-                        String days = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
-                        String times = "";
-                        if(hr[0].length() == 1) { times = "0"; }
-                        times = times + Integer.parseInt(hr[0]) + ":";
-                        if(hr[1].length() == 1) { times = times + "0" ; }
-                        times = times + Integer.parseInt(hr[1]);
+                        String days = calendar.get(Calendar.YEAR) + "." + (calendar.get(Calendar.MONTH) + 1) + "." + calendar.get(Calendar.DATE);
+                        String times = hr[0] + ":" + hr[1];
                         Takes takes = new Takes(code, days, times);
                         db.insert(takes);
-                        Log.d("DB저장완료", medi.get(i).getName() + " - " + hr[0] + ":" + hr[1] );
+                        Log.d("DB저장완료", medi.get(i).getName() + " - " + times);
                     }
                     notendofspeech = false;
                     Log.d("DB저장완료", "시간저장완료");
+                    finish();
                     return;
                 }
             }
@@ -365,7 +363,7 @@ public class MessengerActivity extends Activity {
             while (matcher.find()) {
                 String temp = matcher.group();
                 temp = temp.replace("분에", "시");
-                String hr[] = temp.split("시");
+                String[] hr = temp.split("시");
                 hr[0] = hr[0].trim();
                 hr[1] = hr[1].trim();
                 ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
@@ -475,11 +473,16 @@ public class MessengerActivity extends Activity {
     @Override
     protected void onDestroy()
     {
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+        }
+
         if(notendofspeech) {
             Log.d("@@@", "비정상적 종료");
             ArrayList<Medicine> medi = (ArrayList<Medicine>) getIntent().getSerializableExtra("medicine");
             if(!medi.isEmpty()) {
-                for(int i=0; i<medi.size(); i++) {
+                for(int i = 0; i<medi.size(); i++) {
                     AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                     Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
                     intent.putExtra("medicine", medi).putExtra("errorcode",1);
@@ -489,11 +492,11 @@ public class MessengerActivity extends Activity {
             }
 
             Log.d("@@@", "세팅완료");
+        } else {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
         }
-        if(tts!=null) {
-            tts.stop();
-            tts.shutdown();
-        }
+
         super.onDestroy();
     }
 }

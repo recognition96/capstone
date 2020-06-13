@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,9 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.example.inhacsecapstone.alarm.Alarm;
 import com.example.inhacsecapstone.calendars.Calendars;
 import com.example.inhacsecapstone.cameras.CameraActivity;
-import com.example.inhacsecapstone.chatbot.MessengerActivity;
 import com.example.inhacsecapstone.drugs.allDrug.AllMedicineList;
-import com.example.inhacsecapstone.initial.InformationSetting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -78,13 +74,14 @@ public class MainActivity extends AppCompatActivity {
             am.setDailyCheck();
         }
 
+//    플로팅버튼 숨김
         // Floating Action Bar Setting
-        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
-        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
-
-        fab = findViewById(R.id.fab);
-        fab1 = findViewById(R.id.chatbotbtn);
-        fab2 = findViewById(R.id.userinfobtn);
+//        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+//        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
+//
+//        fab = findViewById(R.id.fab);
+//        fab1 = findViewById(R.id.chatbotbtn);
+//        fab2 = findViewById(R.id.userinfobtn);
         //
 
 
@@ -95,40 +92,45 @@ public class MainActivity extends AppCompatActivity {
         //
     }
 
-
-    public void floatingonClick(View v) {
-        int id = v.getId();
-        switch (id) {
-            case R.id.fab:
-                anim();
-                //Toast.makeText(this, "Floating Action Button", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.chatbotbtn:
-                anim();
-                startActivity(new Intent(MainActivity.this, MessengerActivity.class).putExtra("Code",0));
-                break;
-            case R.id.userinfobtn:
-                anim();
-                startActivity(new Intent(MainActivity.this, InformationSetting.class));
-                break;
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
     }
-
-    public void anim() {
-        if (isFabOpen) {
-            fab1.startAnimation(fab_close);
-            fab2.startAnimation(fab_close);
-            fab1.setClickable(false);
-            fab2.setClickable(false);
-            isFabOpen = false;
-        } else {
-            fab1.startAnimation(fab_open);
-            fab2.startAnimation(fab_open);
-            fab1.setClickable(true);
-            fab2.setClickable(true);
-            isFabOpen = true;
-        }
-    }
+    //    플로팅버튼 숨김
+//    public void floatingonClick(View v) {
+//        int id = v.getId();
+//        switch (id) {
+//            case R.id.fab:
+//                anim();
+//                //Toast.makeText(this, "Floating Action Button", Toast.LENGTH_SHORT).show();
+//                break;
+//            case R.id.chatbotbtn:
+//                anim();
+//                startActivity(new Intent(MainActivity.this, MessengerActivity.class).putExtra("Code",0));
+//                break;
+//            case R.id.userinfobtn:
+//                anim();
+//                startActivity(new Intent(MainActivity.this, InformationSetting.class));
+//                break;
+//        }
+//    }
+//
+//    public void anim() {
+//        if (isFabOpen) {
+//            fab1.startAnimation(fab_close);
+//            fab2.startAnimation(fab_close);
+//            fab1.setClickable(false);
+//            fab2.setClickable(false);
+//            isFabOpen = false;
+//        } else {
+//            fab1.startAnimation(fab_open);
+//            fab2.startAnimation(fab_open);
+//            fab1.setClickable(true);
+//            fab2.setClickable(true);
+//            isFabOpen = true;
+//        }
+//    }
 
 
 
