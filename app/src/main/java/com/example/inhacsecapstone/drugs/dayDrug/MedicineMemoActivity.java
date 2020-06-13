@@ -85,7 +85,6 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
         String day = getIntent().getStringExtra("day");
         String time = getIntent().getStringExtra("time");
         String memo = getIntent().getStringExtra("memo");
-        ArrayList<Takes> takenAll = appDatabase.getAllTakes();
 
         Log.d("@@@", " --> " + day + " " + time);
         TextView txtv_name = findViewById(R.id.drugName);

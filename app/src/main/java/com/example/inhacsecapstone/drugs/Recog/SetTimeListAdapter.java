@@ -119,7 +119,13 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
         chip.setChipBackgroundColorResource(R.color.colorAccent);
         chip.setTextSize(20);
         chip.setCloseIconSize(60);
-        chip.setText(str);
+
+        int hourOfDay = Integer.parseInt(str.split(":")[0]);
+        int minute = Integer.parseInt(str.split(":")[1]);
+
+        String hour = hourOfDay <10? "0" + Integer.toString(hourOfDay):Integer.toString(hourOfDay);
+        String min = minute<10 ? "0" + Integer.toString(minute) : Integer.toString(minute);
+        chip.setText(hour + ":" + min);
         chip.setCloseIconVisible(true);
         chip.setOnCloseIconClickListener(new Chip.OnClickListener(){
             @Override
@@ -133,7 +139,11 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
                 will_takes.set(index, time);
-                chip.setText(time);
+
+                String hour = hourOfDay <10? "0" + Integer.toString(hourOfDay):Integer.toString(hourOfDay);
+                String min = minute<10 ? "0" + Integer.toString(minute) : Integer.toString(minute);
+
+                chip.setText(hour + ":" + min);
             }
         };
 

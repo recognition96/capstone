@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.animation.Animation;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private Fragment selectedFragment = null;
     private int MEDICINE_INFO_REQUEST = 1;
     private boolean diplayFlag = false;
+    private BottomNavigationView bottomNavigationView;
     // Bottom Navigation의 3 메뉴 클릭을 item.getItemId를 기준으로 판단하여 Fragment Replace or Activity Start 실행
     private BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
@@ -65,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == RESULT_CANCELED) {
             diplayFlag = false;
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
+            View view =  bottomNavigationView.findViewById(R.id.calendar);
+            view.performClick();
         }
     }
 
@@ -93,8 +97,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Bottom Navigation View Setting
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
+
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
         //
     }
