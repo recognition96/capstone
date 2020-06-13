@@ -5,9 +5,11 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -37,9 +39,12 @@ public class MedicineInfoActivity extends AppCompatActivity {
         TextView text1 = findViewById(R.id.effect);
         TextView text2 = findViewById(R.id.usage);
         Button deleteButton = findViewById(R.id.deleteButton);
+        ScrollView effect_scroll = findViewById(R.id.effect_usage);
+        ScrollView usage_scroll = findViewById(R.id.usage_scroll);
+        ScrollView delete_scroll = findViewById(R.id.delete_scroll);
+
         ImageView img = findViewById(R.id.image);
         ChipGroup chipGroup = findViewById(R.id.will_takes);
-
         appDatabase = AppDatabase.getDataBase(this);
         alarm = new Alarm(this);
         context = this;
@@ -53,8 +58,8 @@ public class MedicineInfoActivity extends AppCompatActivity {
         Glide.with(this).load(medi.getImage()).into(img);
         text1.setText(medi.getEffect());
         text2.setText(medi.getUsage());
-        text2.setVisibility(View.INVISIBLE);
-        deleteButton.setVisibility(View.INVISIBLE);
+        usage_scroll.setVisibility(View.INVISIBLE);
+        delete_scroll.setVisibility(View.INVISIBLE);
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -164,25 +169,25 @@ public class MedicineInfoActivity extends AppCompatActivity {
         chipGroup.addView(chip);
     }
     private void changeView(int index) {
-        TextView textView1 = findViewById(R.id.effect);
-        TextView textView2 = findViewById(R.id.usage);
-        Button deleteButton = findViewById(R.id.deleteButton);
+        ScrollView effect_scroll = findViewById(R.id.effect_usage);
+        ScrollView usage_scroll = findViewById(R.id.usage_scroll);
+        ScrollView delete_scroll = findViewById(R.id.delete_scroll);
 
         switch (index) {
             case 0:
-                textView1.setVisibility(View.VISIBLE);
-                textView2.setVisibility(View.INVISIBLE);
-                deleteButton.setVisibility(View.INVISIBLE);
+                effect_scroll.setVisibility(View.VISIBLE);
+                usage_scroll.setVisibility(View.INVISIBLE);
+                delete_scroll.setVisibility(View.INVISIBLE);
                 break;
             case 1:
-                textView1.setVisibility(View.INVISIBLE);
-                textView2.setVisibility(View.VISIBLE);
-                deleteButton.setVisibility(View.INVISIBLE);
+                effect_scroll.setVisibility(View.INVISIBLE);
+                usage_scroll.setVisibility(View.VISIBLE);
+                delete_scroll.setVisibility(View.INVISIBLE);
                 break;
             case 2:
-                textView1.setVisibility(View.INVISIBLE);
-                textView2.setVisibility(View.INVISIBLE);
-                deleteButton.setVisibility(View.VISIBLE);
+                effect_scroll.setVisibility(View.INVISIBLE);
+                usage_scroll.setVisibility(View.INVISIBLE);
+                delete_scroll.setVisibility(View.VISIBLE);
                 break;
         }
     }

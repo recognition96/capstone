@@ -16,6 +16,8 @@ import com.example.inhacsecapstone.cameras.CameraActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -91,6 +93,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         insertTempTake(11111111, "14:32");
         insertTempTake(11111111, "19:10");
     }*/
+
 
     // DB 업그레이드를 위해 버전이 변경될 때 호출되는 함수
     @Override
@@ -238,6 +241,45 @@ public class AppDatabase extends SQLiteOpenHelper {
         }
         return result;
     }
+
+    class TakeSort implements Comparator<Takes> {
+        public int compare(Takes a, Takes b)
+        {
+
+            String str_a[] = a.getTime().split(":");
+            String str_b[] = b.getTime().split(":");
+            int hour_a = Integer.parseInt(str_a[0]);
+            int min_a = Integer.parseInt(str_a[1]);
+
+            int hour_b = Integer.parseInt(str_b[0]);
+            int min_b = Integer.parseInt(str_b[1]);
+
+            if(hour_a == hour_b)
+                return min_a - min_b;
+
+            return hour_a - hour_b;
+
+        }
+    }
+    class TimeSort implements Comparator<String> {
+        public int compare(String a, String b)
+        {
+
+            String str_a[] = a.split(":");
+            String str_b[] = b.split(":");
+            int hour_a = Integer.parseInt(str_a[0]);
+            int min_a = Integer.parseInt(str_a[1]);
+
+            int hour_b = Integer.parseInt(str_b[0]);
+            int min_b = Integer.parseInt(str_b[1]);
+
+            if(hour_a == hour_b)
+                return min_a - min_b;
+
+            return hour_a - hour_b;
+        }
+    }
+
     public ArrayList<Takes> gettakesAtDay(String day) {
         SQLiteDatabase db = getReadableDatabase();
         ArrayList<Takes> result = new ArrayList<Takes>();
@@ -253,6 +295,8 @@ public class AppDatabase extends SQLiteOpenHelper {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        Collections.sort(result,new TakeSort());
         return result;
     }
 
@@ -269,6 +313,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        Collections.sort(result,new TimeSort());
         return result;
     }
     public void insertWillTake(int code, String time){
