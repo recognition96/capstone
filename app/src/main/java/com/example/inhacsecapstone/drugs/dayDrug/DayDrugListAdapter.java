@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,8 +22,6 @@ import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 

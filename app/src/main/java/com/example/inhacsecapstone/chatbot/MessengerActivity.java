@@ -347,7 +347,11 @@ public class MessengerActivity extends Activity {
                         Integer code = medi.get(i).getCode();
                         Calendar calendar = Calendar.getInstance();
                         String days = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
-                        String times = Integer.parseInt(hr[0]) + ":" + Integer.parseInt(hr[1]);
+                        String times = "";
+                        if(hr[0].length() == 1) { times = "0"; }
+                        times = times + Integer.parseInt(hr[0]) + ":";
+                        if(hr[1].length() == 1) { times = times + "0" ; }
+                        times = times + Integer.parseInt(hr[1]);
                         Takes takes = new Takes(code, days, times);
                         db.insert(takes);
                         Log.d("DB저장완료", medi.get(i).getName() + " - " + hr[0] + ":" + hr[1] );

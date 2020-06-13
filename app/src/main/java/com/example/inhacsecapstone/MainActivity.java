@@ -1,24 +1,18 @@
 package com.example.inhacsecapstone;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.inhacsecapstone.alarm.Alarm;
-import com.example.inhacsecapstone.alarm.AlarmReceiver;
 import com.example.inhacsecapstone.calendars.Calendars;
 import com.example.inhacsecapstone.cameras.CameraActivity;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
@@ -26,8 +20,6 @@ import com.example.inhacsecapstone.drugs.allDrug.AllMedicineList;
 import com.example.inhacsecapstone.initial.InformationSetting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
