@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.strictmode.SqliteObjectLeakedViolation;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.core.content.ContextCompat;
 
@@ -316,7 +317,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         ArrayList<String> result = new ArrayList<String>();
         try {
-            Cursor cursor = db.rawQuery("SELECT * FROM will_take WHERE code=" + code + " ORDER BY time ASC", null);
+            Cursor cursor = db.rawQuery("SELECT * FROM will_take WHERE code=" + code, null);
             while (cursor.moveToNext()) {
                 result.add(cursor.getString(cursor.getColumnIndex("time")));
             }
@@ -356,7 +357,8 @@ public class AppDatabase extends SQLiteOpenHelper {
         Calendar calendar = Calendar.getInstance();
 
         String day = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
-        db.execSQL("UPDATE temp_time SET time = "+ isNull(time) + " WHERE code = " + code + " AND time = " + isNull(pre) + " AND day = " + isNull(day));
+        // db.execSQL("UPDATE temp_time SET time = "+ isNull(time) + " WHERE code = " + code + " AND time = " + isNull(pre) + " AND day = " + isNull(day));
+        db.execSQL("UPDATE temp_time SET time = "+ isNull(time) + " WHERE code = " + code + " AND time = " + isNull(pre));
         db.close();
     }
 
@@ -365,7 +367,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         Calendar calendar = Calendar.getInstance();
 
         String day = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
-        db.execSQL("DELETE FROM temp_time WHERE code = " + code + " AND time = " + isNull(time) + " AND day = " + isNull(day));
+        db.execSQL("DELETE FROM temp_time WHERE code = " + code + " AND time = " + isNull(time));
         db.close();
     }
 
@@ -409,14 +411,24 @@ public class AppDatabase extends SQLiteOpenHelper {
 
         Calendar calendar = Calendar.getInstance();
         int check = -1;
+        ArrayList<Pair<String, Integer>> pairs = new ArrayList<>();
 
         int criterion = calendar.get(Calendar.HOUR_OF_DAY )*100 + calendar.get(Calendar.MINUTE);
         try {
-            Cursor cursor = db.rawQuery("SELECT * FROM medicine_list A INNER JOIN temp_time B ON A.code = B.code ORDER BY time ASC", null);
+            Cursor cursor = db.rawQuery("SELECT * FROM temp_time B", null);
             while(cursor.moveToNext())
             {
                 int code = cursor.getInt(cursor.getColumnIndex("code"));
                 String time = cursor.getString(cursor.getColumnIndex("time"));
+                pairs.add(new Pair<String, Integer>(time, code));
+            }
+
+
+            Collections.sort(pairs, new pairSort());
+            for(Pair<String, Integer> iter : pairs){
+                String time = iter.first;
+                int code = iter.second;
+
                 String hour_min[] = time.split(":");
                 int prior = Integer.parseInt(hour_min[0])*100 + Integer.parseInt(hour_min[1]);
 
@@ -441,5 +453,22 @@ public class AppDatabase extends SQLiteOpenHelper {
         }
 
         return result;
+    }
+    class pairSort implements Comparator<Pair<String, Integer>> {
+        public int compare(Pair<String, Integer> a, Pair<String, Integer> b)
+        {
+            String str_a[] = a.first.split(":");
+            String str_b[] = b.first.split(":");
+            int hour_a = Integer.parseInt(str_a[0]);
+            int min_a = Integer.parseInt(str_a[1]);
+
+            int hour_b = Integer.parseInt(str_b[0]);
+            int min_b = Integer.parseInt(str_b[1]);
+
+            if(hour_a == hour_b)
+                return min_a - min_b;
+
+            return hour_a - hour_b;
+        }
     }
 }

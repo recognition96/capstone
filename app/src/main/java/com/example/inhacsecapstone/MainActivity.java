@@ -78,12 +78,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // 처음 앱을 깔고 실행 할때
-        SharedPreferences sharedPreferences = getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
-        if(sharedPreferences.getBoolean("is_first_run", true)){
+        //SharedPreferences sharedPreferences = getSharedPreferences("SHARE_PREF", MODE_PRIVATE);
+        //if(sharedPreferences.getBoolean("is_first_run", true)){
             Alarm am = new Alarm(this);
             am.setDailyCheck();
-            sharedPreferences.edit().putBoolean("is_first_run", false).commit();
-        }
+            //sharedPreferences.edit().putBoolean("is_first_run", false).commit();
+        //}
 
 //    플로팅버튼 숨김
         // Floating Action Bar Setting
