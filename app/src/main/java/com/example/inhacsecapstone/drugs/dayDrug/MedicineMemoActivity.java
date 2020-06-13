@@ -31,6 +31,8 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
     private AppDatabase appDatabase;
     private SpeechRecognizer mRecognizer;
     private String STTresult = null;
+
+
     private RecognitionListener STTlistener = new RecognitionListener() {
         @Override
         public void onReadyForSpeech(Bundle bundle) {

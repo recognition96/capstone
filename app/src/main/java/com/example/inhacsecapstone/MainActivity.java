@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
         //
     }
-
     @Override
     protected void onResume() {
         super.onResume();

@@ -19,6 +19,8 @@ public class ListViewAdapter extends BaseAdapter {
     private ArrayList<Medicine> mdrugs;
     private ArrayList<Takes> mtakes;
 
+
+
     // ListViewAdapter의 생성자
     public ListViewAdapter(ArrayList<Medicine> mediList, ArrayList<Takes> takesList) {
         this.mdrugs = mediList;
@@ -56,15 +58,35 @@ public class ListViewAdapter extends BaseAdapter {
             }
         }
         mHolder.bind(name, taked.getTime());
+        /*
         Medicine curDrug = mdrugs.get(position);
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, MedicineMemoActivity.class);
+
                 intent.putExtra("medicine", curDrug);
                 intent.putExtra("day", taked.getDay());
                 intent.putExtra("time", taked.getTime());
                 intent.putExtra("memo", taked.getMemo());
+                context.startActivity(intent);
+            }
+        });*/
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MedicineMemoActivity.class);
+
+                for(Medicine medi: mdrugs)
+                {
+                    if(medi.getCode() == taked.getCode()){
+                        intent.putExtra("medicine", medi);
+                        intent.putExtra("day", taked.getDay());
+                        intent.putExtra("time", taked.getTime());
+                        intent.putExtra("memo", taked.getMemo());
+                        break;
+                    }
+                }
                 context.startActivity(intent);
             }
         });
