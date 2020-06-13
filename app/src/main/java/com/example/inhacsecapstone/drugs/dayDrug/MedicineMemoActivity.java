@@ -3,8 +3,12 @@ package com.example.inhacsecapstone.drugs.dayDrug;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -25,6 +29,52 @@ import java.util.EventListener;
 
 public class MedicineMemoActivity extends AppCompatActivity implements EventListener {
     private AppDatabase appDatabase;
+    private SpeechRecognizer mRecognizer;
+    private String STTresult = null;
+    private RecognitionListener STTlistener = new RecognitionListener() {
+        @Override
+        public void onReadyForSpeech(Bundle bundle) {
+        }
+
+        @Override
+        public void onBeginningOfSpeech() {
+        }
+
+        @Override
+        public void onRmsChanged(float v) {
+        }
+
+        @Override
+        public void onBufferReceived(byte[] bytes) {
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+        }
+
+        @Override
+        public void onError(int i) {
+        }
+
+        @Override
+        public void onResults(Bundle results) {
+            String key = SpeechRecognizer.RESULTS_RECOGNITION;
+            ArrayList<String> mResult = results.getStringArrayList(key);
+            String[] rs = new String[mResult.size()];
+            mResult.toArray(rs);
+
+            STTresult = rs[0];
+            mRecognizer.destroy();
+        }
+
+        @Override
+        public void onPartialResults(Bundle bundle) {
+        }
+
+        @Override
+        public void onEvent(int i, Bundle bundle) {
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +107,7 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
                     texts = txtv_memo.getText().toString();
                 }
 
-                String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
+                String time = hourOfDay + ":" + minute;
                 appDatabase.update(new Takes(medi.getCode(), day, time, texts), h_m[0] + ":" + h_m[1]);
                 txtv_time.setText(changeTime(time));
                 h_m[0] = Integer.toString(hourOfDay);
@@ -89,6 +139,25 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
                 et.setText(txtv_memo.getText());
                 et.setTextColor(Color.BLACK);
                 ad.setView(et);
+
+                ad.setNeutralButton("음성입력", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent SttIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                        SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName());
+                        SttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");
+
+                        mRecognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
+                        mRecognizer.setRecognitionListener(STTlistener);
+
+                        mRecognizer.startListening(SttIntent);
+
+                        if (STTresult != null)
+                            et.setText(STTresult);
+                        STTresult = null;
+                        dialog.dismiss();     //닫기
+                    }
+                });
 
                 ad.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     @Override
