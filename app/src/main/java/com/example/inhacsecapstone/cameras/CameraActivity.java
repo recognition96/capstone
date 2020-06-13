@@ -39,6 +39,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private final static boolean DECODE_BITMAP = false;
     private static final int SELECT_IMAGE = 1;
     private static final int SENDING_IMAGE = 2;
+    private static final int PREV_SUCC = 3;
     public static Activity camera_activity;
     private CameraView camera;
     private long mCaptureTime;
@@ -109,8 +110,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             else {
                 Log.d("@@@", "data.getData() == NULL");
             }
-        } else if (requestCode == SENDING_IMAGE) {
+        } else if (requestCode == RESULT_OK) {
             // 찍거나 고른 사진을 성공적으로 PicturePreviewActivity로 보냈을 경우
+            setResult(Activity.RESULT_CANCELED);
             Log.d("Camera result", "cause IMAGE Sended..");
         } else if (resultCode == RESULT_CANCELED) {
             // PicturePreviewActivity에서 해당 사진을 선택하지 않았거나 request에 실패했을 경우
@@ -143,6 +145,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 capturePictureSnapshot();
                 break;
             case R.id.cancel_button:
+                setResult(RESULT_CANCELED);
                 finish();
                 break;
         }

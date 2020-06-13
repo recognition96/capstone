@@ -1,5 +1,6 @@
 package com.example.inhacsecapstone;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fab, fab1, fab2;
     private Fragment selectedFragment = null;
     private int MEDICINE_INFO_REQUEST = 1;
+    private boolean diplayFlag = false;
     // Bottom Navigation의 3 메뉴 클릭을 item.getItemId를 기준으로 판단하여 Fragment Replace or Activity Start 실행
     private BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
@@ -33,9 +35,10 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.calendar:
                     selectedFragment = new Calendars();
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
+                    diplayFlag = false;
                     break;
                 case R.id.camera:
-                    startActivity(new Intent(MainActivity.this, CameraActivity.class));
+                    startActivityForResult(new Intent(MainActivity.this, CameraActivity.class), Activity.RESULT_CANCELED);
                     //overridePendingTransition(0,0);
                     break;
                 case R.id.userdrug:
@@ -52,12 +55,16 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == MEDICINE_INFO_REQUEST)
         {
+            diplayFlag = true;
             if(resultCode == RESULT_OK)
             {
                 ((AllMedicineList)selectedFragment).notifyDataSetChanged();
             }
             else{
             }
+        } else if (requestCode == RESULT_CANCELED) {
+            diplayFlag = false;
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
         }
     }
 
@@ -95,8 +102,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
+        if (diplayFlag)
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
+        else
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new Calendars()).commit();
     }
+
     //    플로팅버튼 숨김
 //    public void floatingonClick(View v) {
 //        int id = v.getId();

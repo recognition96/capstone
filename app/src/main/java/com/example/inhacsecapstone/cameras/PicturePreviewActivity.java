@@ -55,7 +55,6 @@ import okhttp3.Response;
 
 
 public class PicturePreviewActivity extends AppCompatActivity implements View.OnClickListener {
-
     private static PictureResult picture;
     Bitmap mbitmap;
     private HttpConnection httpConn = HttpConnection.getInstance();
@@ -140,6 +139,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
             CameraActivity camera = (CameraActivity) CameraActivity.camera_activity;
             camera.finish();
             sendImageToServer(mbitmap);
+            setResult(Activity.RESULT_OK);
             finish();
         } else if (id == R.id.cancel_button) {
             // 결과코드를 'RESULT_CANCELED'로 세팅.
