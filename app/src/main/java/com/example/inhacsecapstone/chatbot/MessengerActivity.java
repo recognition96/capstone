@@ -352,7 +352,7 @@ public class MessengerActivity extends Activity {
                         times = times + Integer.parseInt(hr[0]) + ":";
                         if(hr[1].length() == 1) { times = times + "0" ; }
                         times = times + Integer.parseInt(hr[1]);
-                        Takes takes = new Takes(code, days, times);
+                        Takes takes = new Takes(code, days, times, null);
                         db.insert(takes);
                         Log.d("DB저장완료", medi.get(i).getName() + " - " + hr[0] + ":" + hr[1] );
                     }

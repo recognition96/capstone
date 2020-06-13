@@ -59,6 +59,7 @@ public class AppDatabase extends SQLiteOpenHelper {
                 "code INTEGER, " +
                 "day TEXT, " +
                 "time TEXT," +
+                "memo TEXT," +
                 "PRIMARY KEY (code, day, time))");
         db.execSQL("CREATE TABLE will_take (" +
                 "code INTEGER, " +
@@ -103,17 +104,17 @@ public class AppDatabase extends SQLiteOpenHelper {
     // Medicine 관련 함수들
     public void insert(Medicine medicine) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO medicine_list VALUES(" + medicine.getCode() + ", '" +
-                    medicine.getName() + "','" +
-                    medicine.getImage() + "','" +
-                    medicine.getEffect() + "','" +
-                    medicine.getUsage() + "'," +
-                    medicine.getCategory() + ",'" +
-                    medicine.getSingleDose() + "'," +
+        db.execSQL("INSERT INTO medicine_list VALUES(" + medicine.getCode() + ", " +
+                    isNull(medicine.getName()) + "," +
+                    isNull(medicine.getImage()) + "," +
+                    isNull(medicine.getEffect()) + "," +
+                    isNull(medicine.getUsage()) + "," +
+                    medicine.getCategory() + "," +
+                    medicine.getSingleDose() + "," +
                     medicine.getDailyDose() + "," +
                     medicine.getNumberOfDayTakens() + "," +
-                    medicine.getWarning() + ",'" +
-                    medicine.getStartDay() + "')");
+                    medicine.getWarning() + "," +
+                    isNull(medicine.getStartDay()) + ")");
         db.close();
     }
     public void deleteAllForCode(int code){
@@ -154,7 +155,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         ArrayList<Medicine> result = new ArrayList<Medicine>();
 
         try {
-            Cursor cursor = db.rawQuery("SELECT * FROM medicine_list INNER JOIN taked ON medicine_list.code = taked.code WHERE day = '" + day + "'", null);
+            Cursor cursor = db.rawQuery("SELECT * FROM medicine_list INNER JOIN taked ON medicine_list.code = taked.code WHERE day = " + isNull(day) , null);
             while (cursor.moveToNext()) {
                 Medicine current = new Medicine(cursor.getInt(cursor.getColumnIndex("code")),
                         cursor.getString(cursor.getColumnIndex("name")),
@@ -176,16 +177,16 @@ public class AppDatabase extends SQLiteOpenHelper {
     }
     public void update(Medicine medi){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("UPDATE medicine_list SET name = '"+ medi.getName() + "'," +
-                "image = '"+ medi.getImage()+ "',"+
-                "effect = '"+ medi.getEffect()+ "',"+
-                "usage = '"+ medi.getUsage()+ "',"+
-                "category = '"+ medi.getCategory()+ "',"+
-                "single_dose = '"+ medi.getSingleDose()+ "',"+
-                "daily_dose = '"+ medi.getDailyDose()+ "',"+
-                "number_of_day_takens = '"+ medi.getNumberOfDayTakens()+ "',"+
-                "warning = '"+ medi.getWarning()+ "',"+
-                "start_day = '"+ medi.getStartDay()+ "'"+
+        db.execSQL("UPDATE medicine_list SET name = "+ isNull(medi.getName()) + "," +
+                "image = "+ isNull(medi.getImage())+ ","+
+                "effect = "+ isNull(medi.getEffect())+ ","+
+                "usage = "+ isNull(medi.getUsage())+ ","+
+                "category = "+ medi.getCategory()+ ","+
+                "single_dose = "+ medi.getSingleDose()+ ","+
+                "daily_dose = "+ medi.getDailyDose()+ ","+
+                "number_of_day_takens = "+ medi.getNumberOfDayTakens()+ ","+
+                "warning = "+ medi.getWarning()+ ","+
+                "start_day = "+ isNull(medi.getStartDay())+ ""+
                 "WHERE code = " + medi.getCode());
 
         db.close();
@@ -217,13 +218,13 @@ public class AppDatabase extends SQLiteOpenHelper {
     // take 관련 함수들
     public void insert(Takes take) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO taked VALUES(" + take.getCode() + ",'" + take.getDay() + "','" + take.getTime() + "')");
+        db.execSQL("INSERT INTO taked VALUES(" + take.getCode() + "," + isNull(take.getDay()) + "," + isNull(take.getTime()) + ", "+ isNull(take.getMemo()) + ")");
         db.close();
     }
     public void update(Takes take, String prevTime){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("UPDATE taked SET day ='" + take.getDay() + "', time = '"+ take.getTime() + "' WHERE code = " + take.getCode() +
-                " AND day='" + take.getDay() + "'AND time='" + prevTime+ "'");
+        db.execSQL("UPDATE taked SET day =" + isNull(take.getDay()) + ", time = "+ isNull(take.getTime()) + ", memo = "+ isNull(take.getMemo()) +" WHERE code = " + take.getCode() +
+                " AND day=" + isNull(take.getDay()) + "AND time=" + isNull(prevTime));
     }
     public ArrayList<Takes> getAllTakes() {
         SQLiteDatabase db = getReadableDatabase();
@@ -233,7 +234,8 @@ public class AppDatabase extends SQLiteOpenHelper {
             while (cursor.moveToNext()) {
                 Takes current = new Takes(cursor.getInt(cursor.getColumnIndex("code")),
                         cursor.getString(cursor.getColumnIndex("day")),
-                        cursor.getString(cursor.getColumnIndex("time")));
+                        cursor.getString(cursor.getColumnIndex("time")),
+                        cursor.getString(cursor.getColumnIndex("memo")));
                 result.add(current);
             }
         } catch (Exception ex) {
@@ -242,6 +244,12 @@ public class AppDatabase extends SQLiteOpenHelper {
         return result;
     }
 
+    public String isNull(String str){
+        if(str == null)
+            return "null";
+        else
+            return "'" + str + "'";
+    }
     class TakeSort implements Comparator<Takes> {
         public int compare(Takes a, Takes b)
         {
@@ -285,11 +293,12 @@ public class AppDatabase extends SQLiteOpenHelper {
         ArrayList<Takes> result = new ArrayList<Takes>();
 
         try {
-            Cursor cursor = db.rawQuery("SELECT * FROM taked WHERE day = '" + day + "'", null);
+            Cursor cursor = db.rawQuery("SELECT * FROM taked WHERE day = " + isNull(day), null);
             while (cursor.moveToNext()) {
                 Takes current = new Takes(cursor.getInt(cursor.getColumnIndex("code")),
                         cursor.getString(cursor.getColumnIndex("day")),
-                        cursor.getString(cursor.getColumnIndex("time")));
+                        cursor.getString(cursor.getColumnIndex("time")),
+                        cursor.getString(cursor.getColumnIndex("memo")));
                 result.add(current);
             }
         } catch (Exception ex) {
@@ -318,17 +327,17 @@ public class AppDatabase extends SQLiteOpenHelper {
     }
     public void insertWillTake(int code, String time){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO will_take VALUES("+ code + ", '" + time  +"')");
+        db.execSQL("INSERT INTO will_take VALUES("+ code + ", " + isNull(time)  +")");
         db.close();
     }
     public void updateWillTake(int code, String time, String pre){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("UPDATE will_take SET time = '" + time + "' WHERE code = " + code + " AND time = '" + pre +"'");
+        db.execSQL("UPDATE will_take SET time = " + isNull(time) + " WHERE code = " + code + " AND time = " + isNull(pre) );
         db.close();
     }
     public void deleteWillTake(int code, String time){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM will_take WHERE code = " + code + " AND time = '" + time + "'");
+        db.execSQL("DELETE FROM will_take WHERE code = " + code + " AND time = " + isNull(time) );
         db.close();
     }
 
@@ -338,7 +347,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         Calendar calendar = Calendar.getInstance();
 
         String day = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
-        db.execSQL("INSERT INTO temp_time VALUES("+ code + ", '" + day + "', '" + time  +"')");
+        db.execSQL("INSERT INTO temp_time VALUES("+ code + ", " + isNull(day) + ", " + isNull(time)  +")");
         db.close();
     }
     public void updateTempTake(int code, String time, String pre){
@@ -346,7 +355,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         Calendar calendar = Calendar.getInstance();
 
         String day = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
-        db.execSQL("UPDATE temp_time SET time = '"+ time + "' WHERE code = " + code + " AND time = '" + pre + "' AND day = '" + day + "'");
+        db.execSQL("UPDATE temp_time SET time = "+ isNull(time) + " WHERE code = " + code + " AND time = " + isNull(pre) + " AND day = " + isNull(day));
         db.close();
     }
 
@@ -355,7 +364,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         Calendar calendar = Calendar.getInstance();
 
         String day = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
-        db.execSQL("DELETE FROM temp_time WHERE code = " + code + " AND time = '" + time + "' AND day = '" + day + "'");
+        db.execSQL("DELETE FROM temp_time WHERE code = " + code + " AND time = " + isNull(time) + " AND day = " + isNull(day));
         db.close();
     }
 
@@ -385,7 +394,7 @@ public class AppDatabase extends SQLiteOpenHelper {
                 calendar.add(Calendar.DATE, number_of_takens);
                 int result = calendar.compareTo(current);
                 if(result > 0)
-                    dbwrite.execSQL("INSERT INTO temp_time VALUES(" + code + ", '"+ str + "', '" + time +"')");
+                    dbwrite.execSQL("INSERT INTO temp_time VALUES(" + code + ", "+ isNull(str) + ", " + isNull(time) +")");
             }
         }catch(Exception ex){
             ex.printStackTrace();

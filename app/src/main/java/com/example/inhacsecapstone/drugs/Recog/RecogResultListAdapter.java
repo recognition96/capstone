@@ -43,7 +43,10 @@ public class RecogResultListAdapter extends RecyclerView.Adapter<RecogResultList
         if (mdrugs != null) {
             Medicine curDrug = mdrugs.get(position);
 
-            Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
+            if(curDrug.getImage() != null)
+                Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
+            else
+                holder.imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.default_img, context.getTheme()));
 
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override

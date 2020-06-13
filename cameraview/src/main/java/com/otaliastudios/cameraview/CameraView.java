@@ -93,7 +93,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
     public final static int PERMISSION_REQUEST_CODE = 16;
     final static long DEFAULT_AUTOFOCUS_RESET_DELAY_MILLIS = 3000;
-    final static boolean DEFAULT_PLAY_SOUNDS = true;
+    final static boolean DEFAULT_PLAY_SOUNDS = false;
     final static boolean DEFAULT_USE_DEVICE_ORIENTATION = true;
     final static boolean DEFAULT_PICTURE_METERING = true;
     final static boolean DEFAULT_PICTURE_SNAPSHOT_METERING = false;
@@ -239,6 +239,7 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
         setFrameProcessingFormat(frameFormat);
         setFrameProcessingPoolSize(framePoolSize);
         setFrameProcessingExecutors(frameExecutors);
+        setPlaySounds(false);
 
         // Apply gestures
         mapGesture(Gesture.TAP, gestures.getTapAction());
@@ -253,6 +254,11 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
 
         // Create the orientation helper
         mOrientationHelper = new OrientationHelper(context, mCameraCallbacks);
+    }
+
+    public void setPlaySounds(boolean playSounds) {
+        mPlaySounds = playSounds;
+        mCameraEngine.setPlaySounds(playSounds);
     }
 
     /**

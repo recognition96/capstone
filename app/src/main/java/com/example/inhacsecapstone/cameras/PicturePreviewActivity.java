@@ -88,7 +88,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
             }
         } else if (result != null && uri == null) {
             try {
-                result.toBitmap(1000, 1000, new BitmapCallback() {
+                result.toBitmap(5000, 5000, new BitmapCallback() {
                     @Override
                     public void onBitmapReady(Bitmap bitmap) {
                         imageView.setImageBitmap(bitmap);

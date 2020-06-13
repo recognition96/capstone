@@ -43,7 +43,8 @@ public class RecogResultActivity extends AppCompatActivity {
         String day = Integer.toString(calendar.get(Calendar.YEAR)) + "."+ Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
         Drugs[] drugs = (Drugs[]) getIntent().getSerializableExtra("drugs");
         for (Drugs iter : drugs) {
-            String img = iter.getSmall_image().equals("null") || iter.getSmall_image().equals("") ? (iter.getPack_image().equals("null") || iter.getPack_image().equals("") ? null : iter.getPack_image()) : iter.getSmall_image();
+            String img = iter.getSmall_image() == null || iter.getSmall_image().equals("null") || iter.getSmall_image().equals("") ?
+                    (iter.getPack_image()== null ||  iter.getPack_image().equals("null") || iter.getPack_image().equals("") ? null : iter.getPack_image()) : iter.getSmall_image();
             arrayList.add(new Medicine(iter.getCode(), iter.getDrug_name(), img, iter.getEffect(), iter.getUsages(), -1,
                     iter.getSingle_dose(), iter.getDaily_dose(), iter.getTotal_dose(), -1, day)); // 카테고리, warning 해결해야함.
         }

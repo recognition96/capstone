@@ -54,7 +54,10 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
                 if (curDrug.getCode() == elem.getCode())
                     holder.takes.add(elem);
 
-            Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
+            if(curDrug.getImage() != null)
+                Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
+            else
+                holder.imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.default_img, context.getTheme()));
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -90,7 +93,7 @@ public class DayDrugListAdapter extends RecyclerView.Adapter<DayDrugListAdapter.
                 TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        db.update(new Takes(curDrug.getCode(), targetTake.getDay(),  Integer.toString(hourOfDay) + ":" + Integer.toString(minute)), data[0] + ":" + data[1]);
+                        db.update(new Takes(curDrug.getCode(), targetTake.getDay(),  Integer.toString(hourOfDay) + ":" + Integer.toString(minute), null), data[0] + ":" + data[1]);
                         text.setText(Integer.toString(hourOfDay) + ":" + Integer.toString(minute));
                     }
                 };

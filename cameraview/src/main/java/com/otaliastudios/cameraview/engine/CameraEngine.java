@@ -122,7 +122,7 @@ public abstract class CameraEngine implements
             handleException(exception, false);
         }
     });
-
+    public abstract void setPlaySounds(boolean playSounds);
     protected CameraEngine(@NonNull Callback callback) {
         mCallback = callback;
         mCrashHandler = new Handler(Looper.getMainLooper());

@@ -47,7 +47,10 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
         if (mdrugs != null) {
             Medicine curDrug = mdrugs.get(position);
             holder.medi = curDrug;
-            Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
+            if(curDrug.getImage() != null)
+                Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
+            else
+                holder.imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.default_img, context.getTheme()));
             holder.will_takes = times.get(curDrug.getCode());
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override

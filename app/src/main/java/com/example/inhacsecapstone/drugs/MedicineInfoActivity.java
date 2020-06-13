@@ -54,10 +54,21 @@ public class MedicineInfoActivity extends AppCompatActivity {
             t.removeTabAt(2);
             chipGroup.setVisibility(View.GONE);
         }
+        if(medi.getImage() != null)
+            Glide.with(this).load(medi.getImage()).into(img);
+        else
+            img.setImageDrawable(getResources().getDrawable(R.drawable.default_img, getApplicationContext().getTheme()));
 
-        Glide.with(this).load(medi.getImage()).into(img);
-        text1.setText(medi.getEffect());
-        text2.setText(medi.getUsage());
+        if(medi.getEffect() != null)
+            text1.setText(medi.getEffect());
+        else
+            text1.setText("용법 용량 정보가 없습니다.");
+        if(medi.getEffect() != null)
+            text2.setText(medi.getUsage());
+        else
+            text2.setText("효능 효과 정보가 없습니다.");
+
+
         usage_scroll.setVisibility(View.INVISIBLE);
         delete_scroll.setVisibility(View.INVISIBLE);
 
