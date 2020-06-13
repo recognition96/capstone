@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/selectableItemBackground"
     android:gravity="left">
 
     <View
@@ -14,6 +15,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
         android:text="TextView"
         android:textSize="@dimen/font_large" />
 
@@ -30,6 +33,10 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
         android:text="New Text"
         android:textSize="@dimen/font_large" />
 

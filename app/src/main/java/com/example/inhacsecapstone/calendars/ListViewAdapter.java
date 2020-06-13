@@ -1,6 +1,7 @@
 package com.example.inhacsecapstone.calendars;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,22 +11,24 @@ import android.widget.TextView;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.drugs.dayDrug.MedicineMemoActivity;
 
 import java.util.ArrayList;
 
 public class ListViewAdapter extends BaseAdapter {
-    private ArrayList<Medicine> medis;
-    private ArrayList<Takes> takes;
+    private ArrayList<Medicine> mdrugs;
+    private ArrayList<Takes> mtakes;
+
     // ListViewAdapter의 생성자
-    public ListViewAdapter(ArrayList<Medicine> medis, ArrayList<Takes> takes) {
-        this.medis = medis;
-        this.takes = takes;
+    public ListViewAdapter(ArrayList<Medicine> mediList, ArrayList<Takes> takesList) {
+        this.mdrugs = mediList;
+        this.mtakes = takesList;
     }
 
     // Adapter에 사용되는 데이터의 개수를 리턴. : 필수 구현
     @Override
     public int getCount() {
-        return takes.size();
+        return mtakes.size();
     }
 
     // position에 위치한 데이터를 화면에 출력하는데 사용될 View를 리턴. : 필수 구현
@@ -33,60 +36,45 @@ public class ListViewAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         final int pos = position;
         final Context context = parent.getContext();
-        Takes take = takes.get(pos);
+        ListViewHolder mHolder = new ListViewHolder();
+        Takes taked = mtakes.get(pos);
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.listview_item, parent, false);
+            mHolder.nameTextView = convertView.findViewById(R.id.listdrugname);
+            mHolder.timeTextView = convertView.findViewById(R.id.listtaketime);
+            convertView.setTag(mHolder);
+        } else {
+            mHolder = (ListViewHolder) convertView.getTag();
         }
-
-        TextView titleTextView = (TextView) convertView.findViewById(R.id.listdrugname);
-        TextView timeTextView = (TextView) convertView.findViewById(R.id.listtaketime);
-
-        String name= new String();
-        for(Medicine medi : medis){
-            if(medi.getCode() == take.getCode())
+        String name = "";
+        for (Medicine medi : mdrugs) {
+            if (medi.getCode() == taked.getCode())
             {
                 name = medi.getName();
                 break;
             }
         }
-        titleTextView.setText(name);
-        timeTextView.setText(take.getTime());
-
-
-        /*
-        // "listview_item" Layout을 inflate하여 convertView 참조 획득.
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.listview_item, parent, false);
-        }
-
-        // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
-        TextView titleTextView = (TextView) convertView.findViewById(R.id.listdrugname);
-        TextView timeTextView = (TextView) convertView.findViewById(R.id.listtaketime);
-        // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
-        ListViewItem listViewItem = listViewItemList.get(position);
-        Log.d("@@@", "pos : " + String.valueOf(position));
-
-        // 아이템 내 각 위젯에 데이터 반영
-        titleTextView.setText(listViewItem.getTitle()); // 약이름
-        ArrayList<Takes> TakedAtDay = appdb.getAllTakes();
-        for (int i = 0; i < TakedAtDay.size(); i++) {
-            if (listViewItem.getDesc() == TakedAtDay.get(i).getCode()) {
-                timeTextView.setText(TakedAtDay.get(i).getTime());
+        mHolder.bind(name, taked.getTime());
+        Medicine curDrug = mdrugs.get(position);
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, MedicineMemoActivity.class);
+                intent.putExtra("medicine", curDrug);
+                intent.putExtra("day", taked.getDay());
+                intent.putExtra("time", taked.getTime());
+                context.startActivity(intent);
             }
-        }
+        });
 
-
-
-        LinearLayout rootview = (LinearLayout) convertView.findViewById(R.id.calendarlinearlayout);
-//        rootview.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                startActivity(new Intent(get, CameraActivity.class));
-//            }
-//        });*/
         return convertView;
+    }
+
+    // 지정한 위치(position)에 있는 데이터 리턴 : 필수 구현
+    @Override
+    public Object getItem(int position) {
+        return mtakes.get(position);
     }
 
     // 지정한 위치(position)에 있는 데이터와 관계된 아이템(row)의 ID를 리턴. : 필수 구현
@@ -95,20 +83,20 @@ public class ListViewAdapter extends BaseAdapter {
         return position;
     }
 
-    // 지정한 위치(position)에 있는 데이터 리턴 : 필수 구현
-    @Override
-    public Object getItem(int position) {
-        return takes.get(position);
+    public static class ListViewHolder {
+        TextView nameTextView;
+        TextView timeTextView;
+
+
+        public void bind(String name, String time) {
+            nameTextView.setText(name);
+            String[] h_m = time.split(":");
+            if (h_m[0].length() == 1) h_m[0] = "0" + h_m[0];
+            if (h_m[1].length() == 1) h_m[1] = "0" + h_m[1];
+            timeTextView.setText(h_m[0] + ":" + h_m[1]);
+        }
     }
 
-    /*
-    // 아이템 데이터 추가를 위한 함수. 개발자가 원하는대로 작성 가능.
-    public void addItem(String title, int code) {
-        ListViewItem item = new ListViewItem();
-
-        item.setTitle(title);
-        item.setDesc(code);
-
-        listViewItemList.add(item);
-    }*/
 }
+
+
