@@ -6,7 +6,7 @@ public class HttpConnection {
     private static HttpConnection instance = new HttpConnection();
     private static final String portNumber = "5000";
 //    private static final String ipv4Address = "172.30.1.35";
-    private static final String ipv4Address = "192.168.0.18";
+    private static final String ipv4Address = "192.168.0.13";
 
     public static HttpConnection getInstance() {
         return instance;
@@ -17,4 +17,4 @@ public class HttpConnection {
     public String getUrl(String url) {
         return "http://" + ipv4Address + ":" + portNumber + "/"+url;
         }
-        }
+}

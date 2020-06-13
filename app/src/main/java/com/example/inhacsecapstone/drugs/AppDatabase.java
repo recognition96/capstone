@@ -66,7 +66,7 @@ public class AppDatabase extends SQLiteOpenHelper {
                 "day TEXT,"+
                 "time TEXT)");
     }
-
+/*
     public void init() {
         SQLiteDatabase db = getReadableDatabase();
         db.execSQL("DELETE FROM medicine_list");
@@ -90,7 +90,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         insertWillTake(11111111, "19:10");
         insertTempTake(11111111, "14:32");
         insertTempTake(11111111, "19:10");
-    }
+    }*/
 
     // DB 업그레이드를 위해 버전이 변경될 때 호출되는 함수
     @Override
