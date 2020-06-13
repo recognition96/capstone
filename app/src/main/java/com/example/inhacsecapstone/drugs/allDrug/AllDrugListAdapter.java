@@ -77,7 +77,6 @@ public class AllDrugListAdapter extends RecyclerView.Adapter<AllDrugListAdapter.
                         cnt++;
                 }
             }
-
             holder.progressBarView.setProgress(cnt * 100 / amount);
             holder.amountView.setText(Integer.toString(amount));
             holder.dailyDoseView.setText(Integer.toString(curDrug.getDailyDose()));
