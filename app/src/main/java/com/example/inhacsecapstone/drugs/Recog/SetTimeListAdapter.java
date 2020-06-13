@@ -78,6 +78,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
                 createChip(holder.will_takes, i, holder.chipGroup, time);
             }
             Chip addChip = new Chip(context);
+            addChip.setChipBackgroundColorResource(R.color.colorAccent);
             addChip.setTextSize(25);
             addChip.setText("+");
 
@@ -115,6 +116,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
 
     public void createChip(ArrayList<String> will_takes, int index, ChipGroup chipGroup, String str){
         Chip chip = new Chip(context);
+        chip.setChipBackgroundColorResource(R.color.colorAccent);
         chip.setTextSize(20);
         chip.setCloseIconSize(60);
         chip.setText(str);

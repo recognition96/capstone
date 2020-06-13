@@ -218,6 +218,7 @@ public class AppDatabase extends SQLiteOpenHelper {
     // take 관련 함수들
     public void insert(Takes take) {
         SQLiteDatabase db = getWritableDatabase();
+
         db.execSQL("INSERT INTO taked VALUES(" + take.getCode() + "," + isNull(take.getDay()) + "," + isNull(take.getTime()) + ", "+ isNull(take.getMemo()) + ")");
         db.close();
     }

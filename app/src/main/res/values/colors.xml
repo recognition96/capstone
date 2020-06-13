@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#ffcc80</color>
     <color name="colorAccent">#ffc246</color>
     <color name="white">#ffffff</color>
-
+    <color name="transparent">#000000</color>
     <!--Theme & Accent -->
     <color name="red500">#F44336</color>
     <color name="teal100">#B2DFDB</color>

@@ -94,6 +94,7 @@ public class MedicineInfoActivity extends AppCompatActivity {
         // addChip 넣기
         Chip addChip = new Chip(context);
         addChip.setTextSize(25);
+        addChip.setChipBackgroundColorResource(R.color.colorAccent);
         addChip.setText("+");
 
         TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
@@ -142,7 +143,15 @@ public class MedicineInfoActivity extends AppCompatActivity {
         Chip chip = new Chip(this);
         chip.setTextSize(20);
         chip.setCloseIconSize(60);
-        chip.setText(time);
+        chip.setChipBackgroundColorResource(R.color.colorAccent);
+        int hourOfDay = Integer.parseInt(time.split(":")[0]);
+        int minute = Integer.parseInt(time.split(":")[1]);
+
+        String hour = hourOfDay <10? "0" + Integer.toString(hourOfDay):Integer.toString(hourOfDay);
+        String min = minute<10 ? "0" + Integer.toString(minute) : Integer.toString(minute);
+
+        String times = hour + ":" + min;
+        chip.setText(times);
         chip.setCloseIconVisible(true);
 
         chip.setOnCloseIconClickListener(new Chip.OnClickListener(){
@@ -166,7 +175,9 @@ public class MedicineInfoActivity extends AppCompatActivity {
                 TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
+                        String hour = hourOfDay <10? "0" + Integer.toString(hourOfDay):Integer.toString(hourOfDay);
+                        String min = minute<10 ? "0" + Integer.toString(minute) : Integer.toString(minute);
+                        String time = hour + ":" + min;
                         appDatabase.updateWillTake(code, time, pre);
                         appDatabase.updateTempTake(code, time, pre);
                         chip.setText(time);

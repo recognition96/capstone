@@ -52,6 +52,7 @@
             android:backgroundTint="@color/colorPrimaryDark"
             android:onClick="floatingonClick"
             android:src="@drawable/ic_menu_black_24dp"
+            android:visibility="invisible"
             app:backgroundTint="@color/colorPrimary" />
 
     </FrameLayout>
