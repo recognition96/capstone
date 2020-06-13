@@ -172,14 +172,18 @@ public class MedicineInfoActivity extends AppCompatActivity {
                 TextView textView = (TextView) v;
                 String pre = (String)textView.getText();
                 String hour_min[] = pre.split(":");
+                hour_min[0] = Integer.toString(Integer.parseInt(hour_min[0]));
+                hour_min[1] = Integer.toString(Integer.parseInt(hour_min[1]));
+                String pres = hour_min[0] + ":" + hour_min[1];
                 TimePickerDialog dialog = new TimePickerDialog(context,android.R.style.Theme_Holo_Light_Dialog, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        String time = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
+                        appDatabase.updateWillTake(code, time, pres);
+                        appDatabase.updateTempTake(code, time, pres);
                         String hour = hourOfDay <10? "0" + Integer.toString(hourOfDay):Integer.toString(hourOfDay);
                         String min = minute<10 ? "0" + Integer.toString(minute) : Integer.toString(minute);
-                        String time = hour + ":" + min;
-                        appDatabase.updateWillTake(code, time, pre);
-                        appDatabase.updateTempTake(code, time, pre);
+                        time = hour + ":" + min;
                         chip.setText(time);
                         alarm.setAlarm();
                     }

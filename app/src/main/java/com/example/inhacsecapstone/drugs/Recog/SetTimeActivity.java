@@ -73,8 +73,10 @@ public class SetTimeActivity extends AppCompatActivity {
                     finalMedis.get(i).setDailyDose(times.get(code).size());
                     db.insert(finalMedis.get(i));
                     for(int j = 0; j < time.size(); j++){
-                        db.insertWillTake(code, time.get(j));
-                        db.insertTempTake(code, time.get(j));
+                        String str = time.get(j);
+                        String temp = Integer.toString(Integer.parseInt(str.split(":")[0])) + ":" + Integer.toString(Integer.parseInt(str.split(":")[1]));
+                        db.insertWillTake(code, temp);
+                        db.insertTempTake(code, temp);
                         am.setAlarm();
                     }
                 }
