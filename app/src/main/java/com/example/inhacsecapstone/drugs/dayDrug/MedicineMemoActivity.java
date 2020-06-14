@@ -11,6 +11,8 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,6 +31,7 @@ import java.util.EventListener;
 
 public class MedicineMemoActivity extends AppCompatActivity implements EventListener {
     private AppDatabase appDatabase;
+    private EditText et;
     private SpeechRecognizer mRecognizer;
     private String STTresult = null;
 
@@ -64,8 +67,11 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
             ArrayList<String> mResult = results.getStringArrayList(key);
             String[] rs = new String[mResult.size()];
             mResult.toArray(rs);
-
+            for (int i = 0; i < rs.length; i++) {
+                Log.d("@@@", rs[i] + "\n");
+            }
             STTresult = rs[0];
+            et.setText(STTresult);
             mRecognizer.destroy();
         }
 
@@ -88,11 +94,11 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
         String time = getIntent().getStringExtra("time");
         String memo = getIntent().getStringExtra("memo");
 
-        Log.d("@@@", " --> " + day + " " + time);
         TextView txtv_name = findViewById(R.id.drugName);
         ImageView img = findViewById(R.id.drugImage);
         TextView txtv_time = findViewById(R.id.takedTime);
         TextView txtv_memo = findViewById(R.id.memo_contents);
+        et = new EditText(MedicineMemoActivity.this);
 
         Glide.with(this).load(medi.getImage()).into(img);
         txtv_name.setText(medi.getName());
@@ -133,53 +139,62 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
         txtv_memo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder ad = new AlertDialog.Builder(MedicineMemoActivity.this);
-                ad.setTitle("메모 수정");
-                ad.setMessage("수정할 내용을 입력해주세요.");
+                AlertDialog ad = new AlertDialog.Builder(MedicineMemoActivity.this)
+                        .setTitle("메모 수정")
+                        .setMessage("수정할 내용을 입력해주세요.")
+                        .setPositiveButton("확인", null)
+                        .setNegativeButton("취소", null)
+                        .setNeutralButton("음성 입력", null)
+                        .create();
 
-                final EditText et = new EditText(MedicineMemoActivity.this);
                 et.setText(txtv_memo.getText());
                 et.setTextColor(Color.BLACK);
+                if (et.getParent() != null)
+                    ((ViewGroup) et.getParent()).removeView(et);
                 ad.setView(et);
 
-                ad.setNeutralButton("음성입력", new DialogInterface.OnClickListener() {
+
+                ad.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent SttIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                        SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName());
-                        SttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");
+                    public void onShow(DialogInterface dialog) {
+                        Button btn_p = ad.getButton(AlertDialog.BUTTON_POSITIVE);
+                        Button btn_n = ad.getButton(AlertDialog.BUTTON_NEGATIVE);
+                        Button btn_s = ad.getButton(AlertDialog.BUTTON_NEUTRAL);
 
-                        mRecognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
-                        mRecognizer.setRecognitionListener(STTlistener);
+                        btn_p.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                txtv_memo.setText(et.getText());
+                                // 디비에 내용 업데이트
+                                String texts = null;
+                                if (!txtv_memo.getText().equals(null)) {
+                                    texts = txtv_memo.getText().toString();
+                                }
+                                appDatabase.update(new Takes(medi.getCode(), day, h_m[0] + ":" + h_m[1], texts), h_m[0] + ":" + h_m[1]);
+                                dialog.dismiss();
 
-                        mRecognizer.startListening(SttIntent);
+                            }
+                        });
+                        btn_n.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();     //닫기
+                            }
+                        });
+                        btn_s.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent SttIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                                SttIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName());
+                                SttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");
 
-                        if (STTresult != null)
-                            et.setText(STTresult);
-                        STTresult = null;
-                        dialog.dismiss();     //닫기
-                    }
-                });
+                                mRecognizer = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
+                                mRecognizer.setRecognitionListener(STTlistener);
 
-                ad.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        txtv_memo.setText(et.getText());
-                        // 디비에 내용 업데이트
-                        String texts = null;
-                        if(!txtv_memo.getText().equals(null)) {
-                            texts = txtv_memo.getText().toString();
-                        }
-                        appDatabase.update(new Takes(medi.getCode(), day, h_m[0] + ":" + h_m[1], texts), h_m[0] + ":" + h_m[1]);
-                        dialog.dismiss();     //닫기
-                    }
-                });
-
-                ad.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();     //닫기
-                        // Event
+                                mRecognizer.startListening(SttIntent);
+                                STTresult = null;
+                            }
+                        });
                     }
                 });
                 ad.show();

@@ -174,8 +174,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             return;
         }
         mCaptureTime = System.currentTimeMillis();
-        message("사진을 확인하세요", false);
+        camera.setPlaySounds(false);
         camera.takePicture();
+
     }
 
     @Override

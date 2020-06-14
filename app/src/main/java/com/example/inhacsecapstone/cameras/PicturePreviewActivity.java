@@ -72,6 +72,7 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
 
         setContentView(R.layout.activity_picture_preview);
 
+        Toast.makeText(this, "사진을 확인하세요", Toast.LENGTH_LONG).show();
         final Uri uri = getIntent().getParcelableExtra("imageUri");
         final PictureResult result = picture;
         final ImageView imageView = findViewById(R.id.image);
