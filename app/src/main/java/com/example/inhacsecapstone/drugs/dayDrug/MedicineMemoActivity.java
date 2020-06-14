@@ -191,13 +191,10 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
 
                                 mRecognizer.startListening(SttIntent);
                                 STTresult = null;
-
-//                                dialog.dismiss();
                             }
                         });
                     }
                 });
-
                 ad.show();
             }
         });
