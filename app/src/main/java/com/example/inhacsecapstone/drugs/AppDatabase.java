@@ -67,7 +67,6 @@ public class AppDatabase extends SQLiteOpenHelper {
                 "time TEXT)");
         db.execSQL("CREATE TABLE temp_time (" +
                 "code INTEGER," +
-                "day TEXT,"+
                 "time TEXT)");
     }
 /*
@@ -349,7 +348,7 @@ public class AppDatabase extends SQLiteOpenHelper {
         Calendar calendar = Calendar.getInstance();
 
         String day = Integer.toString(calendar.get(Calendar.YEAR)) + "." + Integer.toString(calendar.get(Calendar.MONTH) + 1) + "." + Integer.toString(calendar.get(Calendar.DATE));
-        db.execSQL("INSERT INTO temp_time VALUES("+ code + ", " + isNull(day) + ", " + isNull(time)  +")");
+        db.execSQL("INSERT INTO temp_time VALUES("+ code + ", " + isNull(time)  +")");
         db.close();
     }
     public void updateTempTake(int code, String time, String pre){
@@ -397,7 +396,7 @@ public class AppDatabase extends SQLiteOpenHelper {
                 calendar.add(Calendar.DATE, number_of_takens);
                 int result = calendar.compareTo(current);
                 if(result > 0)
-                    dbwrite.execSQL("INSERT INTO temp_time VALUES(" + code + ", "+ isNull(str) + ", " + isNull(time) +")");
+                    dbwrite.execSQL("INSERT INTO temp_time VALUES(" + code + ", " + isNull(time) +")");
             }
         }catch(Exception ex){
             ex.printStackTrace();

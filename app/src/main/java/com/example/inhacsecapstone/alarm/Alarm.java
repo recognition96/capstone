@@ -47,6 +47,7 @@ public class Alarm {
         target.set(Calendar.SECOND, 0);
 
         long timeInterval = target.getTimeInMillis() - cur.getTimeInMillis();
+        // long timeInterval = 0;
         PersistableBundle bundle = new PersistableBundle();
         bundle.putBoolean("is24", true);
 
