@@ -36,6 +36,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.Entity.Takes;
 import com.example.inhacsecapstone.R;
+import com.example.inhacsecapstone.alarm.Alarm;
 import com.example.inhacsecapstone.alarm.AlarmReceiver;
 import com.example.inhacsecapstone.drugs.AppDatabase;
 import com.example.inhacsecapstone.serverconnect.HttpConnection;
@@ -376,11 +377,15 @@ public class MessengerActivity extends Activity {
                 else
                     calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), Integer.parseInt(hr[0]), Integer.parseInt(hr[1]), 0);
 
-                AlarmManager am = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
-                intent.putExtra("medicine", medi);
-                PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+                //AlarmManager am = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                Alarm alarm = new Alarm(this);
+                //Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+                //intent.putExtra("medicine", medi);
+                for(Medicine iter : medi)
+                    db.insertTempTake(iter.getCode(), hr[0] + ":" + hr[1]);
+                alarm.setAlarm();
+                //PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), (int)System.currentTimeMillis(), intent, PendingIntent.FLAG_IMMUTABLE);
+                //am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
             }
             notendofspeech = false;
             return;
