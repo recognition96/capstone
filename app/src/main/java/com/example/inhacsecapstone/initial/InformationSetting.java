@@ -35,7 +35,7 @@ public class InformationSetting extends AppCompatActivity {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 TextView userBirth = findViewById(R.id.userBirth);
-                userBirth.setText(year + "년 " + monthOfYear + "월 " + dayOfMonth + "일");
+                userBirth.setText(year + "년 " + (monthOfYear+1) + "월 " + dayOfMonth + "일");
             }
         };
     }

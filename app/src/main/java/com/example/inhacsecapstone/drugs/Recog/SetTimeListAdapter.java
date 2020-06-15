@@ -20,6 +20,7 @@ import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -44,6 +45,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
 
     @Override
     public void onBindViewHolder(SetTimeListAdapter.SetTimeListHolders holder, int position) {
+        holder.chipGroup.removeAllViews();
         if (mdrugs != null) {
             Medicine curDrug = mdrugs.get(position);
             holder.medi = curDrug;
@@ -51,7 +53,9 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
                 Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
             else
                 holder.imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.default_img, context.getTheme()));
+
             holder.will_takes = times.get(curDrug.getCode());
+            holder.will_takes.clear();
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
