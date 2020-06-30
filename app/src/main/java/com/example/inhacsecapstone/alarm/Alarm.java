@@ -1,24 +1,13 @@
 package com.example.inhacsecapstone.alarm;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.os.PersistableBundle;
-import android.util.Log;
 
-import com.example.inhacsecapstone.Entity.Medicine;
-import com.example.inhacsecapstone.cameras.Camera;
 import com.example.inhacsecapstone.drugs.AppDatabase;
-import com.google.gson.Gson;
 
-import java.lang.reflect.Array;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -69,7 +58,7 @@ public class Alarm {
         for(String iter : s)
         {
             Calendar calendar = Calendar.getInstance();
-            String hour_min[] = iter.split(":");
+            String[] hour_min = iter.split(":");
             ArrayList<Integer> code = info.get(iter);
             int [] code_arr = new int[code.size()];
             for(int i = 0; i < code.size(); i++)

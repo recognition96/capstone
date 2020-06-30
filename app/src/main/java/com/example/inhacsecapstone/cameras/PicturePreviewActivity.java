@@ -56,12 +56,84 @@ import okhttp3.Response;
 
 public class PicturePreviewActivity extends AppCompatActivity implements View.OnClickListener {
     private static PictureResult picture;
-    Bitmap mbitmap;
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull android.os.Message msg) throws JsonIOException, JsonSyntaxException {
+            String notiTitle = null;
+            String notiText = null;
+            Intent intent = new Intent(PicturePreviewActivity.this, RecogResultActivity.class);
+
+            if (msg.what == 1) {
+                String OCR_Result = (String) msg.obj;
+                Gson gson = new GsonBuilder().create();
+                JsonParser parser = new JsonParser();
+                try {
+                    JsonElement rootObject = parser.parse(OCR_Result)
+                            .getAsJsonObject().get("drugs");
+                    Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
+                    for (int i = 0; i < drugs.length; i++) {
+                        System.out.println(drugs[i].printres());
+                    }
+                    intent.putExtra("drugs", drugs);
+                    notiTitle = "처방전 결과가 도착했습니다!";
+                    notiText = "알림을 눌러 결과를 확인하실 수 있습니다.";
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    notiTitle = "처방전 인식을 실패했습니다.";
+                    notiText = "다시 시도해주세요.";
+                }
+            } else {
+                notiTitle = "서버 연결에 실패했습니다.";
+                notiText = "다시 시도해주세요.";
+            }
+
+            PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                    intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            NotificationManager nm = getApplicationContext().getSystemService(NotificationManager.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                String channelName = "채널";
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                NotificationChannel channel = new NotificationChannel("result", channelName, importance);
+                nm.createNotificationChannel(channel);
+            }
+            NotificationCompat.Builder builder =
+                    new NotificationCompat.Builder(getApplicationContext(), "result");
+            builder.setSmallIcon(R.drawable.ic_alarm_add_black_48dp)
+                    .setContentTitle(notiTitle)
+                    .setContentText(notiText)
+                    .setWhen(System.currentTimeMillis())
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
+                    .setContentIntent(pIntent)
+                    .setAutoCancel(true);
+            if (intent.getSerializableExtra("drugs") == null) Log.d("@@@", "already null");
+
+            PowerManager.WakeLock sCpuWakeLock = null;
+            PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+            sCpuWakeLock = pm.newWakeLock(
+                    PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
+                            PowerManager.ACQUIRE_CAUSES_WAKEUP |
+                            PowerManager.ON_AFTER_RELEASE, "Tag: for PowerManager");
+            sCpuWakeLock.acquire(60 * 1000L /*1 minutes*/);
+            sCpuWakeLock.release();
+
+            if (msg.what == 1) {
+                nm.notify(-1, builder.build());
+                return true;
+            } else {
+                nm.notify(-1, builder.build());
+                return false;
+            }
+        }
+    });
     private HttpConnection httpConn = HttpConnection.getInstance();
+
 
     public static void setPictureResult(@Nullable PictureResult pictureResult) {
         picture = pictureResult;
     }
+
+    private Bitmap mBitmap;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,46 +148,50 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
         final Uri uri = getIntent().getParcelableExtra("imageUri");
         final PictureResult result = picture;
         final ImageView imageView = findViewById(R.id.image);
-        if (result == null && uri == null) {
-            finish();
-            return;
-        } else if (result == null && uri != null) {
-            imageView.setImageURI(uri);
-            try {
-                mbitmap = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else if (result != null && uri == null) {
-            try {
-                result.toBitmap(5000, 5000, new BitmapCallback() {
-                    @Override
-                    public void onBitmapReady(Bitmap bitmap) {
-                        imageView.setImageBitmap(bitmap);
-                        mbitmap = bitmap;
-                    }
-                });
-            } catch (UnsupportedOperationException e) {
-                imageView.setImageDrawable(new ColorDrawable(Color.GREEN));
-                Toast.makeText(this, "Can't preview this format: " + picture.getFormat(),
-                        Toast.LENGTH_LONG).show();
-            }
 
-            // Log the real size for debugging reason.
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeByteArray(result.getData(), 0, result.getData().length, options);
+        if (result != null || uri != null) {
+            if (result == null) {
+                imageView.setImageURI(uri);
+                try {
+                    mBitmap = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (uri == null) {
+                try {
+                    result.toBitmap(5000, 5000, new BitmapCallback() {
+                        @Override
+                        public void onBitmapReady(Bitmap bitmap) {
+                            imageView.setImageBitmap(bitmap);
+                            mBitmap = bitmap;
+                        }
+                    });
+                } catch (UnsupportedOperationException e) {
+                    imageView.setImageDrawable(new ColorDrawable(Color.GREEN));
+                    Toast.makeText(this, "Can't preview this format: " + picture.getFormat(),
+                            Toast.LENGTH_LONG).show();
+                }
 
-            Log.d("@@@", "The picture full size is " + result.getSize().getHeight() + "x" + result.getSize().getWidth());
-            if (result.getRotation() % 180 != 0) {
-                Log.e("PicturePreview", "The picture full size is " + result.getSize().getHeight() + "x" + result.getSize().getWidth());
-            } else {
-                Log.e("PicturePreview", "The picture full size is " + result.getSize().getWidth() + "x" + result.getSize().getHeight());
+                // Log the real size for debugging reason.
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(result.getData(), 0, result.getData().length, options);
+
+                Log.d("@@@", "The picture full size is " + result.getSize().getHeight() +
+                        "x" + result.getSize().getWidth());
+                if (result.getRotation() % 180 != 0) {
+                    Log.e("PicturePreview", "The picture full size is "
+                            + result.getSize().getHeight() + "x" + result.getSize().getWidth());
+                } else {
+                    Log.e("PicturePreview", "The picture full size is "
+                            + result.getSize().getWidth() + "x" + result.getSize().getHeight());
+                }
             }
         } else {
-            Log.d("plz", "PictureResult == Null && UriFromGallery == Null");
+            Log.d("@@@", "PictureResult == Null && UriFromGallery == Null");
+            finish();
+            return;
         }
-
         findViewById(R.id.send_button).setOnClickListener(this);
         findViewById(R.id.cancel_button).setOnClickListener(this);
     }
@@ -123,8 +199,8 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mbitmap.recycle();
-        mbitmap = null;
+        mBitmap.recycle();
+        mBitmap = null;
         if (!isChangingConfigurations()) {
             setPictureResult(null);
         }
@@ -135,11 +211,11 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
         int id = view.getId();
         if (id == R.id.send_button) {
             // 결과코드를 'RESULT_OK'로 세팅.
-            // 이후 이전 액티비티로 돌아가 onActivityResult()가 호출됨.
+            // 이전 액티비티 종료시켜 촬영화면이 아닌 애플리케이션의 메인화면으로 이동
             Log.d("TAG", "Choose this photo.. transfer to server");
             CameraActivity camera = (CameraActivity) CameraActivity.camera_activity;
             camera.finish();
-            sendImageToServer(mbitmap);
+            sendImageToServer(mBitmap);
             setResult(Activity.RESULT_OK);
             finish();
         } else if (id == R.id.cancel_button) {
@@ -162,89 +238,14 @@ public class PicturePreviewActivity extends AppCompatActivity implements View.On
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
 
         byte[] byteArray = stream.toByteArray();
-        multipartBodyBuilder.addFormDataPart("image", "Android_Flask_" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
+        multipartBodyBuilder.addFormDataPart("image", "Android_Flask_" + ".jpg",
+                RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
 
         RequestBody postBodyImage = multipartBodyBuilder.build();
         Toast.makeText(this, "사진이 처리될 때 까지 잠시만 기다려주세요.", Toast.LENGTH_LONG).show();
         postRequest(postUrl, postBodyImage);
 
     }
-
-    Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(@NonNull android.os.Message msg) throws JsonIOException, JsonSyntaxException {
-            String notiTitle = null;
-            String notiText = null;
-            Intent intent = new Intent(PicturePreviewActivity.this, RecogResultActivity.class);
-
-            if (msg.what == 1) {
-                String OCR_Result = (String) msg.obj;
-                Gson gson = new GsonBuilder().create();
-                JsonParser parser = new JsonParser();
-                try {
-                    JsonElement rootObject = parser.parse(OCR_Result)
-                            .getAsJsonObject().get("drugs");
-                    Drugs[] drugs = gson.fromJson(rootObject, Drugs[].class);
-                    for (int i = 0; i < drugs.length; i++) {
-                        System.out.println(drugs[i].printres());
-                    }
-                    intent.putExtra("drugs", drugs);
-                    notiTitle = "처방전 결과가 도착했습니다!";
-                    notiText = "알림을 눌러 결과를 확인하실 수 있습니다.";
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
-                    notiTitle = "처방전 인식을 실패했습니다.";
-                    notiText = "다시 시도해주세요.";
-                }
-            }
-            else {
-                notiTitle = "서버 연결에 실패했습니다.";
-                notiText = "다시 시도해주세요.";
-            }
-
-            PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), 0,
-                    intent, PendingIntent.FLAG_CANCEL_CURRENT);
-            NotificationManager nm = getApplicationContext().getSystemService(NotificationManager.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                String channelName = "채널";
-                int importance = NotificationManager.IMPORTANCE_HIGH;
-                NotificationChannel channel = new NotificationChannel("result", channelName, importance);
-                nm.createNotificationChannel(channel);
-            }
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "result");
-            builder.setSmallIcon(R.drawable.ic_alarm_add_black_48dp)
-                    .setContentTitle(notiTitle)
-                    .setContentText(notiText)
-                    .setWhen(System.currentTimeMillis())
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
-                    .setContentIntent(pIntent)
-                    .setAutoCancel(true);
-            if (intent.getSerializableExtra("drugs") == null) Log.d("@@@", "already null");
-
-            PowerManager.WakeLock sCpuWakeLock = null;
-            if (sCpuWakeLock != null) { return false; }
-            PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
-            sCpuWakeLock = pm.newWakeLock(
-                    PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
-                            PowerManager.ACQUIRE_CAUSES_WAKEUP |
-                            PowerManager.ON_AFTER_RELEASE, "Tag: for PowerManager");
-            sCpuWakeLock.acquire(60 * 1000L /*1 minutes*/);
-            if (sCpuWakeLock != null) {
-                sCpuWakeLock.release();
-                sCpuWakeLock = null;
-            }
-
-            if (msg.what == 1) {
-                nm.notify(-1, builder.build());
-                return true;
-            } else {
-                nm.notify(-1, builder.build());
-                return false;
-            }
-        }
-    });
 
     void postRequest(String postUrl, RequestBody postBody) {
         OkHttpClient client = new OkHttpClient.Builder()

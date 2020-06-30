@@ -5,25 +5,20 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
-import androidx.legacy.content.WakefulBroadcastReceiver;
 
 import com.example.inhacsecapstone.Entity.Medicine;
 import com.example.inhacsecapstone.R;
 import com.example.inhacsecapstone.chatbot.MessengerActivity;
 import com.example.inhacsecapstone.drugs.AppDatabase;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -70,11 +65,9 @@ public class AlarmReceiver extends JobService {
         NotificationManager nm = context.getSystemService(NotificationManager.class);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String channelName = "채널 " + String.valueOf(noti_cnt);
+            String channelName = "채널 " + noti_cnt;
             String description = "채널 디스크립션";
             int importance = NotificationManager.IMPORTANCE_HIGH;
-
-
             NotificationChannel channel = new NotificationChannel("1", channelName, importance);
             channel.setDescription(description);
             nm.createNotificationChannel(channel);
@@ -83,7 +76,7 @@ public class AlarmReceiver extends JobService {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1");
         builder.setSmallIcon(R.drawable.ic_alarm_add_black_48dp)
                 .setContentTitle("약 드실 시간입니다!")
-                .setContentText(medi.get(0).getName() + " 외 " + Integer.toString(medi.size()-1) + " 개")
+                .setContentText(medi.get(0).getName() + " 외 " + (medi.size() - 1) + " 개")
                 .setWhen(System.currentTimeMillis())
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_VIBRATE)

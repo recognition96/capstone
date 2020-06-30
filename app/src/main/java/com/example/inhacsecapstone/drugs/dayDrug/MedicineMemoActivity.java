@@ -37,6 +37,21 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
 
 
     private RecognitionListener STTlistener = new RecognitionListener() {
+
+        @Override
+        public void onResults(Bundle results) {
+            String key = SpeechRecognizer.RESULTS_RECOGNITION;
+            ArrayList<String> mResult = results.getStringArrayList(key);
+            String[] rs = new String[mResult.size()];
+            mResult.toArray(rs);
+            for (int i = 0; i < rs.length; i++) {
+                Log.d("@@@", rs[i] + "\n");
+            }
+            STTresult = rs[0];
+            et.setText(STTresult);
+            mRecognizer.destroy();
+        }
+
         @Override
         public void onReadyForSpeech(Bundle bundle) {
         }
@@ -59,20 +74,6 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
 
         @Override
         public void onError(int i) {
-        }
-
-        @Override
-        public void onResults(Bundle results) {
-            String key = SpeechRecognizer.RESULTS_RECOGNITION;
-            ArrayList<String> mResult = results.getStringArrayList(key);
-            String[] rs = new String[mResult.size()];
-            mResult.toArray(rs);
-            for (int i = 0; i < rs.length; i++) {
-                Log.d("@@@", rs[i] + "\n");
-            }
-            STTresult = rs[0];
-            et.setText(STTresult);
-            mRecognizer.destroy();
         }
 
         @Override
@@ -129,12 +130,12 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
                 TextView textView = (TextView) v;
                 int hour = Integer.parseInt(textView.getText().toString().split(":")[0]);
                 int minuite = Integer.parseInt(textView.getText().toString().split(":")[1]);
-                TimePickerDialog dialog = new TimePickerDialog(MedicineMemoActivity.this, android.R.style.Theme_Holo_Light_Dialog, listener, hour, minuite, true);
+                TimePickerDialog dialog = new TimePickerDialog(MedicineMemoActivity.this,
+                        android.R.style.Theme_Holo_Light_Dialog, listener, hour, minuite, true);
                 dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
             }
         });
-
 
         txtv_memo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,7 +171,8 @@ public class MedicineMemoActivity extends AppCompatActivity implements EventList
                                 if (!txtv_memo.getText().equals(null)) {
                                     texts = txtv_memo.getText().toString();
                                 }
-                                appDatabase.update(new Takes(medi.getCode(), day, h_m[0] + ":" + h_m[1], texts), h_m[0] + ":" + h_m[1]);
+                                appDatabase.update(new Takes(medi.getCode(), day, h_m[0] + ":"
+                                        + h_m[1], texts), h_m[0] + ":" + h_m[1]);
                                 dialog.dismiss();
 
                             }

@@ -3,12 +3,7 @@ package com.example.inhacsecapstone.cameras;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
 import android.graphics.PointF;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,21 +20,13 @@ import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraLogger;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.PictureResult;
-import com.otaliastudios.cameraview.controls.Preview;
-import com.otaliastudios.cameraview.frame.Frame;
-import com.otaliastudios.cameraview.frame.FrameProcessor;
-
-import java.io.ByteArrayOutputStream;
 
 
 public class CameraActivity extends AppCompatActivity implements View.OnClickListener {
 
     private final static CameraLogger LOG = CameraLogger.create("DemoApp");
-    private final static boolean USE_FRAME_PROCESSOR = true;
-    private final static boolean DECODE_BITMAP = false;
     private static final int SELECT_IMAGE = 1;
     private static final int SENDING_IMAGE = 2;
-    private static final int PREV_SUCC = 3;
     public static Activity camera_activity;
     private CameraView camera;
     private long mCaptureTime;
@@ -50,46 +37,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         camera_activity = CameraActivity.this;
         setContentView(R.layout.activity_camera);
         CameraLogger.setLogLevel(CameraLogger.LEVEL_VERBOSE);
-
         camera = findViewById(R.id.camera);
-
         camera.setLifecycleOwner(this);
-        Log.d("@@@", "After setlife");
         camera.addCameraListener(new Listener());
-        Log.d("@@@", "After addListener");
-
-        if (USE_FRAME_PROCESSOR) {
-            camera.addFrameProcessor(new FrameProcessor() {
-                private long lastTime = System.currentTimeMillis();
-
-                @Override
-                public void process(@NonNull Frame frame) {
-                    long newTime = frame.getTime();
-                    long delay = newTime - lastTime;
-                    lastTime = newTime;
-                    LOG.v("Frame delayMillis:", delay, "FPS:", 1000 / delay);
-                    if (DECODE_BITMAP) {
-                        if (frame.getFormat() == ImageFormat.NV21
-                                && frame.getDataClass() == byte[].class) {
-                            byte[] data = frame.getData();
-                            YuvImage yuvImage = new YuvImage(data,
-                                    frame.getFormat(),
-                                    frame.getSize().getWidth(),
-                                    frame.getSize().getHeight(),
-                                    null);
-                            ByteArrayOutputStream jpegStream = new ByteArrayOutputStream();
-                            yuvImage.compressToJpeg(new Rect(0, 0,
-                                    frame.getSize().getWidth(),
-                                    frame.getSize().getHeight()), 100, jpegStream);
-                            byte[] jpegByteArray = jpegStream.toByteArray();
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(jpegByteArray,
-                                    0, jpegByteArray.length);
-
-                        }
-                    }
-                }
-            });
-        }
 
         findViewById(R.id.guideline);
         findViewById(R.id.takeFromGallery).setOnClickListener(this);
@@ -104,7 +54,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             // 앨범에서 성공적으로 사진을 가져왔을 경우
             Log.d("Camera result", "cause IMAGE Chosen..");
             if (data != null) {
-                Uri selectedImageUri = data.getData();
                 sendImageToPrev(data.getData());
             }
             else {
@@ -169,10 +118,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     public void capturePictureSnapshot() {
         if (camera.isTakingPicture()) return;
-        if (camera.getPreview() != Preview.GL_SURFACE) {
-            message("Picture snapshots are only allowed with the GL_SURFACE preview.", true);
-            return;
-        }
         mCaptureTime = System.currentTimeMillis();
         camera.setPlaySounds(false);
         camera.takePicture();

@@ -54,14 +54,6 @@
         <activity android:name=".initial.InformationSetting" />
         <activity android:name=".MainActivity" />
 
-        <receiver
-            android:name=".alarm.BootReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
         <service
             android:name=".alarm.AlarmReceiver"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
