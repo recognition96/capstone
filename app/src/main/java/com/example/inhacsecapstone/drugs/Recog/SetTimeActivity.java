@@ -49,8 +49,17 @@ public class SetTimeActivity extends AppCompatActivity {
             finish();
         }
         HashMap<Integer, ArrayList<String>> times = new HashMap<Integer, ArrayList<String>>();
-        for(int i =0; i < medis.size(); i++)
-            times.put(medis.get(i).getCode(), new ArrayList<String>());
+        for(int i =0; i < medis.size(); i++){
+            ArrayList<String> temp = new ArrayList<String>();
+            times.put(medis.get(i).getCode(), temp);
+
+            for(int j= 0; j < medis.get(i).getDailyDose(); j++){
+                int gap = 14*60/medis.get(i).getDailyDose();
+                int cur = gap*j + 8*60;
+                String time = Integer.toString(cur/60) + ":" +  Integer.toString(cur%60);
+                temp.add(time);
+            }
+        }
         am = new Alarm(this);
         mRecyclerView = this.findViewById(R.id.RecyclerView);
         adapter = new SetTimeListAdapter(this, medis, times);

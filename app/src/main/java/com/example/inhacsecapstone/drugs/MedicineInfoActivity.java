@@ -103,7 +103,7 @@ public class MedicineInfoActivity extends AppCompatActivity {
                 String str = Integer.toString(hourOfDay) + ":" + Integer.toString(minute);
                 appDatabase.insertTempTake(medi.getCode(), str);
                 appDatabase.insertWillTake(medi.getCode(), str);
-
+                alarm.setAlarm();
                 chipGroup.removeView(addChip);
                 createChip(medi.getCode(), str, chipGroup);
                 chipGroup.addView(addChip);

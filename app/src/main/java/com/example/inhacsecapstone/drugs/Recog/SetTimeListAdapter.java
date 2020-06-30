@@ -20,6 +20,7 @@ import com.example.inhacsecapstone.drugs.MedicineInfoActivity;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -44,6 +45,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
 
     @Override
     public void onBindViewHolder(SetTimeListAdapter.SetTimeListHolders holder, int position) {
+        holder.chipGroup.removeAllViews();
         if (mdrugs != null) {
             Medicine curDrug = mdrugs.get(position);
             holder.medi = curDrug;
@@ -51,7 +53,9 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
                 Glide.with(context).load(curDrug.getImage()).into(holder.imageView);
             else
                 holder.imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.default_img, context.getTheme()));
+
             holder.will_takes = times.get(curDrug.getCode());
+            // holder.will_takes.clear();
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -70,12 +74,8 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
                     context.startActivity(intent);
                 }
             });
-
-            for(int i = 0; i < curDrug.getDailyDose(); i++){
-                int gap = 14*60/curDrug.getDailyDose();
-                int cur = gap*i + 8*60;
-                String time = Integer.toString(cur/60) + ":" +  Integer.toString(cur%60);
-                createChip(holder.will_takes, i, holder.chipGroup, time);
+            for(int i = 0; i < holder.will_takes.size(); i++){
+                createChip(holder.will_takes, i, holder.chipGroup, holder.will_takes.get(i));
             }
             Chip addChip = new Chip(context);
             addChip.setChipBackgroundColorResource(R.color.colorAccent);
@@ -89,6 +89,7 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
 
                     holder.chipGroup.removeView(addChip);
                     createChip(holder.will_takes, holder.will_takes.size() - 1,holder.chipGroup, time);
+                    holder.will_takes.add(time);
                     holder.chipGroup.addView(addChip);
                 }
             };
@@ -160,7 +161,6 @@ public class SetTimeListAdapter extends RecyclerView.Adapter<SetTimeListAdapter.
             }
         });
         chipGroup.addView(chip);
-        will_takes.add(str);
     }
 
     public void showImage(String url) {
